@@ -55,4 +55,4 @@ class Telegraf(RemoteApplication):
         this_host = self.inv["all"]["hosts"][node.host]
         self.inv.setdefault("minecraft_servers", {}).setdefault("hosts", {})[
             node.host
-        ] = this_host
+        ] = this_host 

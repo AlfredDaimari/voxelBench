@@ -1,7 +1,7 @@
 ---
 - name: Start Telegraf
   gather_facts: true
-  hosts: all
+  hosts: worker
 
   tasks:
     - name: Find executable

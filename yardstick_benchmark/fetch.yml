@@ -1,7 +1,7 @@
 ---
 - name: Get data from nodes
   gather_facts: true
-  hosts: all
+  hosts: worker
   tasks:
     - name: Get data from nodes
       ansible.posix.synchronize:

@@ -7,6 +7,7 @@ import string
 import random
 import os
 from typing import Optional
+import configparser
 
 
 @dataclass(frozen=True)
@@ -14,6 +15,10 @@ class Node(object):
     host: str
     wd: Path
 
+def get_worker_nodes() -> list[str]:
+    config = configparser.ConfigParser()
+    config.read(f"{os.getcwd()}/ansible/inventory")
+    return [worker.split(' ')[0] for worker in config["worker"] ]
 
 def _gen_wd_name(name, node_wd) -> str:
     alphabet = string.ascii_lowercase + string.digits
@@ -52,11 +57,11 @@ class RemoteAction(object):
     def run(self):
         assert self.script.is_file()
 
-        self.private_data_dir = tempfile.mkdtemp(prefix="yardstick-")
+        self.private_data_dir = os.getcwd() + "/ansible"
+
         res = ansible_runner.interface.run(
             private_data_dir=self.private_data_dir,
             playbook=str(self.script),
-            inventory=self.inv,
             envvars=self.envvars,
             extravars=self.extravars,
             settings={
@@ -65,7 +70,7 @@ class RemoteAction(object):
                 "deprecation_warnings": False,
             },
         )
-        shutil.rmtree(self.private_data_dir)
+        #shutil.rmtree(self.private_data_dir)
         return res
 
 

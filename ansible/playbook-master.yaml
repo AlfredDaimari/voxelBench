@@ -1,0 +1,224 @@
+# setup master node
+- name: Setup master node
+  hosts: master
+  tags: setup_master
+
+  tasks:
+    - name: Update packages
+      become: yes
+      become_user: root
+      become_method: sudo
+      apt:
+        update_cache: yes
+
+    - name: Setup java environment
+      become: yes
+      become_user: root
+      become_method: sudo
+      apt:
+        name: openjdk-17-jdk-headless
+
+    - name: Setup multipaper master world working directory
+      file:
+        path: ~/master
+        state: directory
+        mode: "0755"
+
+    - name: Setup velocity working directory
+      file:
+        path: ~/velocity
+        state: directory
+        mode: "0755"
+
+    - name: Deploy velocity.toml
+      when: true
+      copy:
+        dest: ~/velocity/velocity.toml
+        content: |
+          # Velocity Configuration
+          config-version = "2.7"
+
+          # Bind address and port
+          bind = "0.0.0.0:25565"
+
+          # Server MOTD (MiniMessage format only)
+          motd = "<#09add3>A Velocity Server"
+
+          # Player display settings
+          show-max-players = 500
+
+          # Online authentication
+          online-mode = true
+          prevent-client-proxy-connections = false
+
+          # Player forwarding mode: NONE
+          player-info-forwarding-mode = "NONE"
+          forwarding-secret-file = "forwarding.secret"
+
+          # Modded server support
+          announce-forge = false
+
+          # Duplicate connection policy
+          kick-existing-players = false
+
+          # Ping passthrough: disabled, mods, description, all
+          ping-passthrough = "DISABLED"
+
+          # Compression and timeouts
+          compression-threshold = 256
+          compression-level = -1
+          connection-timeout = 5000
+          read-timeout = 30000
+
+          # Rate limits
+          login-ratelimit = 3000
+          command-rate-limit = 50
+          forward-commands-if-rate-limited = true
+          kick-after-rate-limited-commands = 0
+          tab-complete-rate-limit = 10
+          kick-after-rate-limited-tab-completes = 0
+
+          # Advanced network settings
+          haproxy-protocol = false
+          tcp-fast-open = false
+          bungee-plugin-message-channel = true
+          failover-on-unexpected-server-disconnect = true
+          announce-proxy-commands = true
+          accepts-transfers = false
+          enable-reuse-port = false
+
+          # Query settings
+          [query]
+          enabled = true
+          port = 25565
+          map = "Velocity"
+          show-plugins = false
+
+          # Server definitions
+          [servers]
+          # Add your server names and IP addresses here, e.g.:
+          # myserver = "127.0.0.1:25566"
+          
+          [forced-hosts]
+ 
+    - name: Deploy forwarding.secret
+      when: true
+      copy:
+        dest: ~/velocity/forwarding.secret
+        content: |
+          secret
+
+    - name: Create velocity plugins directory
+      file:
+        path: ~/velocity/plugins
+        state: directory
+        mode: "0755"
+
+    - name: Download velocity load balancer
+      get_url:
+        url: "https://api.papermc.io/v2/projects/velocity/versions/3.4.0-SNAPSHOT/builds/496/downloads/velocity-3.4.0-SNAPSHOT-496.jar"
+        dest: "~/velocity/velocity-3.4.0-SNAPSHOT-496.jar"
+
+    - name: Download multipaper master as a velocity plugin
+      get_url:
+        url: "https://api.multipaper.io/v2/projects/multipaper/versions/1.20.1/builds/57/downloads/multipaper-master-2.12.3-all.jar"
+        dest: "~/velocity/plugins/multipaper-master-2.12.3-all.jar"
+
+    - name: Download minecraft world
+      when: false
+      get_url:
+        url: "https://www.minecraftmaps.com/?task=download.send&id=50433:the-bat&catid=2"
+        dest: "~/velocity/plugins/"
+
+    # download the dasel cli
+    - name: Download dasel cli
+      become: yes
+      become_user: root
+      become_method: sudo
+      shell: |
+        curl -sSLf "$(curl -sSLf https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | grep -v .gz | cut -d\" -f 4)" -L -o dasel && chmod a+x dasel
+        mv ./dasel /usr/local/bin/dasel
+
+    # generate velocity toml template
+    - name: Run velocity for template
+      when: false
+      command: java -jar velocity-3.4.0-SNAPSHOT-496.jar
+      async: 40
+      poll: 0
+      args:
+        chdir: ~/velocity
+
+    # wait for velocity toml generation
+    - name: Wait for velocity template run
+      when: false
+      pause:
+        seconds: 15
+
+    - name: Gracefully shutdown velocity
+      when: false
+      command: pkill -SIGTERM -f "java -jar velocity-3.4.0-SNAPSHOT-496.jar"
+      ignore_errors: true
+
+    # copy the minecraft world settings file to the multipaper master velocity directory
+
+- name: Run master node
+  hosts: master
+  tags: run_master
+
+  tasks:
+    - name: Remove default servers, forced-hosts from velocity.toml file
+      shell: |
+        dasel delete -f velocity.toml -r toml servers
+        #dasel delete -f velocity.toml -r toml 'forced-hosts'
+        dasel delete -f velocity.toml -r toml try
+      args:
+        chdir: ~/velocity
+      ignore_errors: true
+
+    - name: Add worker servers in velocity.toml file
+      shell: |
+        vms=""
+        read -a servers <<< "{{servers}}"
+        length={{length}}
+        for ((i=0; i<$length; i+=2))
+        do
+          ip=${servers[$i]}
+          ind=$((i+1))
+          vm=${servers[$ind]}
+          dasel put -f velocity.toml -r toml -v "${ip}:25565" "servers.$vm"
+          vms="\"${vm}\", ${vms}"
+        done
+        vms=$(echo -e $vms | sed 's/ $//')
+        vms=$(echo -e $vms | sed 's/,$//')
+        echo -e $vms
+        echo -e "\ntry=[$vms]" >> velocity.toml
+      args:
+        chdir: ~/velocity
+        executable: /bin/bash
+
+    - name: Run multipaper master
+      shell: nohup java -jar velocity-3.4.0-SNAPSHOT-496.jar </dev/null >/dev/null &
+      args:
+        chdir: ~/velocity
+
+# shutdown master multipaper
+- name: Shutdown multipaper
+  hosts: master
+  tags: shut_master
+
+  tasks:
+    - name: Shutdown nohup multipaper velocity
+      command: pkill -SIGTERM -f "java -jar velocity-3.4.0-SNAPSHOT-496.jar"
+      ignore_errors: true
+
+
+# for debugging variables
+- name: Debug master node ansible file
+  hosts: master
+  tags: debug_master
+
+  tasks:
+    - name: Test inventory file variables
+      when: true
+      debug:
+        msg: Worker IDs are ({{servers}})

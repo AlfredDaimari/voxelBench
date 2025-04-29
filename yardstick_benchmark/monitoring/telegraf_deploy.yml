@@ -1,7 +1,7 @@
 ---
 - name: Deploy Telegraf
   gather_facts: true
-  hosts: all
+  hosts: worker
   tasks:
     - name: Create Telegraf directory
       file:
@@ -17,9 +17,10 @@
       template:
         src: "{{config_template}}"
         dest: "{{wd}}/telegraf-{{inventory_hostname}}.conf"
+
 - name: Deploy Minecraft tick collection execd input script
   gather_facts: true
-  hosts: minecraft_servers
+  hosts: worker
   tasks:
     - name: Copy Minecraft tick collection input script
       copy:

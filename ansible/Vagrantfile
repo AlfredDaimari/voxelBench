@@ -1,0 +1,41 @@
+# - * - mode: ruby - * -
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+    config.vm.box = "generic/ubuntu2204"
+    
+    # master vm
+    config.vm.define "vm1" do |vm1|
+      vm1.vm.hostname = "vm1"
+      vm1.vm.provider :libvirt do |libvirt|
+        libvirt.default_prefix = ""
+        libvirt.memory = 2048
+        libvirt.storage :file, :path => "disk_vm1.qcow2", :size => '10G', :type => 'qcow2', :allow_existing => true 
+      end
+    end
+
+    # worker vms
+    ["vm2", "vm3"].each do |vm_name|
+      config.vm.define vm_name do |vm|
+        vm.vm.hostname = vm_name
+        vm.vm.provider :libvirt do |libvirt|
+          libvirt.default_prefix = ""
+          libvirt.memory = 2048
+          libvirt.storage :file, :path => "disk_#{vm_name}.qcow2", :size => '10G', :type => 'qcow2', :allow_existing => true 
+        end
+      end
+    end
+
+    # bot vms
+    ["vm4"].each do |vm_name|
+      config.vm.define vm_name do |vm|
+        vm.vm.hostname = vm_name
+        vm.vm.provider :libvirt do |libvirt|
+          libvirt.default_prefix = ""
+          libvirt.memory = 2048
+          libvirt.storage :file, :path => "disk_#{vm_name}.qcow2", :size => '10G', :type => 'qcow2', :allow_existing => true 
+        end
+      end
+    end
+        
+end

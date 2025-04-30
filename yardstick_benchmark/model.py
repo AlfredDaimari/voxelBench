@@ -15,6 +15,10 @@ class Node(object):
     host: str
     wd: Path
 
+@dataclass(frozen=True)
+class NodeVagrant(object):
+    host: str
+
 def get_worker_nodes() -> list[str]:
     config = configparser.ConfigParser()
     config.read(f"{os.getcwd()}/ansible/inventory")
@@ -26,29 +30,35 @@ def _gen_wd_name(name, node_wd) -> str:
     return str(node_wd / f"{name}-{hash}")
 
 
-def _gen_inv(name: str, nodes: list[Node]) -> dict:
-    hosts = {
-        node.host: {"node_wd": str(node.wd), "wd": _gen_wd_name(name, node.wd)}
-        for node in nodes
-    }
-    return {"all": {"hosts": hosts}}
+def _gen_inv(name: str, nodes: list[Node] | list[NodeVagrant]) -> dict:
+    if isinstance(nodes[0], Node):
+        hosts = {
+            node.host: {"node_wd": str(node.wd), "wd": _gen_wd_name(name, node.wd)}
+            for node in nodes
+        }
+        return {"all": {"hosts": hosts}}
+    else:
+        return {}
 
 
 class RemoteAction(object):
     def __init__(
         self,
         name: str,
-        nodes: list[Node],
+        nodes: list[Node] | list[NodeVagrant],
         script: Path,
         envvars: dict = {},
         extravars: dict = {},
         inv: Optional[dict] = None,
     ):
         self.name = name
-        self.hosts = {
-            node.host: {"node_wd": node.wd, "wd": _gen_wd_name(name, node.wd)}
-            for node in nodes
-        }
+        if isinstance(nodes[0], Node):
+            self.hosts = {
+                node.host: {"node_wd": node.wd, "wd": _gen_wd_name(name, node.wd)}
+                for node in nodes
+            }
+        else:
+            self.hosts = {}
         self.inv = inv if inv is not None else _gen_inv(name, nodes)
         self.script = script
         self.envvars = envvars
@@ -66,7 +76,7 @@ class RemoteAction(object):
             extravars=self.extravars,
             settings={
                 "pipelining": True,
-                "ssh_args": "-o ControlMaster=auto -o ControlPersist=60s",
+                "ssh_args": "-o ControlMaster=auto -o ControlPersist=60s -o IdentitiesOnly=yes -o StrictHostChecking=no",
                 "deprecation_warnings": False,
             },
         )
@@ -78,7 +88,7 @@ class RemoteApplication(object):
     def __init__(
         self,
         name: str,
-        nodes: list[Node],
+        nodes: list[Node] | list[NodeVagrant],
         deploy_script: Path,
         start_script: Path,
         stop_script: Path,
@@ -87,7 +97,7 @@ class RemoteApplication(object):
         extravars: dict = {},
     ):
         self.nodes = nodes
-        self.inv = _gen_inv(name, nodes)
+        self.inv = _gen_inv(name, nodes) 
         self.envvars = envvars
         self.extravars = extravars
         self.deploy_action = RemoteAction(

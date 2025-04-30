@@ -1,4 +1,4 @@
-from yardstick_benchmark.model import Node, get_worker_nodes
+from yardstick_benchmark.model import Node, NodeVagrant,get_worker_nodes
 from yardstick_benchmark.provisioning import Das
 from yardstick_benchmark.monitoring import Telegraf
 from yardstick_benchmark.games.minecraft.server import PaperMC
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     # das = Das()
     # We reserve 2 nodes.
     # nodes = das.provision(num=2)
-    nodes = [Node(node, Path(__file__)) for node in get_worker_nodes()]
+    nodes = [NodeVagrant(node) for node in get_worker_nodes()]
 
     try:
         # Just in case, we remove data that may have been left from a previous run.
@@ -83,7 +83,8 @@ if __name__ == "__main__":
             .replace("-", "")
             .replace(":", "")
         )
-        dest = Path(f"/var/scratch/{os.getlogin()}/yardstick/{timestamp}")
+        # now fetch from each node instead
+        dest = Path(f"/home/{os.getlogin()}/yardstick/{timestamp}")
         yardstick_benchmark.fetch(dest, nodes)
     finally:
         yardstick_benchmark.clean(nodes)

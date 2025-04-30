@@ -4,9 +4,8 @@
   hosts: worker
   tasks:
     - name: Get data from nodes
-      ansible.posix.synchronize:
-        src: "{{node_wd}}"
-        dest: "{{dest}}"
-        mode: pull
+      fetch:
+        src: "{{wd}}/{{data_file}}"
+        dest: "{{dest}}/{{data_file}}"
     - debug:
-        msg: "Output files have been written to {{dest}}"
+        msg: "Output files have been written to {{dest}}/{{data_file}}"

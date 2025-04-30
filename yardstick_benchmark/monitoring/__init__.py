@@ -1,4 +1,4 @@
-from yardstick_benchmark.model import RemoteApplication, Node
+from yardstick_benchmark.model import RemoteApplication, Node, NodeVagrant
 import os
 from enum import Enum
 import sys
@@ -10,7 +10,7 @@ class Telegraf(RemoteApplication):
     (https://www.influxdata.com/time-series-platform/telegraf/) on remote nodes.
     """
 
-    def __init__(self, nodes: list[Node]):
+    def __init__(self, nodes: list[Node] | list[NodeVagrant]):
         """Create a new instance to run Telegraf on the given nodes.
 
         Args:
@@ -30,7 +30,7 @@ class Telegraf(RemoteApplication):
             },
         )
 
-    def add_input_jolokia_agent(self, node: Node):
+    def add_input_jolokia_agent(self, node: Node | NodeVagrant):
         """Configure Telegraf to run the Jolokia agent input on the given node.
         The node should be present in the list of nodes given when constructing
         this Telegraf object.
@@ -41,7 +41,7 @@ class Telegraf(RemoteApplication):
         assert node in self.nodes
         self.extravars.setdefault("jolokia2_agent", []).append(node.host)
 
-    def add_input_execd_minecraft_ticks(self, node: Node):
+    def add_input_execd_minecraft_ticks(self, node: Node | NodeVagrant):
         """Configure Telegraf to run an execd input on the given node to collect
         the tick duration metric from a Minecraft server.
 
@@ -52,7 +52,7 @@ class Telegraf(RemoteApplication):
         self.extravars["jolokia_get_minecraft_tick_script_path"] = os.path.join(
             os.path.dirname(__file__), "jolokia_get_minecraft_tick.py"
         )
-        this_host = self.inv["all"]["hosts"][node.host]
-        self.inv.setdefault("minecraft_servers", {}).setdefault("hosts", {})[
-            node.host
-        ] = this_host 
+        #this_host = self.inv["all"]["hosts"][node.host]
+        #self.inv.setdefault("minecraft_servers", {}).setdefault("hosts", {})[
+        #    node.host
+        #] = this_host 

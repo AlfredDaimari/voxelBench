@@ -34,7 +34,7 @@ for VM in $VM_NAMES; do
   then
     SERVERARGS="${SERVERARGS}$HOSTNAME $VM "
     ARGSLENGTH=$((ARGSLENGTH + 2))
-    worker="$VM ansible_host=$HOSTNAME ansible_user=$USER ansible_ssh_private_key_file=$KEY ansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no' wd=${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)\n$worker"
+    worker="$VM ansible_host=$HOSTNAME ansible_user=$USER ansible_ssh_private_key_file=$KEY ansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no' wd=${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1) data_file=metrics-${VM}.csv\n$worker"
   else
     bot="$VM ansible_host=$HOSTNAME ansible_user=$USER ansible_ssh_private_key_file=$KEY ansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no' wd=${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)\n$bot"
   fi

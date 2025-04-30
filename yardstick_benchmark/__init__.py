@@ -1,8 +1,8 @@
-from yardstick_benchmark.model import Node, RemoteAction
+from yardstick_benchmark.model import Node, NodeVagrant,RemoteAction
 from pathlib import Path
 
 
-def fetch(dest: Path, nodes: list[Node]):
+def fetch(dest: Path, nodes: list[Node] | list[NodeVagrant]):
     dest.mkdir(parents=True, exist_ok=True)
     return RemoteAction(
         "fetch",
@@ -12,7 +12,7 @@ def fetch(dest: Path, nodes: list[Node]):
     ).run()
 
 
-def clean(nodes: list[Node]):
+def clean(nodes: list[Node] | list[NodeVagrant]):
     return RemoteAction(
         "clean",
         nodes,

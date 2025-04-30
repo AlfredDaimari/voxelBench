@@ -102,7 +102,7 @@
   tasks:
     - name: Print hostname for worker
       debug:
-        msg: "Hostname is {{ansible_hostname}}"
+        msg: "Hostname is {{inventory_hostname}}"
 
 # SHUTDOWN
 - name: Shutdown workers

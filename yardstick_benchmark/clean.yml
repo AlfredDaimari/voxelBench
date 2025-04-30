@@ -5,5 +5,5 @@
   tasks:
     - name: Remove data from nodes
       file:
-        path: "{{node_wd}}"
+        path: "{{wd}}"
         state: absent

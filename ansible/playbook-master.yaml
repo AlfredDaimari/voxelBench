@@ -48,7 +48,7 @@
           show-max-players = 500
 
           # Online authentication
-          online-mode = true
+          online-mode = false
           prevent-client-proxy-connections = false
 
           # Player forwarding mode: NONE
@@ -123,6 +123,11 @@
       get_url:
         url: "https://api.multipaper.io/v2/projects/multipaper/versions/1.20.1/builds/57/downloads/multipaper-master-2.12.3-all.jar"
         dest: "~/velocity/plugins/multipaper-master-2.12.3-all.jar"
+
+    - name: Download velocity rcon plugin
+      get_url:
+        url: "https://github.com/ygtdmn/VelocityRcon/releases/download/v1.1/VelocityRcon.jar"
+        dest: "~/velocity/plugins/VelocityRcon.jar"
 
     - name: Download minecraft world
       when: false

@@ -6,10 +6,15 @@
   tasks:
     - name: Find executable
       shell: |
-        find {{wd}} -type f -executable -name telegraf
+        find -type f -executable -name telegraf
       register: find_telegraf
+      args:
+        chdir: "{{wd}}"
     - name: Run Telegraf
       shell:
         cmd: |
-          nohup {{find_telegraf.stdout}} --config telegraf-{{inventory_hostname}}.conf --pidfile {{wd}}/telegraf-{{inventory_hostname}}.pid &> telegraf.log &
+          nohup {{find_telegraf.stdout}} --config telegraf-{{inventory_hostname}}.conf --pidfile telegraf-{{inventory_hostname}}.pid &> telegraf.log &
+      args:
         chdir: "{{wd}}"
+        executable: /bin/bash
+

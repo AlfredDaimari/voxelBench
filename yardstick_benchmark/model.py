@@ -7,7 +7,8 @@ import string
 import random
 import os
 from typing import Optional
-import configparser
+import subprocess
+import json
 
 
 @dataclass(frozen=True)
@@ -19,10 +20,18 @@ class Node(object):
 class NodeVagrant(object):
     host: str
 
+def get_all_nodes() -> list[str]:
+    result = subprocess.run(['ansible-inventory','-i',f'{os.getcwd()}/ansible/inventory', '--list'], capture_output=True, text=True)
+    inventory = json.loads(result.stdout)
+    nodes = inventory["_meta"]["hostvars"]
+    return [node for node in nodes]
+
+
 def get_worker_nodes() -> list[str]:
-    config = configparser.ConfigParser()
-    config.read(f"{os.getcwd()}/ansible/inventory")
-    return [worker.split(' ')[0] for worker in config["worker"] ]
+    result = subprocess.run(['ansible-inventory','-i',f'{os.getcwd()}/ansible/inventory', '--list'], capture_output=True, text=True)
+    inventory = json.loads(result.stdout)
+    nodes : list[str] = inventory["worker"]["hosts"]
+    return nodes
 
 def _gen_wd_name(name, node_wd) -> str:
     alphabet = string.ascii_lowercase + string.digits

@@ -51,6 +51,7 @@ async function run() {
         host: host, // minecraft server ip
         username: `jeff-${bot_index}`, // minecraft username
         port: 25565,                // only set if you need a port that isn't 25565
+        auth: 'offline',
     })
     // bot.on("message", (jsonMsg, position, sender, verified) => console.log(jsonMsg))
     // bot._client.on("packet", (jsonMsg, meta, sender, verified) => {

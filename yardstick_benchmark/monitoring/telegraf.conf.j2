@@ -365,7 +365,7 @@
 
 {% if inventory_hostname in execd_minecraft_ticks %}
 [[inputs.execd]]
-  command = ["python3", "{{wd}}/jolokia_get_minecraft_tick.py"]
+  command = ["python3", "jolokia_get_minecraft_tick.py"]
   data_format = "csv"
   csv_header_row_count = 1
 {% endif %}

@@ -45,16 +45,19 @@ echo "[worker]" >> $OUTFILE
 echo -e "$worker" >> $OUTFILE
 echo "[bot]" >> $OUTFILE
 echo -e "$bot" >> $OUTFILE
-echo -e "Ansible inventory written to $OUTFILE \U1F44D"
+echo -e "hosts written to $OUTFILE ... \U2714"
 
 SERVERARGS=$(echo "$SERVERARGS" | xargs )
 echo "[master:vars]" >> $OUTFILE
 echo "servers=\"$SERVERARGS\"" >> $OUTFILE
 # need to also write down length because ansible does not allow the length command in bash
 echo "length=$ARGSLENGTH" >> $OUTFILE
-echo -e "Written velocity.toml master server vars to $OUTFILE \U1F44D"
+echo -e "written velocity.toml master server vars to $OUTFILE ... \U2714"
 echo -e "\n" >> $OUTFILE
-echo "[worker:vars]" >> $OUTFILE
+echo -e "[notmaster:children]\nworker\nbot" >> $OUTFILE
+echo -e "created notmaster group ... \U2714"
+echo -e "\n" >> $OUTFILE
+echo "[notmaster:vars]" >> $OUTFILE
 echo "master=$MASTER" >> $OUTFILE
-echo -e "Written velocity.toml worker server vars to $OUTFILE \U1F44D"
+echo -e "written notmaster server vars to $OUTFILE ... \U2714"
 

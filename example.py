@@ -1,4 +1,4 @@
-from yardstick_benchmark.model import Node, NodeVagrant,get_worker_nodes
+from yardstick_benchmark.model import Node, NodeVagrant, get_all_nodes,get_worker_nodes
 from yardstick_benchmark.provisioning import Das
 from yardstick_benchmark.monitoring import Telegraf
 from yardstick_benchmark.games.minecraft.server import PaperMC
@@ -8,7 +8,6 @@ from time import sleep
 from datetime import datetime
 from pathlib import Path
 import os
-import configparser
 
 if __name__ == "__main__":
 
@@ -46,7 +45,7 @@ if __name__ == "__main__":
         # # files.
         res = telegraf.deploy()
         # # Start Telegraf on all remote nodes.
-        #telegraf.start()
+        telegraf.start()
 
         ### System Under Test (SUT) ###
 
@@ -63,19 +62,20 @@ if __name__ == "__main__":
 
         ### WORKLOAD ###
 
-        #wl = WalkAround(nodes[1:], nodes[0].host, bots_per_node=10)
-        #wl.deploy()
-        #wl.start()
+        all_nodes = [ NodeVagrant(node) for node in get_all_nodes()]
+        wl = WalkAround(all_nodes[3:], nodes[0].host, bots_per_node=20)
+        wl.deploy()
+        wl.start()
 
-        sleep_time = 10
+        sleep_time = 50
         print(f"sleeping for {sleep_time} seconds")
         sleep(sleep_time)
 
         #papermc.stop()
         #papermc.cleanup()
 
-        # telegraf.stop()
-        # telegraf.cleanup()
+        telegraf.stop()
+        telegraf.cleanup()
 
         timestamp = (
             datetime.now()
@@ -87,5 +87,6 @@ if __name__ == "__main__":
         dest = Path(f"/home/{os.getlogin()}/yardstick/{timestamp}")
         yardstick_benchmark.fetch(dest, nodes)
     finally:
-        yardstick_benchmark.clean(nodes)
+        #yardstick_benchmark.clean(nodes)
         #das.release(nodes)
+        print()

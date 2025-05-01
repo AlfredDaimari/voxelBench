@@ -63,6 +63,16 @@
       command: pkill -SIGTERM -f "java -jar multipaper-1.20.1-57.jar"
       ignore_errors: true
 
+    - name: Download Jolokia JVM Agent
+      get_url:
+        url: https://search.maven.org/remotecontent?filepath=org/jolokia/jolokia-agent-jvm/2.0.3/jolokia-agent-jvm-2.0.3-javaagent.jar
+        dest: "~/worker/jolokia-agent-jvm-2.0.3-javaagent.jar"
+    
+    - name: Copy config file
+      template:
+        src: "./server.properties.j2"
+        dest: "~/worker/server.properties" 
+
 # only run this after setting up the jolokia backend and telemetry using yardstick on all worker nodes
 - name: Run worker
   hosts: worker
@@ -82,8 +92,7 @@
 
     - name: Gracefully shutdown worker template editing
       command: pkill -SIGTERM -f "java -DbungeecordName={{ansible_hostname}} -DmultipaperMasterAddress={{master}}:35353 -jar multipaper-1.20.1-57.jar"
-      ignore_errors:
-        true
+      ignore_errors: true
 
     - name: Edit eula.txt file
       command: sed -i 's/eula=false/eula=true/' eula.txt
@@ -91,7 +100,7 @@
         chdir: ~/worker
 
     - name: Run multipaper worker node using jolokia
-      shell: nohup java -jar multipaper-1.20.1-57.jar </dev/null >/dev/null &
+      shell: nohup java -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar multipaper-1.20.1-57.jar </dev/null >/dev/null &
       args:
         chdir: ~/worker
 
@@ -108,7 +117,7 @@
 - name: Shutdown workers
   hosts: worker
   tags: shut_worker
-    
+
   tasks:
-    - name: Shutdown nohup multipaper worker
-      command: pkill -SIGTERM -f "java -jar multipaper-1.20.1-57.jar"
+    - name: Shutdown nohup multipaper java jolokia worker
+      command: pkill -SIGTERM -f "java -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar multipaper-1.20.1-57.jar"

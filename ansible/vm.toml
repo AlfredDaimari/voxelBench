@@ -5,7 +5,7 @@ cpu=2
 [worker]
 memory=2048
 cpu=1
-total=1
+total=2
 
 [bot]
 memory=2048

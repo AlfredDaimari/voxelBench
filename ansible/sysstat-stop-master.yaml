@@ -1,0 +1,15 @@
+- name: Stop sysstat logging
+  hosts: master
+  tags: stop_sysstat
+
+  tasks:
+    - name: stop cpu, memory, disk, netowrk logging
+      shell: |
+        kill $(cat sar_cpu.pid)
+        kill $(cat sar_mem.pid)
+        kill $(cat sar_disk.pid)
+        kill $(cat sar_net.pid)
+      args:
+        chdir: ~/master
+        executable: /bin/bash
+

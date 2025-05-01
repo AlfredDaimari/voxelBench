@@ -1,0 +1,27 @@
+- name: Get data from master
+  hosts: master
+  tasks:
+    - name: Get cpu data
+      fetch:
+        src: "~/master/sar_cpu.log"
+        dest: "{{dest}}/sar_cpu.log"
+        flat: yes
+    
+    - debug:
+        msg: "Output files have been written to {{dest}}/sar_cpu.log"
+
+    - name: Get memory data
+      fetch:
+        src: "~/master/sar_mem.log"
+        dest: "{{dest}}/sar_mem.log"
+        flat: yes
+    - debug:
+        msg: "Output files have been written to {{dest}}/sar_mem.log"
+    
+    - name: Get net data
+      fetch:
+        src: "~/master/sar_net.log"
+        dest: "{{dest}}/sar_net.log"
+        flat: yes
+    - debug:
+        msg: "Output files have been written to {{dest}}/sar_net.log"

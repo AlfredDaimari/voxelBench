@@ -8,6 +8,7 @@ from time import sleep
 from datetime import datetime
 from pathlib import Path
 import os
+import shutil
 
 if __name__ == "__main__":
 
@@ -66,14 +67,16 @@ if __name__ == "__main__":
         wl = WalkAround(all_nodes[3:], nodes[0].host, bots_per_node=20)
         wl.deploy()
         wl.start()
+        yardstick_benchmark.start_sysstat_master(all_nodes[:1])
 
-        sleep_time = 50
+        sleep_time = 60
         print(f"sleeping for {sleep_time} seconds")
         sleep(sleep_time)
 
         #papermc.stop()
         #papermc.cleanup()
 
+        yardstick_benchmark.stop_sysstat_master(all_nodes[:1])
         telegraf.stop()
         telegraf.cleanup()
 
@@ -86,6 +89,12 @@ if __name__ == "__main__":
         # now fetch from each node instead
         dest = Path(f"/home/{os.getlogin()}/yardstick/{timestamp}")
         yardstick_benchmark.fetch(dest, nodes)
+        yardstick_benchmark.fetch_master(dest, all_nodes[:1])
+
+        # copy vm.toml file also to dest
+        vm_src = f"{os.getcwd()}/ansible/vm.toml"
+        shutil.copy(vm_src, dest / "vm.toml")
+
     finally:
         #yardstick_benchmark.clean(nodes)
         #das.release(nodes)

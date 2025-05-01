@@ -7,5 +7,6 @@
       fetch:
         src: "{{wd}}/{{data_file}}"
         dest: "{{dest}}/{{data_file}}"
+        flat: yes
     - debug:
         msg: "Output files have been written to {{dest}}/{{data_file}}"

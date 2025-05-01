@@ -1,0 +1,19 @@
+- name: Start sysstat logging
+  hosts: master
+  tags: start_sysstat
+
+  tasks:
+    - name: start cpu, memory, disk, network
+      shell: |
+        nohup sar -u 1 > sar_cpu.log &
+        echo $! > sar_cpu.pid
+        nohup sar -r 1 > sar_mem.log &
+        echo $! > sar_mem.pid
+        nohup sar -b 1 > sar_disk.log &
+        echo $! > sar_disk.pid
+        nohup sar -n TCP 1 > sar_net.log &
+        echo $! > sar_net.pid
+      args:
+        chdir: ~/master
+        executable: bash
+

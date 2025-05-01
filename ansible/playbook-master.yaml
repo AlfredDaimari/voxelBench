@@ -18,6 +18,21 @@
       apt:
         name: openjdk-17-jdk-headless
 
+    - name: Setup sysstat
+      become: yes
+      become_user: root
+      become_method: sudo
+      apt:
+        name: sysstat
+
+    - name: Enable systemd systat
+      become: yes
+      become_user: root
+      become_method: sudo
+      systemd_service:
+        state: started
+        name: sysstat
+
     - name: Setup multipaper master world working directory
       file:
         path: ~/master
@@ -215,7 +230,6 @@
     - name: Shutdown nohup multipaper velocity
       command: pkill -SIGTERM -f "java -jar velocity-3.4.0-SNAPSHOT-496.jar"
       ignore_errors: true
-
 
 # for debugging variables
 - name: Debug master node ansible file

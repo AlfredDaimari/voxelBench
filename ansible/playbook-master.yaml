@@ -60,14 +60,14 @@
           motd = "<#09add3>A Velocity Server"
 
           # Player display settings
-          show-max-players = 500
+          show-max-players = 11000
 
           # Online authentication
           online-mode = false
           prevent-client-proxy-connections = false
 
           # Player forwarding mode: NONE
-          player-info-forwarding-mode = "NONE"
+          player-info-forwarding-mode = "modern"
           forwarding-secret-file = "forwarding.secret"
 
           # Modded server support
@@ -220,6 +220,7 @@
       shell: nohup java -jar velocity-3.4.0-SNAPSHOT-496.jar </dev/null >/dev/null &
       args:
         chdir: ~/velocity
+        executable: /bin/bash
 
 # shutdown master multipaper
 - name: Shutdown multipaper

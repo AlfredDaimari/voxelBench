@@ -3,10 +3,17 @@
   gather_facts: true
   hosts: worker
   tasks:
-    - name: Get data from nodes
+    - name: Get telegraf data from nodes
       fetch:
         src: "{{wd}}/{{data_file}}"
         dest: "{{dest}}/{{data_file}}"
         flat: yes
+    
     - debug:
         msg: "Output files have been written to {{dest}}/{{data_file}}"
+    
+    - name: Get worker logs from nodes
+      fetch:
+        src: "~/worker/logs/latest.log"
+        dest: "{{dest}}/worker-{{inventory_hostname}}.log"
+        flat: yes

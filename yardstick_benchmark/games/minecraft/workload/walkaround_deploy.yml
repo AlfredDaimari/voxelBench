@@ -25,9 +25,9 @@
           wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
         fi
     
-    - name: Install node 18 and Mineflayer
+    - name: Install node 18 and Mineflayer and prismarine viewer
       shell: |
-        source ~/.nvm/nvm.sh && nvm install 18 && npm install mineflayer && npm install mineflayer-pathfinder
+        source ~/.nvm/nvm.sh && nvm install 18 && npm install mineflayer && npm install mineflayer-pathfinder && npm install PrismarineJS/node-canvas-webgl && npm install prismarine-viewer
       args:
         executable: /bin/bash
         chdir: "{{ wd }}"

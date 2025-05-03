@@ -21,9 +21,21 @@
     
     - name: Run Minecraft bot
       shell: |
-          source ~/.nvm/nvm.sh && nvm use 18 && node walkaround_bot.js | tee bot-{{ inventory_hostname }}.log && echo $! > bot-{{inventory_hostname}}.pid
+          source ~/.nvm/nvm.sh && 
+          nvm use 18 && 
+          nohup node walkaround_bot.js > bot-{{ inventory_hostname }}.log & 
+          echo $! > bot-{{inventory_hostname}}.pid
       args:
         chdir: "{{ wd }}"
         executable: /bin/bash
       environment:
         BOT_INDEX: "{{ groups['all'].index(inventory_hostname) }}"
+
+    - name: Run prismarine viewer
+      when: false
+      shell: |
+        source ~/.nvm/nvm.sh && nvm use 18 && nohup node bot_viewer.js >/dev/null &
+      args:
+        chdir: "{{ wd }}"
+        executable: /bin/bash
+      run_once: true # Only run one bot viewer

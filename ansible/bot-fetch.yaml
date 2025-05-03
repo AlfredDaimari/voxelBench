@@ -1,0 +1,9 @@
+- name: Get bot data from bots
+  gather_facts: true
+  hosts: bot
+  tasks:
+    - name: Get bot viewer data from bot node
+      fetch:
+        src: "{{wd}}/bot.mp4"
+        dest: "{{dest}}/bot.mp4"
+        flat: yes

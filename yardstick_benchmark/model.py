@@ -33,6 +33,12 @@ def get_worker_nodes() -> list[str]:
     nodes : list[str] = inventory["worker"]["hosts"]
     return nodes
 
+def get_master_host() -> str:
+    result = subprocess.run(['ansible-inventory','-i',f'{os.getcwd()}/ansible/inventory', '--list'], capture_output=True, text=True)
+    inventory = json.loads(result.stdout)
+    host: str = inventory["_meta"]["hostvars"]["vm1"]["ansible_host"]
+    return host
+
 def _gen_wd_name(name, node_wd) -> str:
     alphabet = string.ascii_lowercase + string.digits
     hash = "".join(random.choices(alphabet, k=8))

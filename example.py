@@ -1,14 +1,15 @@
-from yardstick_benchmark.model import Node, NodeVagrant, get_all_nodes,get_worker_nodes
+from yardstick_benchmark.model import Node, NodeVagrant, get_all_nodes, get_master_host,get_worker_nodes
 from yardstick_benchmark.provisioning import Das
 from yardstick_benchmark.monitoring import Telegraf
 from yardstick_benchmark.games.minecraft.server import PaperMC
 from yardstick_benchmark.games.minecraft.workload import WalkAround
 import yardstick_benchmark
 from time import sleep
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 import os
 import shutil
+import threading
 
 if __name__ == "__main__":
 
@@ -21,6 +22,7 @@ if __name__ == "__main__":
     # We reserve 2 nodes.
     # nodes = das.provision(num=2)
     nodes = [NodeVagrant(node) for node in get_worker_nodes()]
+    bots_per_node=20
 
     try:
         # Just in case, we remove data that may have been left from a previous run.
@@ -64,14 +66,20 @@ if __name__ == "__main__":
         ### WORKLOAD ###
 
         all_nodes = [ NodeVagrant(node) for node in get_all_nodes()]
-        wl = WalkAround(all_nodes[3:], nodes[0].host, bots_per_node=20)
+        wl = WalkAround(all_nodes[3:], nodes[0].host, bots_per_node=bots_per_node, duration=timedelta(minutes=15))
         wl.deploy()
-        wl.start()
         yardstick_benchmark.start_sysstat_master(all_nodes[:1])
+        wl.start()
+   
+        # Run total player count before sleep
+        sleep_time = 60 * 15
+        master_host = get_master_host()
+        thread = threading.Thread(target=yardstick_benchmark.query_players, args=(master_host,sleep_time))
 
-        sleep_time = 60
         print(f"sleeping for {sleep_time} seconds")
+        thread.start()
         sleep(sleep_time)
+        thread.join()
 
         #papermc.stop()
         #papermc.cleanup()
@@ -90,10 +98,16 @@ if __name__ == "__main__":
         dest = Path(f"/home/{os.getlogin()}/yardstick/{timestamp}")
         yardstick_benchmark.fetch(dest, nodes)
         yardstick_benchmark.fetch_master(dest, all_nodes[:1])
+        #yardstick_benchmark.fetch_bot(dest, all_nodes[3:])
 
         # copy vm.toml file also to dest
         vm_src = f"{os.getcwd()}/ansible/vm.toml"
         shutil.copy(vm_src, dest / "vm.toml")
+        shutil.move('./player_count.log', dest / 'player_count.log')
+        
+        # write the bots per node setting
+        with open(f"/home/{os.getlogin()}/yardstick/{timestamp}/vm.toml", "a") as f:
+            f.write(f"\n[bots_per_node]\n{bots_per_node}\n")
 
     finally:
         #yardstick_benchmark.clean(nodes)

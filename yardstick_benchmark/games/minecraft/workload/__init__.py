@@ -31,6 +31,7 @@ class WalkAround(RemoteApplication):
                     str(Path(__file__).parent / "set_spawn.js"),
                     str(Path(__file__).parent / "walkaround_bot.js"),
                     str(Path(__file__).parent / "walkaround_worker_bot.js"),
+                    str(Path(__file__).parent / "bot_viewer.js"),
                 ],
                 "duration": duration.total_seconds(),
                 "mc_host": server_host,

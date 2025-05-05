@@ -21,10 +21,11 @@
     
     - name: Run Minecraft bot
       shell: |
-          source ~/.nvm/nvm.sh && 
-          nvm use 18 && 
-          nohup node walkaround_bot.js > bot-{{ inventory_hostname }}.log & 
+          bash -i << EOF
+          nohup node walkaround_bot.js > bot-{{ inventory_hostname }}.log 2>&1 </dev/null & 
           echo $! > bot-{{inventory_hostname}}.pid
+          exit
+          EOF
       args:
         chdir: "{{ wd }}"
         executable: /bin/bash
@@ -34,7 +35,7 @@
     - name: Run prismarine viewer
       when: false
       shell: |
-        source ~/.nvm/nvm.sh && nvm use 18 && nohup node bot_viewer.js >/dev/null &
+        nohup node bot_viewer.js >/dev/null &
       args:
         chdir: "{{ wd }}"
         executable: /bin/bash

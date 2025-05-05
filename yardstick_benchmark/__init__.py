@@ -1,5 +1,8 @@
 from yardstick_benchmark.model import Node, NodeVagrant,RemoteAction
 from pathlib import Path
+import time
+from mcstatus import JavaServer
+from datetime import datetime, timezone
 
 
 def fetch(dest: Path, nodes: list[Node] | list[NodeVagrant]):
@@ -17,6 +20,15 @@ def fetch_master(dest: Path, nodes: list[NodeVagrant]):
         "fetch-master",
         nodes,
         Path(__file__).parent.parent / "ansible/master-fetch.yaml",
+        extravars={"dest": str(dest)},
+    ).run()
+
+def fetch_bot(dest: Path, nodes: list[NodeVagrant]):
+    dest.mkdir(parents=True, exist_ok=True)
+    return RemoteAction(
+        "fetch-bot",
+        nodes,
+        Path(__file__).parent.parent / "ansible/bot-fetch.yaml",
         extravars={"dest": str(dest)},
     ).run()
 
@@ -42,3 +54,19 @@ def clean(nodes: list[Node] | list[NodeVagrant]):
         nodes,
         Path(__file__).parent / "clean.yml",
     ).run()
+
+
+# query server for total players
+def query_players(host: str, seconds: int) -> None:
+    server = JavaServer.lookup(f"{host}:25565")
+    i = 0
+    with open("player_count.log", "w") as f:
+        f.write(f"timestamp, player_count\n")
+        
+        while i < seconds:
+            i += 1
+            status = server.status()
+            f.write(f"{datetime.now(timezone.utc)}, {status.players.online}\n")
+            time.sleep(1)
+
+

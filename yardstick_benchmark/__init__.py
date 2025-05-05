@@ -63,10 +63,15 @@ def query_players(host: str, seconds: int) -> None:
     with open("player_count.log", "w") as f:
         f.write(f"timestamp, player_count\n")
         
-        while i < seconds:
-            i += 1
-            status = server.status()
-            f.write(f"{datetime.now(timezone.utc)}, {status.players.online}\n")
-            time.sleep(1)
+        try:
+            while i < seconds:
+                i += 1
+                status = server.status()
+                f.write(f"{datetime.now(timezone.utc)}, {status.players.online}\n")
+                time.sleep(1)
+        except:
+            # continue to run again in case of error
+            if i < seconds:
+                query_players(host, seconds-i)
 
 

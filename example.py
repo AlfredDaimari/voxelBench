@@ -66,13 +66,13 @@ if __name__ == "__main__":
         ### WORKLOAD ###
 
         all_nodes = [ NodeVagrant(node) for node in get_all_nodes()]
-        wl = WalkAround(all_nodes[3:], nodes[0].host, bots_per_node=bots_per_node, duration=timedelta(minutes=15))
+        wl = WalkAround(all_nodes[3:], nodes[0].host, bots_per_node=bots_per_node, duration=timedelta(minutes=1))
         wl.deploy()
         yardstick_benchmark.start_sysstat_master(all_nodes[:1])
         wl.start()
    
         # Run total player count before sleep
-        sleep_time = 60 * 15
+        sleep_time = 60 * 1
         master_host = get_master_host()
         thread = threading.Thread(target=yardstick_benchmark.query_players, args=(master_host,sleep_time))
 
@@ -98,6 +98,7 @@ if __name__ == "__main__":
         dest = Path(f"/home/{os.getlogin()}/yardstick/{timestamp}")
         yardstick_benchmark.fetch(dest, nodes)
         yardstick_benchmark.fetch_master(dest, all_nodes[:1])
+        yardstick_benchmark.fetch_master_bot_telegraf(dest, all_nodes)
         #yardstick_benchmark.fetch_bot(dest, all_nodes[3:])
 
         # copy vm.toml file also to dest

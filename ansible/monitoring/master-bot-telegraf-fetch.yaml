@@ -1,0 +1,15 @@
+- name: Fetch telegraf from master and bot
+  hosts: master:bot
+  tasks:
+    - name: Get telegraf netstat data
+      fetch:
+        src: "{{wd}}/metrics-netstat-{{inventory_hostname}}.csv"
+        dest: "{{dest}}/metrics-netstat-{{inventory_hostname}}.csv"
+        flat: yes
+
+    - name: Get telegraf nstat data
+      fetch:
+        src: "{{wd}}/metrics-nstat-{{inventory_hostname}}.csv"
+        dest: "{{dest}}/metrics-nstat-{{inventory_hostname}}.csv"
+        flat: yes
+

@@ -29,22 +29,20 @@
       become: yes
       become_user: root
       become_method: sudo
-      systemd_service:
+      systemd:
         state: started
         name: sysstat
 
-    - name: Setup multipaper master world working directory
+    - name: Setup master sar working directory
       file:
         path: ~/master
         state: directory
-        mode: "0755"
 
     - name: Setup velocity working directory
       file:
         path: ~/velocity
         state: directory
-        mode: "0755"
-
+       
     - name: Deploy velocity.toml
       when: true
       copy:

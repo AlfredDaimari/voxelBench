@@ -17,6 +17,15 @@ def fetch(dest: Path, nodes: list[Node] | list[NodeVagrant]):
 def fetch_master(dest: Path, nodes: list[NodeVagrant]):
     dest.mkdir(parents=True, exist_ok=True)
     return RemoteAction(
+        "fetch-master-bot-telegraf",
+        nodes,
+        Path(__file__).parent.parent / "ansible/monitoring/master-bot-telegraf-fetch.yaml",
+        extravars={"dest": str(dest)},
+    ).run()
+
+def fetch_master_bot_telegraf(dest: Path, nodes: list[NodeVagrant]):
+    dest.mkdir(parents=True, exist_ok=True)
+    return RemoteAction(
         "fetch-master",
         nodes,
         Path(__file__).parent.parent / "ansible/master-fetch.yaml",

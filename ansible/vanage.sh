@@ -34,6 +34,7 @@ then
   ansible-playbook -i inventory -t run_master playbook-master.yaml
   ansible-playbook -i inventory -t setup_worker playbook-worker.yaml
   ansible-playbook -i inventory -t run_worker playbook-worker.yaml
+  ansible-playbook -i inventory monitoring/master-bot-telegraf.yaml -e "config_template=$(pwd)/monitoring/telegraf.conf.j2"
 else
   vagrant destroy
 fi

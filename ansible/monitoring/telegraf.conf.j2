@@ -178,11 +178,13 @@
   files = ['metrics-netstat-{{inventory_hostname}}.csv']
   namepass = ["netstat"]
   data_format = 'csv'
+  csv_header = true
 
 [[outputs.file]]
   files = ["metrics-nstat-{{inventory_hostname}}.csv"]
   namepass = ["nstat"]
   data_format = 'csv'
+  csv_header = true
 
 ###############################################################################
 #                            PROCESSOR PLUGINS                                #

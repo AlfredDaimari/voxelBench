@@ -1,0 +1,40 @@
+- name: Run master node
+  hosts: all
+
+  tasks:
+    - name: Remove default servers, forced-hosts from velocity.toml file
+      shell: |
+        dasel delete -f velocity.toml -r toml servers
+        #dasel delete -f velocity.toml -r toml 'forced-hosts'
+        dasel delete -f velocity.toml -r toml try
+      args:
+        chdir: ~/velocity
+      ignore_errors: true
+
+    - name: Add worker servers in velocity.toml file
+      shell: |
+        vms=""
+        read -a servers <<< "{{servers}}"
+        length={{length}}
+        for ((i=0; i<$length; i+=2))
+        do
+          ip=${servers[$i]}
+          ind=$((i+1))
+          vm=${servers[$ind]}
+          dasel put -f velocity.toml -r toml -v "${ip}:25565" "servers.$vm"
+          vms="\"${vm}\", ${vms}"
+        done
+        vms=$(echo -e $vms | sed 's/ $//')
+        vms=$(echo -e $vms | sed 's/,$//')
+        echo -e $vms
+        echo -e "\ntry=[$vms]" >> velocity.toml
+      args:
+        chdir: ~/velocity
+        executable: /bin/bash
+
+    - name: Run multipaper master
+      shell: nohup java -jar velocity-3.4.0-SNAPSHOT-496.jar </dev/null >/dev/null &
+      args:
+        chdir: ~/velocity
+        executable: /bin/bash
+

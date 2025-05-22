@@ -1,0 +1,84 @@
+# setup worker nodes
+- name: Setup worker node
+  hosts: all
+
+  tasks:
+    - name: Update packages
+      become: yes
+      become_user: root
+      become_method: sudo
+      apt:
+        update_cache: yes
+
+    - name: Setup java environment
+      become: yes
+      become_user: root
+      become_method: sudo
+      apt:
+        name: openjdk-17-jdk-headless
+
+    - name: Setup worker node working directory
+      file:
+        path: ~/worker
+        state: directory
+        mode: "0755"
+
+    # can't use this now, servers were down
+    - name: Download multipaper worker
+      when: false
+      get_url:
+        url: "https://api.multipaper.io/v2/projects/multipaper/versions/1.20.1/builds/57/downloads/multipaper-1.20.1-57.jar"
+        dest: "~/worker/multipaper-1.20.1-57.jar"
+
+    # use this when servers are down
+    - name: Copy multipaper worker
+      when: true
+      copy:
+        src: ./downloads/multipaper-1.20.1-57.jar
+        dest: ~/worker/multipaper-1.20.1-57.jar
+
+    # download the dasel cli
+    - name: Download dasel cli
+      become: yes
+      become_user: root
+      become_method: sudo
+      shell: |
+        curl -sSLf "$(curl -sSLf https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | grep -v .gz | cut -d\" -f 4)" -L -o dasel && chmod a+x dasel
+        mv ./dasel /usr/local/bin/dasel
+
+    - name: Template run multipaper worker
+      command: java -jar multipaper-1.20.1-57.jar
+      async: 40
+      poll: 0
+      args:
+        chdir: ~/worker
+
+    # wait for worker toml template generation
+    - name: Wait for template generation for worker to complete
+      pause:
+        seconds: 15
+
+    - name: Gracefully shutdown worker template run
+      command: pkill -SIGTERM -f "java -jar multipaper-1.20.1-57.jar"
+      ignore_errors: true
+
+    - name: Download Jolokia JVM Agent
+      get_url:
+        url: https://search.maven.org/remotecontent?filepath=org/jolokia/jolokia-agent-jvm/2.0.3/jolokia-agent-jvm-2.0.3-javaagent.jar
+        dest: "~/worker/jolokia-agent-jvm-2.0.3-javaagent.jar"
+    
+    - name: Copy config file
+      template:
+        src: "./server.properties.j2"
+        dest: "~/worker/server.properties" 
+
+
+- name: Run worker debugger
+  hosts: worker
+  tags: debug_worker
+
+  tasks:
+    - name: Print hostname for worker
+      debug:
+        msg: "Hostname is {{inventory_hostname}}"
+

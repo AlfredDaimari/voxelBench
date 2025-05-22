@@ -1,0 +1,8 @@
+- name: Shutdown multipaper
+  hosts: all
+
+  tasks:
+    - name: Shutdown nohup multipaper velocity
+      command: pkill -SIGTERM -f "java -jar velocity-3.4.0-SNAPSHOT-496.jar"
+      ignore_errors: true
+

@@ -1,0 +1,7 @@
+- name: Debug all node set variables
+  hosts: all
+
+  tasks:
+    - name: Test inventory file variables
+      debug:
+        msg: Worker IDs are ({{servers}})

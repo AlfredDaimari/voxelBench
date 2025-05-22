@@ -1,0 +1,23 @@
+# settings for vagrant setup
+[master]
+memory=2048
+cpu=2
+
+[worker]
+memory=2048
+cpu=[1,2]
+total=[1,2]
+
+[bot]
+memory=1024
+cpu=1
+total=1
+
+# settings for python benchmark
+# WORLD=[]
+# playerModel=[]
+# PVP=[]
+# PVE=[]
+# WALK=[]
+# REDSTONE=[]
+# PLAYERS=[]

@@ -1,7 +1,7 @@
 # - * - mode: ruby - * -
 # vi: set ft=ruby :
-# Environment variables that need to be set using vm.toml file
 
+# Environment variables are set by vanage.sh, configured with vm.toml file
 MASTER_MEMORY = ENV["MASTER_MEMORY"]&.to_i || 2048
 WORKER_MEMORY = ENV["WORKER_MEMORY"]&.to_i || 2048
 BOT_MEMORY = ENV["BOT_MEMORY"]&.to_i || 2048

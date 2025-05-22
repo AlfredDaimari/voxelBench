@@ -25,14 +25,14 @@
 
     # can't use this now, servers were down
     - name: Download multipaper worker
-      when: false
+      when: true
       get_url:
         url: "https://api.multipaper.io/v2/projects/multipaper/versions/1.20.1/builds/57/downloads/multipaper-1.20.1-57.jar"
         dest: "~/worker/multipaper-1.20.1-57.jar"
 
     # use this when servers are down
     - name: Copy multipaper worker
-      when: true
+      when: false
       copy:
         src: ./downloads/multipaper-1.20.1-57.jar
         dest: ~/worker/multipaper-1.20.1-57.jar
@@ -69,16 +69,6 @@
     
     - name: Copy config file
       template:
-        src: "./server.properties.j2"
+        src: "{{server_properties_template}}"
         dest: "~/worker/server.properties" 
-
-
-- name: Run worker debugger
-  hosts: worker
-  tags: debug_worker
-
-  tasks:
-    - name: Print hostname for worker
-      debug:
-        msg: "Hostname is {{inventory_hostname}}"
 

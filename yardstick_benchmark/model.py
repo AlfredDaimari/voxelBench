@@ -15,17 +15,42 @@ class Node(object):
     wd: Path
 
 
+@dataclass(frozen=True)
+class VagrantNode(object):
+    name: str
+    ansible_host: str
+    ansible_user: str
+    ansible_ssh_private_key_file: str
+    ansible_ssh_common_args: str
+
+
 def _gen_wd_name(name, node_wd) -> str:
     alphabet = string.ascii_lowercase + string.digits
     hash = "".join(random.choices(alphabet, k=8))
-    return str(node_wd / f"{name}-{hash}")
+    if isinstance(node_wd, Path):
+        return str(node_wd / f"{name}-{hash}")
+    else:
+        return f"{name}-{hash}"
 
 
-def _gen_inv(name: str, nodes: list[Node]) -> dict:
-    hosts = {
-        node.host: {"node_wd": str(node.wd), "wd": _gen_wd_name(name, node.wd)}
-        for node in nodes
-    }
+def _gen_inv(name: str, nodes: list[Node] | list[VagrantNode]) -> dict:
+    if isinstance(nodes[0], Node):
+        hosts = {
+            node.host: {"node_wd": str(node.wd), "wd": _gen_wd_name(name, node.wd)}
+            for node in nodes
+        }
+
+    else:
+        hosts = {
+            node.name: {
+                "ansible_host": node.ansible_host,
+                "ansible_user": node.ansible_user,
+                "ansible_ssh_private_key_file": node.ansible_ssh_private_key_file,
+                "ansible_ssh_common_args": node.ansible_ssh_common_args,
+                "wd": _gen_wd_name(node.name, None),
+            }
+            for node in nodes
+        }
     return {"all": {"hosts": hosts}}
 
 
@@ -33,17 +58,22 @@ class RemoteAction(object):
     def __init__(
         self,
         name: str,
-        nodes: list[Node],
+        nodes: list[Node] | list[VagrantNode],
         script: Path,
         envvars: dict = {},
         extravars: dict = {},
         inv: Optional[dict] = None,
     ):
         self.name = name
-        self.hosts = {
-            node.host: {"node_wd": node.wd, "wd": _gen_wd_name(name, node.wd)}
-            for node in nodes
-        }
+        if isinstance(nodes[0], Node):
+            self.hosts = {
+                node.host: {"node_wd": node.wd, "wd": _gen_wd_name(name, node.wd)}
+                for node in nodes
+            }
+        else:
+            self.hosts = {
+                node.name: {"ansible_host": node.ansible_host} for node in nodes
+            }
         self.inv = inv if inv is not None else _gen_inv(name, nodes)
         self.script = script
         self.envvars = envvars
@@ -73,7 +103,7 @@ class RemoteApplication(object):
     def __init__(
         self,
         name: str,
-        nodes: list[Node],
+        nodes: list[Node] | list[VagrantNode],
         deploy_script: Path,
         start_script: Path,
         stop_script: Path,

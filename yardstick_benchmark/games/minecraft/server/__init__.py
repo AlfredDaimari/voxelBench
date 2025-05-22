@@ -1,4 +1,4 @@
-from yardstick_benchmark.model import RemoteApplication, Node
+from yardstick_benchmark.model import RemoteApplication, Node, VagrantNode
 import os
 from pathlib import Path
 
@@ -17,3 +17,42 @@ class PaperMC(RemoteApplication):
                 "papermc_template": str(Path(__file__).parent / "server.properties.j2"),
             },
         )
+
+
+class MultiPaper(RemoteApplication):
+    def __init__(
+        self, master_node: list[VagrantNode], worker_nodes: list[VagrantNode], tag: str
+    ):
+        if tag == "master":
+            # creating master extra vars
+            servers = []
+            length = 0
+            for node in worker_nodes:
+                length += 2
+                servers.append(f"{node.ansible_host} {node.name}")
+            servers = " ".join(servers)
+
+            super().__init__(
+                "multipaper-master",
+                master_node,
+                Path(__file__).parent / "multipaper_master_deploy.yml",
+                Path(__file__).parent / "multipaper_master_start.yml",
+                Path(__file__).parent / "multipaper_master_stop.yml",
+                Path(__file__).parent / "multipaper_cleanup.yml",
+                extravars={"servers": servers, "length": length},
+            )
+        else:
+            super().__init__(
+                "multipaper-worker",
+                worker_nodes,
+                Path(__file__).parent / "multipaper_worker_deploy.yml",
+                Path(__file__).parent / "multipaper_worker_start.yml",
+                Path(__file__).parent / "multipaper_worker_stop.yml",
+                Path(__file__).parent / "multipaper_cleanup.yml",
+                extravars={
+                    "master": master_node[0].ansible_host,
+                    "server_properties_template": str(
+                        Path(__file__).parent / "server.properties.j2"
+                    ),
+                },
+            )

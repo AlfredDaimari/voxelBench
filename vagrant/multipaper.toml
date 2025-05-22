@@ -1,12 +1,12 @@
 # settings for vagrant setup
 [master]
 memory=2048
-cpu=2
+cpu=1
 
 [worker]
 memory=2048
-cpu=[1,2]
-total=[1,2]
+cpu=[1]
+total=[1]
 
 [bot]
 memory=1024

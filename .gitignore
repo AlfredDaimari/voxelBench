@@ -469,7 +469,11 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,ansible
 
-inventory.ini
+vagrant/inventory.ini
+vagrant/inventory
+vagrant/.vagrant
+vagrant/artifacts
+
 scratch
 pamuk_ssh_key
 ansible-test

@@ -1,4 +1,4 @@
-from yardstick_benchmark.model import RemoteApplication, Node
+from yardstick_benchmark.model import RemoteApplication, Node, VagrantNode
 from pathlib import Path
 import os
 from datetime import timedelta
@@ -7,7 +7,7 @@ from datetime import timedelta
 class WalkAround(RemoteApplication):
     def __init__(
         self,
-        nodes: list[Node],
+        nodes: list[Node] | list[VagrantNode],
         server_host: str,
         duration: timedelta = timedelta(seconds=60),
         spawn_x: int = 0,
@@ -26,7 +26,7 @@ class WalkAround(RemoteApplication):
             Path(__file__).parent / "walkaround_stop.yml",
             Path(__file__).parent / "walkaround_cleanup.yml",
             extravars={
-                "hostnames": [n.host for n in nodes],
+                "hostnames": [n.host for n in nodes] if isinstance(nodes[0], Node) else [n.name for n in nodes],
                 "scripts": [
                     str(Path(__file__).parent / "set_spawn.js"),
                     str(Path(__file__).parent / "walkaround_bot.js"),

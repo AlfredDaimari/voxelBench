@@ -8,24 +8,30 @@
     - file:
         path: "{{ wd }}"
         state: directory
+    
     - name: Check if nvm is available
       shell: |
-        source ~/.bashrc
-        nvm --version
+        source ~/.nvm/nvm.sh && nvm --version
       register: nvm_version
-      failed_when: nvm_version.rc != 0 and nvm_version.rc != 127
+      #failed_when: nvm_version.rc != 0 and nvm_version.rc != 127
+      when: false
+      args:
+        executable: /bin/bash
+    
     - name: Install nvm
       shell: |
-        wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-      when: nvm_version.rc == 127
-    - name: Install node 18 and Mineflayer
-      shell:
-        cmd: |
-          source ~/.bashrc
-          nvm install 18
-          npm install mineflayer
-          npm install mineflayer-pathfinder
-        chdir: "{{wd}}"
+        if ! test -f ~/.nvm/nvm.sh
+        then
+          wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
+        fi
+    
+    - name: Install node 18 and Mineflayer and prismarine viewer
+      shell: |
+        source ~/.nvm/nvm.sh && nvm install 18 && npm install mineflayer && npm install mineflayer-pathfinder       
+      args:
+        executable: /bin/bash
+        chdir: "{{ wd }}"
+    
     - name: Checkout RCON client
       git:
         repo: https://github.com/tehbeard/node-rcon.git

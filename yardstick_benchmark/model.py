@@ -22,15 +22,13 @@ class VagrantNode(object):
     ansible_user: str
     ansible_ssh_private_key_file: str
     ansible_ssh_common_args: str
+    wd: str
 
 
 def _gen_wd_name(name, node_wd) -> str:
     alphabet = string.ascii_lowercase + string.digits
     hash = "".join(random.choices(alphabet, k=8))
-    if isinstance(node_wd, Path):
-        return str(node_wd / f"{name}-{hash}")
-    else:
-        return f"{name}-{hash}"
+    return str(node_wd / f"{name}-{hash}")
 
 
 def _gen_inv(name: str, nodes: list[Node] | list[VagrantNode]) -> dict:
@@ -47,10 +45,11 @@ def _gen_inv(name: str, nodes: list[Node] | list[VagrantNode]) -> dict:
                 "ansible_user": node.ansible_user,
                 "ansible_ssh_private_key_file": node.ansible_ssh_private_key_file,
                 "ansible_ssh_common_args": node.ansible_ssh_common_args,
-                "wd": _gen_wd_name(node.name, None),
+                "wd": node.wd,
             }
             for node in nodes
         }
+
     return {"all": {"hosts": hosts}}
 
 
@@ -72,7 +71,8 @@ class RemoteAction(object):
             }
         else:
             self.hosts = {
-                node.name: {"ansible_host": node.ansible_host} for node in nodes
+                node.name: {"ansible_host": node.ansible_host, "wd": node.wd}
+                for node in nodes
             }
         self.inv = inv if inv is not None else _gen_inv(name, nodes)
         self.script = script

@@ -3,10 +3,18 @@
   gather_facts: true
   hosts: all
   tasks:
-    - name: Get data from nodes
-      ansible.posix.synchronize:
-        src: "{{node_wd}}"
-        dest: "{{dest}}"
-        mode: pull
+    - name: Find all CSV files in wd
+      find:
+        paths: "{{ wd }}"
+        patterns: "metrics-*.csv"
+        recurse: true
+      register: csv_files
+
+    - name: Get csv files from all nodes
+      ansible.builtin.fetch:
+        src: "{{ item.path }}"
+        dest: "{{ dest }}/{{ item.path | basename }}"
+      loop: "{{ csv_files.files }}"
+
     - debug:
         msg: "Output files have been written to {{dest}}"

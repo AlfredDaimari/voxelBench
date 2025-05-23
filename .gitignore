@@ -474,6 +474,7 @@ vagrant/inventory
 vagrant/.vagrant
 vagrant/artifacts
 data/*
+data
 
 scratch
 pamuk_ssh_key

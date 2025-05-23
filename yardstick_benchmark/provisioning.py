@@ -98,6 +98,7 @@ class VagrantVMs:
                 node.ansible_user,
                 node.ansible_ssh_private_key_file,
                 node.ansible_ssh_common_args,
+                node.wd,
             )
         ]
 
@@ -112,6 +113,7 @@ class VagrantVMs:
                     node.ansible_user,
                     node.ansible_ssh_private_key_file,
                     node.ansible_ssh_common_args,
+                    node.wd,
                 )
             )
 

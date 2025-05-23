@@ -1,8 +1,8 @@
-from yardstick_benchmark.model import Node, RemoteAction
+from yardstick_benchmark.model import Node, RemoteAction, VagrantNode
 from pathlib import Path
 
 
-def fetch(dest: Path, nodes: list[Node]):
+def fetch(dest: Path, nodes: list[Node] | list[VagrantNode]):
     dest.mkdir(parents=True, exist_ok=True)
     return RemoteAction(
         "fetch",

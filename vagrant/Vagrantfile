@@ -18,6 +18,8 @@ BOT_END = WORKER_END + BOT_TOTAL
 
 Vagrant.configure("2") do |config|
   config.vm.box = "generic/ubuntu2204"
+  config.timezone.value = :host
+
   # master vm
   config.vm.define "vm1" do |vm1|
     vm1.vm.hostname = "vm1"

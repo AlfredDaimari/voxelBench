@@ -15,8 +15,12 @@ pyyaml = "^6.0"
 toml = "^0.10.2"
 
 [tool.poetry.scripts]
-deploy-m = "scripts.multipaper:deploy_mult"
-deploy-mb = "scripts.multipaper:deploy_bot"
+dmult = "scripts.multipaper:deploy_mult"
+dmult-b = "scripts.multipaper:deploy_bot"
+dmult-t = "scripts.multipaper:start_telegraf"
+smult-t = "scripts.multipaper:stop_telegraf"
+fmult = "scripts.multipaper:fetch"
+
 
 [build-system]
 requires = ["poetry-core"]

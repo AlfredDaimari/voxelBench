@@ -71,15 +71,14 @@ function create_inventory_toml()
     if [[ $vmnum -eq 1 ]]
     then
       echo "[master]" >> $OUTFILE
-      echo -e "name='${VM}'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\n\n" >> $OUTFILE
-
+      echo -e "name='${VM}'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\n\n" >> $OUTFILE
     elif [[ $vmnum -le $WORKER_END ]] && [[ $vmnum -gt 1 ]]
     then
       echo "[[worker]]" >> $OUTFILE
-      echo -e "name='${VM}'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\n\n" >> $OUTFILE
+      echo -e "name='${VM}'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\n\n" >> $OUTFILE
     else
       echo "[[bot]]" >> $OUTFILE
-      echo -e "name='$VM'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\n\n" >> $OUTFILE
+      echo -e "name='$VM'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\n\n" >> $OUTFILE
     fi
     log_dt "... Processed $VM \U2714 ..."
   done

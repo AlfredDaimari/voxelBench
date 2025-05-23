@@ -473,6 +473,7 @@ vagrant/inventory.ini
 vagrant/inventory
 vagrant/.vagrant
 vagrant/artifacts
+data/*
 
 scratch
 pamuk_ssh_key

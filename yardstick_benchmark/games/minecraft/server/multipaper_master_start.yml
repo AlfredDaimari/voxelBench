@@ -33,7 +33,7 @@
         executable: /bin/bash
 
     - name: Run multipaper master
-      shell: nohup java -jar velocity-3.4.0-SNAPSHOT-496.jar </dev/null >/dev/null &
+      shell: "nohup java -Xmx{{memory}}M -jar velocity-3.4.0-SNAPSHOT-496.jar </dev/null >/dev/null &"
       args:
         chdir: ~/velocity
         executable: /bin/bash

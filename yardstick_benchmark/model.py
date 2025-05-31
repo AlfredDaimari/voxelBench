@@ -23,6 +23,7 @@ class VagrantNode(object):
     ansible_ssh_private_key_file: str
     ansible_ssh_common_args: str
     wd: str
+    memory: int
 
 
 def _gen_wd_name(name, node_wd) -> str:
@@ -46,6 +47,7 @@ def _gen_inv(name: str, nodes: list[Node] | list[VagrantNode]) -> dict:
                 "ansible_ssh_private_key_file": node.ansible_ssh_private_key_file,
                 "ansible_ssh_common_args": node.ansible_ssh_common_args,
                 "wd": node.wd,
+                "memory": node.memory
             }
             for node in nodes
         }

@@ -74,35 +74,35 @@ class VagrantVMs:
         with open(self._inventory_file, "r") as f:
             self._data = toml.loads(f.read())
 
-            # check if nodes are running
             os.chdir(str(self._inventory_file.parent))
-            result = subprocess.run(
-                "vagrant status", shell=True, capture_output=True, text=True
-            )
+            env: subprocess._ENV = os.environ.copy()
 
+            # check if master/worker nodes are running
+            env["VAGRANT_VAGRANTFILE"] = "MultVagrantfile.rb"
+
+            result = subprocess.run(
+                "vagrant status", shell=True, capture_output=True, text=True, env=env
+            )
             total_nodes_running: int = sum(
                 1 for line in result.stdout.splitlines() if "running" in line
             )
-            total_inventory_file_nodes: int = (
-                len(self._data["worker"]) + len(self._data["bot"]) + 1
+
+            env["VAGRANT_VAGRANTFILE"] = "BotVagrantfile.rb"
+            result = subprocess.run(
+                "vagrant status", shell=True, capture_output=True, text=True, env=env
             )
+            total_nodes_running += sum(
+                1 for line in result.stdout.splitlines() if "running" in line
+            )
+
+            total_inventory_file_nodes = 0
+            for node_type in ["master", "worker", "bot"]:
+                if node_type in self._data:
+                    total_inventory_file_nodes += len(self._data[node_type])
 
             assert total_nodes_running == total_inventory_file_nodes
 
-    def _unpack_master(self) -> list[VagrantNode]:
-        node = SimpleNamespace(**self._data["master"])
-        return [
-            VagrantNode(
-                node.name,
-                node.ansible_host,
-                node.ansible_user,
-                node.ansible_ssh_private_key_file,
-                node.ansible_ssh_common_args,
-                node.wd,
-            )
-        ]
-
-    def _unpack_others(self, tag: str) -> list[VagrantNode]:
+    def _unpack(self, tag: str) -> list[VagrantNode]:
         nodes = []
         for n in self._data[tag]:
             node = SimpleNamespace(**n)
@@ -114,18 +114,17 @@ class VagrantVMs:
                     node.ansible_ssh_private_key_file,
                     node.ansible_ssh_common_args,
                     node.wd,
+                    node.memory,
                 )
             )
 
         return nodes
 
     def get_vms_with_tag(self, tag: str) -> list[VagrantNode]:
-        if tag == "master":
-            return self._unpack_master()
-
-        elif tag == "worker":
-            return self._unpack_others("worker")
-        elif tag == "bot":
-            return self._unpack_others("bot")
+        if tag == "master" or tag == "worker" or tag == "bot":
+            if tag in self._data:
+                return self._unpack(tag)
+            else:
+                return []
         else:
-            return self._unpack_master() + self._unpack_others("worker")
+            return self._unpack("master") + self._unpack("worker")

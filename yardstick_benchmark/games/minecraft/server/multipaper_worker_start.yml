@@ -46,7 +46,7 @@
         executable: /bin/bash
 
     - name: Run multipaper worker node using jolokia
-      shell: nohup java -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar multipaper-1.20.1-57.jar </dev/null > "worker-{{inventory_hostname}}.log" &
+      shell: nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar multipaper-1.20.1-57.jar </dev/null > "worker-{{inventory_hostname}}.log" &
       args:
         chdir: ~/worker
         executable: /bin/bash

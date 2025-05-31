@@ -53,7 +53,7 @@ function create_inventory_toml() {
 	# Extract all defined VM names
 	vagrantfiles=("MultVagrantfile.rb" "BotVagrantfile.rb")
 	for file in ${vagrantfiles[@]}; do
-		VM_NAMES=$(VAGRANT_VAGRANTFILE="$file" vagrant status --machine-readable 2>>vagrant.log | grep ",state," | cut -d',' -f2 | sort -u)
+		VM_NAMES=$(VAGRANT_VAGRANTFILE="$file" vagrant status --machine-readable 2>>vagrant.log | grep ",state," | grep "running" | cut -d',' -f2 | sort -u)
 		for VM in $VM_NAMES; do
 			CONFIG=$(VAGRANT_VAGRANTFILE="$file" vagrant ssh-config $VM)
 
@@ -67,14 +67,14 @@ function create_inventory_toml() {
 
 			# Write entry with VM name as the alias
 			if [[ $vmnum -eq 1 ]]; then
-				echo "[master]" >>$OUTFILE
-				echo -e "name='${VM}'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\n\n" >>$OUTFILE
+				echo "[[master]]" >>$OUTFILE
+				echo -e "name='${VM}'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\nmemory='$(get_memory "master")'\n\n" >>$OUTFILE
 			elif [[ $vmnum -le $WORKER_END ]] && [[ $vmnum -gt 1 ]]; then
 				echo "[[worker]]" >>$OUTFILE
-				echo -e "name='${VM}'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\n\n" >>$OUTFILE
+				echo -e "name='${VM}'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\nmemory='$(get_memory "worker")'\n\n" >>$OUTFILE
 			else
 				echo "[[bot]]" >>$OUTFILE
-				echo -e "name='$VM'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\n\n" >>$OUTFILE
+				echo -e "name='$VM'\nansible_host='${HOSTNAME}'\nansible_user='${USER}'\nansible_ssh_private_key_file='${KEY}'\nansible_ssh_common_args='-o IdentitiesOnly=yes -o StrictHostKeyChecking=no'\nwd='${VM}_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'\nmemory='$(get_memory "bot")'\n\n" >>$OUTFILE
 			fi
 			log_dt "... Processed $VM \U2714 ..."
 		done
@@ -100,6 +100,17 @@ function set_config() {
 	BOT_TOTAL=$(cat multipaper.toml | tomlq .bot.total)
 }
 
+# get 80% memory for java program to run
+function get_memory() {
+	if [[ $1 == "master" ]]; then
+		echo $(((MASTER_MEMORY * 80) / 100))
+	elif [[ $1 == "worker" ]]; then
+		echo $(((WORKER_MEMORY * 80) / 100))
+	else
+		echo $(((BOT_MEMORY * 80) / 100))
+	fi
+}
+
 function create_vms() {
 	log_dt "... Setting Master Config ..."
 	log_dt "memory=${MASTER_MEMORY}mb CPU=${MASTER_CPU}"
@@ -118,7 +129,7 @@ function create_vms() {
 	BLA::stop_loading_animation
 
 	BLA::start_loading_animation "vagrant is creating bot vms"
-	VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
+	#VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
 	BLA::stop_loading_animation
 
 	log_dt "... VMS Created: Now Creating Inventory TOML File ..."
@@ -127,8 +138,8 @@ function create_vms() {
 	# run the benchmark
 	log_dt "... Benchmark Completed: Now destroying VMs ..."
 	BLA::start_loading_animation "vagrant is destroying vms"
-	VAGRANT_VAGRANTFILE=MultVagrantfile.rb vagrant destroy -f >>vagrant.log
-	VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant destroy -f >>vagrant.log
+	#VAGRANT_VAGRANTFILE=MultVagrantfile.rb vagrant destroy -f >>vagrant.log
+	#VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant destroy -f >>vagrant.log
 	BLA::stop_loading_animation
 	echo -e "===x===x===x===x===x===x===x===x===x===x===x===x===x===x===\n\n\n\n\n"
 }

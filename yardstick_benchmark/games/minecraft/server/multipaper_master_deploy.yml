@@ -35,6 +35,7 @@
         name: sysstat
 
     - name: Setup master sar working directory
+      when: false
       file:
         path: ~/master
         state: directory

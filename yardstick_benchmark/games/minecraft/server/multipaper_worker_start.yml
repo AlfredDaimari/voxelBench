@@ -78,6 +78,22 @@
         chdir: ~/worker
         executable: /bin/bash
 
+    - name: Copy Skript auto-op script
+      copy:
+        dest: ~/worker/plugins/Skript/scripts/autop.sk
+        content: |
+          on join:
+            message "Yardstick 2.0 Minecraft Benchmark"
+            make console execute command "/op %player%"
+
+          command /trackzombies:
+            trigger:
+              message "Tracking zombies for %player%"
+              loop all entities in radius 12 of player:
+                loop-value is a zombie:
+                  set {_loc} to location of loop-value
+                  send "&6Zombie at &e%{_loc}%" to player
+
     - name: Run multipaper worker node using jolokia
       shell: |
         mkfifo /tmp/worker_stdin

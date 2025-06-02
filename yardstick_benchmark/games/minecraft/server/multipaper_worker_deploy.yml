@@ -84,5 +84,15 @@
     - name: Copy config file
       template:
         src: "{{server_properties_template}}"
-        dest: "~/worker/server.properties" 
+        dest: "~/worker/server.properties"
 
+    - name: Setup worker node working directory
+      file:
+        path: ~/worker/plugins
+        state: directory
+        mode: "0755"
+
+    - name: Download Skript Minecraft
+      get_url:
+        url: https://github.com/SkriptLang/Skript/releases/download/2.11.2/Skript-2.11.2.jar
+        dest: "~/worker/plugins/Skript-2.11.2.jar"  

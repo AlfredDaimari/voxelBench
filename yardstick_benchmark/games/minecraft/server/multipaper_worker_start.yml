@@ -71,8 +71,9 @@
       shell: |
         cat bukkit.yml | dasel put -r yaml -t int -o bukkit.yml -v -1 'settings.connection-throttle'
         cat config/paper-global.yml | dasel put -r yaml -t bool -o config/paper-global.yml -v false 'proxies.bungee-cord.online-mode'
-        cat config/paper-global.yml | dasel put -r yaml -t bool -o config/paper-global.yml -v true 'proxies.velocity.enabled'
+        cat config/paper-global.yml | dasel put -r yaml -t bool -o config/paper-global.yml -v false 'proxies.velocity.enabled'
         cat config/paper-global.yml | dasel put -r yaml -t string -o config/paper-global.yml -v secret 'proxies.velocity.secret'
+        cat spitgot.yml | dasel put -r yaml -t bool -o spigot.yml -v true 'settings.bungeecord'
       args:
         chdir: ~/worker
         executable: /bin/bash

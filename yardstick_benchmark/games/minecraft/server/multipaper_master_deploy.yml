@@ -66,7 +66,7 @@
           prevent-client-proxy-connections = false
 
           # Player forwarding mode: NONE
-          player-info-forwarding-mode = "modern"
+          player-info-forwarding-mode = "legacy"
           forwarding-secret-file = "forwarding.secret"
 
           # Modded server support
@@ -108,7 +108,7 @@
           [query]
           enabled = true
           port = 25565
-          map = "Velocity"
+          map = "{{world_name}}"
           show-plugins = false
 
           # Server definitions

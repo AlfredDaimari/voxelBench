@@ -6,7 +6,7 @@
       shell: |
         dasel delete -f velocity.toml -r toml servers
         #dasel delete -f velocity.toml -r toml 'forced-hosts'
-        dasel delete -f velocity.toml -r toml try
+        #dasel delete -f velocity.toml -r toml try
       args:
         chdir: ~/velocity
       ignore_errors: true

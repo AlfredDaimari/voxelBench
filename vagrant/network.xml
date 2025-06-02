@@ -1,0 +1,11 @@
+<network>
+  <name>minecraft_network</name>
+  <bridge name='virbr10'/>
+  <forward mode='nat'/>
+  <ip address='192.168.50.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.50.2' end='192.168.50.254'/>
+    </dhcp>
+  </ip>
+</network>
+

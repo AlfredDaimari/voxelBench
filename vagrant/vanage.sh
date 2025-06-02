@@ -100,6 +100,24 @@ function set_config() {
 	BOT_TOTAL=$(cat multipaper.toml | tomlq .bot.total)
 }
 
+function setup_minecraft_network(){
+  network_present=$( virsh net-list --all | grep -c minecraft_network )
+  if [[ $network_present -gt 0 ]]; then
+    network_active=$( virsh net-list --all | grep minecraft_network | grep -c " active" )
+    if [[ $network_active -gt 0 ]]; then
+      log_dt "Minecraft Network:active found"
+    else
+      log_dt "Activating Minecraft Network"
+      virsh net-start minecraft_network > /dev/null
+    fi
+  else
+    log_dt "Minecraft Network not found; Creating one"
+    virsh net-define network.xml > /dev/null
+    virsh net-autostart minecraft_network > /dev/null
+    virsh net-start minecraft_network > /dev/null
+  fi
+}
+
 # get 80% memory for java program to run
 function get_memory() {
 	if [[ $1 == "master" ]]; then
@@ -152,6 +170,7 @@ function create_vms() {
 
 install_yq
 set_config
+#setup_minecraft_network
 for total in $WORKER_TOTALS; do
 	for cpu in $WORKER_CPUS; do
 		create_vms $total $cpu

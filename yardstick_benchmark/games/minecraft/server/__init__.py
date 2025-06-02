@@ -56,3 +56,9 @@ class MultiPaper(RemoteApplication):
                     ),
                 },
             )
+
+
+    # remember to call this function before deploying
+    def set_world_as(self, path : Path):
+        self.extravars["world_path"] = str(path)
+        self.extravars["world_name"] = str(path).split("/")[-1].split(".")[0]

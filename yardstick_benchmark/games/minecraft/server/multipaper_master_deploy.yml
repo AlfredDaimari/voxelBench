@@ -18,6 +18,7 @@
         name: openjdk-17-jdk-headless
 
     - name: Setup sysstat
+      when: false
       become: yes
       become_user: root
       become_method: sudo
@@ -25,6 +26,7 @@
         name: sysstat
 
     - name: Enable systemd systat
+      when: false
       become: yes
       become_user: root
       become_method: sudo
@@ -76,6 +78,7 @@
           # Ping passthrough: disabled, mods, description, all
           ping-passthrough = "DISABLED"
 
+          [advanced]
           # Compression and timeouts
           compression-threshold = 256
           compression-level = -1
@@ -98,6 +101,8 @@
           announce-proxy-commands = true
           accepts-transfers = false
           enable-reuse-port = false
+          log-command-executions = true
+          log-player-connections = true
 
           # Query settings
           [query]
@@ -140,8 +145,7 @@
       get_url:
         url: "https://github.com/ygtdmn/VelocityRcon/releases/download/v1.1/VelocityRcon.jar"
         dest: "~/velocity/plugins/VelocityRcon.jar"
-    
-    
+     
     - name: Download dasel cli
       become: yes
       become_user: root
@@ -170,4 +174,12 @@
       command: pkill -SIGTERM -f "java -jar velocity-3.4.0-SNAPSHOT-496.jar"
       ignore_errors: true
 
-    # copy the minecraft world settings file to the multipaper master velocity directory
+    # copy a minecraft world to the multipaper master velocity directory
+    - name: Copy world files
+      unarchive:
+        src: "{{world_path}}"
+        dest: ~/velocity 
+
+    - name: Rename world directory
+      command: mv ~/velocity/{{world_name}} ~/velocity/world
+

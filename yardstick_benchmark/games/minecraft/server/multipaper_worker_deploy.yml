@@ -47,21 +47,35 @@
         mv ./dasel /usr/local/bin/dasel
 
     - name: Template run multipaper worker
-      command: java -jar multipaper-1.20.1-57.jar
-      async: 40
-      poll: 0
+      shell: | 
+        nohup java -jar multipaper-1.20.1-57.jar </dev/null >template.log &
+        echo $! > template.pid
       args:
         chdir: ~/worker
 
-    # wait for worker toml template generation
-    - name: Wait for template generation for worker to complete
-      pause:
-        seconds: 15
+    # Wait for template generation (Connecting to localhost:35353) 
+    - name: Wait for template generation on worker to complete
+      shell: |
+        sleep 5
+        while true; do
+          COUNT=$( cat template.log | grep -c "Connecting to localhost" )
+          if [[ $COUNT -ge 1 ]]; then
+            exit
+          fi
+          sleep 1
+        done
+      args:
+        chdir: ~/worker
+        executable: /bin/bash
 
     - name: Gracefully shutdown worker template run
-      command: pkill -SIGTERM -f "java -jar multipaper-1.20.1-57.jar"
-      ignore_errors: true
-
+      shell: |
+        kill -SIGTERM $(cat template.pid)
+        rm template.log
+      args:
+        chdir: ~/worker
+        executable: /bin/bash
+ 
     - name: Download Jolokia JVM Agent
       get_url:
         url: https://search.maven.org/remotecontent?filepath=org/jolokia/jolokia-agent-jvm/2.0.3/jolokia-agent-jvm-2.0.3-javaagent.jar

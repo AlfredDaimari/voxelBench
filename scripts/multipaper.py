@@ -6,6 +6,7 @@ from yardstick_benchmark.games.minecraft.workload import WalkAround
 from datetime import timedelta, datetime
 from time import sleep
 from pathlib import Path
+import sys
 
 vagrant = VagrantVMs()
 master_node = vagrant.get_vms_with_tag("master")
@@ -15,8 +16,15 @@ telegraf = Telegraf(master_node + worker_nodes + bot_nodes)
 
 
 def deploy_mult():
+    """
+    world: sys.argv[1]
+    """
     multipaper_master = MultiPaper(master_node, worker_nodes, "master")
-    multipaper_worker = MultiPaper(master_node, worker_nodes, "worker")
+    multipaper_worker = MultiPaper(master_node, worker_nodes, "worker") 
+   
+    world_name = sys.argv[1]
+    world_path = Path(__file__).parent.parent / f"worlds/{world_name}.zip" 
+    multipaper_master.set_world_as(world_path)
 
     multipaper_master.deploy()
     multipaper_master.start()

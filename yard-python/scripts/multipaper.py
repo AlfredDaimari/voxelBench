@@ -23,7 +23,7 @@ def deploy_mult():
     multipaper_worker = MultiPaper(master_node, worker_nodes, "worker") 
    
     world_name = sys.argv[1]
-    world_path = Path(__file__).parent.parent / f"worlds/{world_name}.zip" 
+    world_path = Path(__file__).parent.parent.parent / f"worlds/{world_name}.zip" 
     multipaper_master.set_world_as(world_path)
 
     multipaper_master.deploy()
@@ -58,5 +58,3 @@ def fetch():
         )
     dest = Path(Path(__file__).parent.parent / f"data/{timestamp}")
     yardstick_benchmark.fetch(dest, master_node + worker_nodes + bot_nodes)
-
-

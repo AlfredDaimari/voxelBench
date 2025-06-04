@@ -476,6 +476,7 @@ vagrant/artifacts
 data/*
 data
 worlds
+yard-python/pyrightconfig.json
 
 scratch
 pamuk_ssh_key

@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "mineflayer": "^4.29.0",
+    "mineflayer-pathfinder": "^2.4.5"
+  },
+  "name": "yardstick-benchmark-minecraft-workload",
+  "version": "0.1.1",
+  "main": "walkaround_bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "node-canvas-webgl": "github:PrismarineJS/node-canvas-webgl",
+    "prismarine-viewer": "^1.33.0"
+  }
+}

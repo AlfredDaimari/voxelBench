@@ -14,6 +14,11 @@ test-deploy-tel:
 	@echo "Deploying telegraf monitoring to cluster"
 	cd yard-python && poetry run dmult-t
 
+# runs one bot to test walking workload
+test-run-walkload:
+	@echo "Running two bots locally against cluster"
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=2 RECORD=1 node walkaround_bot.js
+
 nodes-destroy:
 	@cd vagrant && VAGRANT_VAGRANTFILE=MultVagrantfile.rb vagrant destroy -f
 	@cd vagrant && VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant destroy -f

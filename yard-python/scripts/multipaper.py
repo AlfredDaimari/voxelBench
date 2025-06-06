@@ -1,6 +1,7 @@
 import yardstick_benchmark
 from yardstick_benchmark.provisioning import VagrantVMs
 from yardstick_benchmark.games.minecraft.server import MultiPaper
+import yardstick_benchmark.games.minecraft.utils as mutils
 from yardstick_benchmark.monitoring import Telegraf
 from yardstick_benchmark.games.minecraft.workload import WalkAround
 from datetime import timedelta, datetime
@@ -15,15 +16,23 @@ bot_nodes = vagrant.get_vms_with_tag("bot")
 telegraf = Telegraf(master_node + worker_nodes + bot_nodes)
 
 
+def get_world_spawn_json():
+    """
+    Get the world spawn coordinates
+    """
+    coord = mutils.get_world_spawn(sys.argv[1])
+    print('{ "box_x":%d, "box_y":%d, "box_z":%d }' % (coord.x, coord.y, coord.z))
+
+
 def deploy_mult():
     """
     world: sys.argv[1]
     """
     multipaper_master = MultiPaper(master_node, worker_nodes, "master")
-    multipaper_worker = MultiPaper(master_node, worker_nodes, "worker") 
-   
+    multipaper_worker = MultiPaper(master_node, worker_nodes, "worker")
+
     world_name = sys.argv[1]
-    world_path = Path(__file__).parent.parent.parent / f"worlds/{world_name}.zip" 
+    world_path = Path(__file__).parent.parent.parent / f"worlds/{world_name}.zip"
     multipaper_master.set_world_as(world_path)
 
     multipaper_master.deploy()
@@ -40,21 +49,21 @@ def deploy_bot():
     wl.start()
     sleep(120)
 
+
 def start_telegraf():
     telegraf.add_input_jolokia_agent(bot_nodes[0])
     telegraf.add_input_execd_minecraft_ticks(bot_nodes[0])
     telegraf.deploy()
     telegraf.start()
 
+
 def stop_telegraf():
     telegraf.stop()
 
+
 def fetch():
     timestamp = (
-            datetime.now()
-            .isoformat(timespec="minutes")
-            .replace("-", "")
-            .replace(":", "")
-        )
+        datetime.now().isoformat(timespec="minutes").replace("-", "").replace(":", "")
+    )
     dest = Path(Path(__file__).parent.parent / f"data/{timestamp}")
     yardstick_benchmark.fetch(dest, master_node + worker_nodes + bot_nodes)

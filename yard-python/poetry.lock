@@ -312,6 +312,27 @@ files = [
 ]
 
 [[package]]
+name = "mcrcon"
+version = "0.7.0"
+description = "A client for handling Remote Commands (RCON) to a Minecraft server."
+optional = false
+python-versions = "*"
+files = [
+    {file = "mcrcon-0.7.0.tar.gz", hash = "sha256:c2f1caf2467e283e0ccd2436f1ce21f04242b03c5fafb3860e3924d764a910d4"},
+]
+
+[[package]]
+name = "nbt"
+version = "1.5.1"
+description = "Named Binary Tag Reader/Writer"
+optional = false
+python-versions = "*"
+files = [
+    {file = "NBT-1.5.1-py2.py3-none-any.whl", hash = "sha256:1503314d0374b983642f9f219890330ce19d9d85966a28bdb6bef1fb17c4c2c0"},
+    {file = "NBT-1.5.1.tar.gz", hash = "sha256:da3bb2137605cb9dfe7446f13f19b3ae7faf920d430a387fb78efde27f6636c5"},
+]
+
+[[package]]
 name = "packaging"
 version = "24.1"
 description = "Core utilities for Python packages"
@@ -541,4 +562,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "c4c1a34cb96c3d2e79b553b66ebbbea22edc42a79a5c614c36783e06871c8f4a"
+content-hash = "dd01ebae5cb16e407bb6917cccc2f7951cbc0d3adb7888ea02b606b4241371d3"

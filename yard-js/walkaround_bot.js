@@ -3,18 +3,32 @@ const { Worker } = require("worker_threads");
 const mineflayer = require("mineflayer");
 const utils = require("./utils");
 
-const timeout_s = parseInt(process.env.DURATION) || 60;
-const num_bots = parseInt(process.env.BOTS_PER_NODE) || 5;
-const box_width = parseInt(process.env.BOX_WIDTH) || 32;
-const bot_join_delay = process.env.BOTS_JOIN_DELAY || 5;
-const bot_index = process.env.BOT_INDEX || 1;
-const { box_x, box_y, box_z } = JSON.parse(process.env.COORDS);
+const timeout_s = parseInt(process.env.DURATION || 60);
+const num_bots = parseInt(process.env.BOTS_PER_NODE || 5);
+const box_width = parseInt(process.env.BOX_WIDTH || 32);
+const bot_join_delay = parseInt(process.env.BOTS_JOIN_DELAY || 5);
+const bot_index = parseInt(process.env.BOT_INDEX || 1);
+const box_x = parseInt(process.env.BOX_X || -16);
+const box_z = parseInt(process.env.BOX_Z || -16);
+const spawn_x = parseInt(process.env.SPAWN_X || 0);
+const spawn_y = parseInt(process.env.SPAWN_Y || 64);
+const spawn_z = parseInt(process.env.SPAWN_Z || 0);
+const density = parseInt(process.env.DENSITY || 1);
+const max_radius = parseInt(process.env.MAX_RADIUS || 10000);
+
+const teleportLocs = utils.getTeleportationLocations(
+  spawn_x,
+  spawn_z,
+  num_bots,
+  density,
+  max_radius,
+);
+var totRecBots = 1;
 
 // setup main start time across threads
 const start = Date.now();
 process.env.start = start;
 const workers = new Set();
-const center = v(box_x + 20, box_y - 10, box_z - 25);
 
 function sleep(ms) {
   return new Promise((resolve) => {
@@ -23,12 +37,23 @@ function sleep(ms) {
 }
 
 function start_worker(username) {
-  let workerData = {
+  const workerData = {
     username,
     time_left_ms: timeout_s * 1000 - (Date.now() - start),
-    box_center: center,
+    spawn_y,
     box_width,
   };
+
+  const spawnPointInd = utils.getRandomInt(teleportLocs.length);
+  workerData.spawn_x = teleportLocs[spawnPointInd].x;
+  workerData.spawn_z = teleportLocs[spawnPointInd].z; 
+
+  // only permit one bot to record
+  if (totRecBots > 0) {
+    workerData.record = true;
+    totRecBots = 0;
+  } else workerData.record = false;
+
   return new Promise((resolve, reject) => {
     const worker = new Worker("./walkaround_worker_bot.js", { workerData });
 
@@ -51,7 +76,7 @@ function genWorkers(bot, _) {
   // removing on spawn because anyways this function would be called after spawn
 
   const loadWorkers = async () => {
-    bot.chat(`/tp ${(box_x, box_y - 15, box_z)}`);
+    bot.chat(`/tp @s ${spawn_x} ${spawn_y} ${spawn_z}`);
     bot.quit("constructs have been placed. jeff's job is done");
     //console.debug("debug: finished flying to center");
     let b = 0;

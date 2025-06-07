@@ -1,7 +1,33 @@
 const mineflayer = require("mineflayer");
 const host = process.env.MC_HOST;
 
-function getTeleportationLocation(){
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+/**
+ * Get teleportation locations for worker bots
+ * @param {number} density - total number of bots per teleportation spot
+ */
+function getTeleportationLocations(
+  spawn_x,
+  spawn_z,
+  num_bots,
+  density,
+  max_radius,
+) {
+  
+  coords = [];
+
+  const totalTeleportLocs = Math.ceil(num_bots / density);
+  for (i = 0; i < totalTeleportLocs; i++) {
+    const theta = Math.random() * 2 * Math.PI;
+    const r = Math.sqrt(Math.random()) * max_radius;
+    const x = Math.round(r * Math.cos(theta));
+    const z = Math.round(r * Math.sin(theta));
+    coords.push({ x: x + spawn_x, z: z + spawn_z });
+  }
+  return coords;
 }
 
 function getTimestamp() {
@@ -37,4 +63,6 @@ function createBot(username, plugins) {
 module.exports = {
   createBot,
   getTimestamp,
+  getRandomInt,
+  getTeleportationLocations,
 };

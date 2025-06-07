@@ -21,7 +21,7 @@ def get_world_spawn_json():
     Get the world spawn coordinates
     """
     coord = mutils.get_world_spawn(sys.argv[1])
-    print('{ "box_x":%d, "box_y":%d, "box_z":%d }' % (coord.x, coord.y, coord.z))
+    print('{ "spawn_x":%d, "spawn_y":%d, "spawn_z":%d }' % (coord.x, coord.y, coord.z))
 
 
 def deploy_mult():
@@ -42,9 +42,13 @@ def deploy_mult():
 
 
 def deploy_bot():
+    """
+    world: sys.argv[1]
+    """
     wl = WalkAround(
         bot_nodes, master_node[0].ansible_host, timedelta(seconds=120), bots_per_node=5
     )
+    wl.setup_recording_nodes(bot_nodes, 1)
     wl.deploy()
     wl.start()
     sleep(120)

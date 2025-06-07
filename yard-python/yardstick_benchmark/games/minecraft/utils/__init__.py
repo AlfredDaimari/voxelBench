@@ -9,9 +9,14 @@ class MinecraftWorldCoordinates:
     y: int
     z: int
 
+
 def get_world_spawn(world: str) -> MinecraftWorldCoordinates:
-    world_nbt_file_path = Path(__file__).parent.parent.parent.parent.parent.parent / f"worlds/{world}/level.dat"
+    world_nbt_file_path = (
+        Path(__file__).parent.parent.parent.parent.parent.parent
+        / f"worlds/{world}/level.dat"
+    )
     nbt_file = NBTFile(world_nbt_file_path)
     data = nbt_file["Data"]
-    return MinecraftWorldCoordinates(data["SpawnX"].value, data["SpawnY"].value, data["SpawnZ"].value)
-
+    return MinecraftWorldCoordinates(
+        data["SpawnX"].value, data["SpawnY"].value, data["SpawnZ"].value
+    )

@@ -84,7 +84,7 @@ class VagrantVMs:
                 "vagrant status", shell=True, capture_output=True, text=True, env=env
             )
             total_nodes_running: int = sum(
-                1 for line in result.stdout.splitlines() if "running" in line
+                1 for line in result.stdout.splitlines() if "running (libvirt)" in line
             )
 
             env["VAGRANT_VAGRANTFILE"] = "BotVagrantfile.rb"
@@ -92,7 +92,7 @@ class VagrantVMs:
                 "vagrant status", shell=True, capture_output=True, text=True, env=env
             )
             total_nodes_running += sum(
-                1 for line in result.stdout.splitlines() if "running" in line
+                1 for line in result.stdout.splitlines() if "running (libvirt)" in line
             )
 
             total_inventory_file_nodes = 0

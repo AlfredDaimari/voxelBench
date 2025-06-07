@@ -6,19 +6,25 @@ const { GoalXZ } = require("mineflayer-pathfinder").goals;
 const { workerData } = require("worker_threads");
 const utils = require("./utils");
 
-const box_center = workerData.box_center;
-const box_width = workerData.box_width;
-const record = Boolean(process.env.RECORD | false);
+const hostname = process.env.HOSTNAME;
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function nextGoal(bot) {
-  let x = box_center.x + getRandomInt(box_width) - box_width / 2;
-  let z = box_center.z + getRandomInt(box_width) - box_width / 2;
-  let ts = Date.now() / 1000;
+/**
+ * Find next coordinate to walk to
+ * @param {number} currentX x-coordinate
+ * @param {number} currentZ z-coordinate
+ * @returns {GoalXZ} next walking position
+ */
+function nextGoal(currentX, currentZ) {
+  let x =
+    currentX +
+    utils.getRandomInt(workerData.box_width) -
+    workerData.box_width / 2;
+  let z =
+    currentZ +
+    utils.getRandomInt(workerData.box_width) -
+    workerData.box_width / 2;
   /*
+  let ts = Date.now() / 1000;
   console.log(
     `${ts} - bot ${bot.username}, ${bot.entity.position}, ${v(
       x,
@@ -37,7 +43,7 @@ function nextGoal(bot) {
 function recordBotInFirstPerson(bot, _) {
   bot.once("spawn", () => {
     mineflayerViewer(bot, {
-      output: `../videos/${utils.getTimestamp()}.mp4`,
+      output: `../videos/${hostname}-${utils.getTimestamp()}.mp4`,
       frames: (workerData.time_left_ms / 1000) * 60,
       width: 512,
       height: 512,
@@ -48,15 +54,22 @@ function recordBotInFirstPerson(bot, _) {
 function walk(bot, _) {
   const beginWalking = async () => {
     // first teleport to a location
+    bot.chat(`/tp @s ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`);
+    // set spawn point to the given location
+    bot.chat(
+      `/sp @s ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`,
+    );
     bot.loadPlugin(pathfinder);
 
     let defaultMove = new Movements(bot);
-    defaultMove.allowSprinting = true;
+    defaultMove.allowSprinting = false;
     defaultMove.canDig = true;
     bot.pathfinder.setMovements(defaultMove);
 
+    var goal = nextGoal(workerData.spawn_z, workerData.spawn_z);
+
     while (true) {
-      let goal = nextGoal(bot);
+      goal = nextGoal(goal.x, goal.z);
       try {
         await bot.pathfinder.goto(goal);
       } catch (e) {
@@ -71,16 +84,15 @@ function walk(bot, _) {
 }
 
 function run() {
-  const username = workerData.username;
   const plugins = {
     walk,
   };
 
-  if (record) {
+  if (workerData.record) {
     plugins.recordBotInFirstPerson = recordBotInFirstPerson;
   }
 
-  const worker_bot = utils.createBot(username, plugins);
+  const worker_bot = utils.createBot(workerData.username, plugins);
 
   worker_bot.on("kicked", console.log);
   worker_bot.on("error", console.log);

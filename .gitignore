@@ -478,6 +478,7 @@ data
 worlds
 yard-python/pyrightconfig.json
 videos
+yard-js/dist
 
 scratch
 pamuk_ssh_key

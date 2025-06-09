@@ -14,7 +14,9 @@ const spawn_x = parseInt(process.env.SPAWN_X || 0);
 const spawn_y = parseInt(process.env.SPAWN_Y || 64);
 const spawn_z = parseInt(process.env.SPAWN_Z || 0);
 const density = parseInt(process.env.DENSITY || 1);
-const max_radius = parseInt(process.env.MAX_RADIUS || 10000);
+const max_radius = parseInt(process.env.MAX_RADIUS || 500);
+const spawned_bot_locations = {};
+const workload = process.env.WORKLOAD || "walk";
 
 const teleportLocs = utils.getTeleportationLocations(
   spawn_x,
@@ -39,23 +41,44 @@ function sleep(ms) {
 function start_worker(username) {
   const workerData = {
     username,
-    time_left_ms: timeout_s * 1000 - (Date.now() - start),
+    time_left_ms: utils.get_time_left(),
     spawn_y,
     box_width,
   };
 
   const spawnPointInd = utils.getRandomInt(teleportLocs.length);
-  workerData.spawn_x = teleportLocs[spawnPointInd].x;
-  workerData.spawn_z = teleportLocs[spawnPointInd].z; 
+  const teleportLoc = teleportLocs[spawnPointInd];
+  const teleportLocKey = JSON.stringify(teleportLoc);
+
+  // add the bot to the spawned location
+  if (!(teleportLocKey in spawned_bot_locations)) {
+    spawned_bot_locations[teleportLocKey] = [];
+  }
+  workerData.spawn_neighbours = JSON.parse(
+    JSON.stringify(spawned_bot_locations[teleportLocKey]),
+  );
+  spawned_bot_locations[teleportLocKey].push(username); //info for the next bot
+  workerData.spawn_x = teleportLoc.x;
+  workerData.spawn_z = teleportLoc.z;
 
   // only permit one bot to record
   if (totRecBots > 0) {
     workerData.record = true;
-    totRecBots = 0;
+    totRecBots = totRecBots - 1;
   } else workerData.record = false;
 
+  if (workload === "walk") {
+    var workloadFile = "./walkaround_worker_bot.js";
+  } else if (workload === "pvp") {
+    var workloadFile = "./pvp_worker_bot.js";
+  } else if (workload === "pve") {
+    var workloadFile = "./pve_worker_bot.js";
+  } else {
+    var workloadFile = "./build_worker_bot.js";
+  }
+
   return new Promise((resolve, reject) => {
-    const worker = new Worker("./walkaround_worker_bot.js", { workerData });
+    const worker = new Worker(workloadFile, { workerData });
 
     worker.on("message", resolve);
     worker.on("error", reject);
@@ -76,7 +99,7 @@ function genWorkers(bot, _) {
   // removing on spawn because anyways this function would be called after spawn
 
   const loadWorkers = async () => {
-    bot.chat(`/tp @s ${spawn_x} ${spawn_y} ${spawn_z}`);
+    bot.chat(`/tp jeff-${bot_index} ${spawn_x} ${spawn_y} ${spawn_z}`);
     bot.quit("constructs have been placed. jeff's job is done");
     //console.debug("debug: finished flying to center");
     let b = 0;

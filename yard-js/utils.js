@@ -1,8 +1,19 @@
 const mineflayer = require("mineflayer");
 const host = process.env.MC_HOST;
+const hostname = process.env.HOSTNAME;
+const workload = process.env.WORKLOAD || "walk";
+const timeout_s = parseInt(process.env.DURATION || 60);
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
+}
+
+/**
+ * Time left in workload
+ * @returns {Number} time in seconds
+ */
+function get_time_left() {
+  return timeout_s * 1000 - (Date.now() - process.env.start);
 }
 
 /**
@@ -16,7 +27,6 @@ function getTeleportationLocations(
   density,
   max_radius,
 ) {
-  
   coords = [];
 
   const totalTeleportLocs = Math.ceil(num_bots / density);
@@ -28,6 +38,21 @@ function getTeleportationLocations(
     coords.push({ x: x + spawn_x, z: z + spawn_z });
   }
   return coords;
+}
+
+/**
+ * Video Recording function
+ * video will be saved in the videos directory in project root
+ */
+function recordBotInFirstPerson(bot, _) {
+  bot.once("spawn", () => {
+    mineflayerViewer(bot, {
+      output: `../videos/${hostname}-${workload}-${getTimestamp()}.mp4`,
+      frames: (get_time_left() / 1000) * 60,
+      width: 512,
+      height: 512,
+    });
+  });
 }
 
 function getTimestamp() {
@@ -65,4 +90,5 @@ module.exports = {
   getTimestamp,
   getRandomInt,
   getTeleportationLocations,
+  get_time_left,
 };

@@ -1,12 +1,9 @@
-const mineflayer = require("mineflayer");
-const mineflayerViewer = require("prismarine-viewer").headless;
 const pathfinder = require("mineflayer-pathfinder").pathfinder;
 const Movements = require("mineflayer-pathfinder").Movements;
 const { GoalXZ } = require("mineflayer-pathfinder").goals;
+const mineflayerViewer = require("prismarine-viewer").headless;
 const { workerData } = require("worker_threads");
 const utils = require("./utils");
-
-const hostname = process.env.HOSTNAME;
 
 /**
  * Find next coordinate to walk to
@@ -15,14 +12,8 @@ const hostname = process.env.HOSTNAME;
  * @returns {GoalXZ} next walking position
  */
 function nextGoal(currentX, currentZ) {
-  let x =
-    currentX +
-    utils.getRandomInt(workerData.box_width) -
-    workerData.box_width / 2;
-  let z =
-    currentZ +
-    utils.getRandomInt(workerData.box_width) -
-    workerData.box_width / 2;
+  let x = currentX + utils.getRandomInt(256) - workerData.box_width / 2;
+  let z = currentZ + utils.getRandomInt(256) - workerData.box_width / 2;
   /*
   let ts = Date.now() / 1000;
   console.log(
@@ -40,11 +31,14 @@ function nextGoal(currentX, currentZ) {
  * Video Recording function
  * video will be saved in the videos directory in project root
  */
+const hostname = process.env.HOSTNAME;
+const workload = process.env.WORKLOAD || "walk";
+const username = workerData.username;
 function recordBotInFirstPerson(bot, _) {
   bot.once("spawn", () => {
     mineflayerViewer(bot, {
-      output: `../videos/${hostname}-${utils.getTimestamp()}.mp4`,
-      frames: (workerData.time_left_ms / 1000) * 60,
+      output: `../videos/${hostname}-${workload}-${username}-${utils.getTimestamp()}.mp4`,
+      frames: (utils.get_time_left() / 1000) * 60,
       width: 512,
       height: 512,
     });
@@ -54,10 +48,12 @@ function recordBotInFirstPerson(bot, _) {
 function walk(bot, _) {
   const beginWalking = async () => {
     // first teleport to a location
-    bot.chat(`/tp @s ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`);
+    bot.chat(
+      `/tp ${username} ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`,
+    );
     // set spawn point to the given location
     bot.chat(
-      `/sp @s ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`,
+      `/minecraft:spawnpoint @s ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`,
     );
     bot.loadPlugin(pathfinder);
 

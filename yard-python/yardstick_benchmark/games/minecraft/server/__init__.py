@@ -54,11 +54,13 @@ class MultiPaper(RemoteApplication):
                     "server_properties_template": str(
                         Path(__file__).parent / "server.properties.j2"
                     ),
+                    "essentials_plugin": str(
+                        Path(__file__).parent.parent / "plugins/EssentialsX-2.21.1.jar"
+                    ),
                 },
             )
 
-
     # remember to call this function before deploying
-    def set_world_as(self, path : Path):
+    def set_world_as(self, path: Path):
         self.extravars["world_path"] = str(path)
         self.extravars["world_name"] = str(path).split("/")[-1].split(".")[0]

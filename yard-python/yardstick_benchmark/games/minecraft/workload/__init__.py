@@ -18,7 +18,9 @@ class WalkAround(RemoteApplication):
         bots_join_delay: timedelta = timedelta(seconds=5),
         bots_per_node: int = 1,
         density: int = 1,
-        max_radius: int = 10000
+        max_radius: int = 10000,
+        workload: str = 'walk',
+        world_name: str = 'CastleLividus'
     ):
         scripts = [
             str(
@@ -54,7 +56,9 @@ class WalkAround(RemoteApplication):
                 "bots_join_delay": bots_join_delay.total_seconds(),
                 "bots_per_node": bots_per_node,
                 "density": density,
-                "max_radius":max_radius
+                "max_radius":max_radius,
+                "workload": workload,
+                "world_name": world_name
             },
         )
 

@@ -27,7 +27,7 @@
     
     - name: Install node 18 and mineflayer, pathfinder, pve-mineflayer, construction-mineflayer
       shell: |
-        source ~/.nvm/nvm.sh && nvm install 18 && npm install mineflayer && npm install mineflayer-pathfinder       
+        source ~/.nvm/nvm.sh && nvm install 18 && npm install mineflayer && npm install mineflayer-pathfinder && npm install mineflayer-pvp       
       args:
         executable: /bin/bash
         chdir: "{{ wd }}"

@@ -26,7 +26,7 @@
 
     - name: Gracefully shutdown worker template editing
       shell: |
-        kill -SIGTERM $(cat template.pid)
+        kill -SIGKILL $(cat template.pid)
         rm worker1.log
       args:
         chdir: ~/worker
@@ -61,7 +61,7 @@
     
     - name: Gracefull shutdown worker template generation
       shell: |
-        kill -SIGTERM -f $(cat template.pid)
+        kill -SIGKILL -f $(cat template.pid)
         rm worker2.log
       args:
         chdir: ~/worker
@@ -74,6 +74,7 @@
         cat config/paper-global.yml | dasel put -r yaml -t bool -o config/paper-global.yml -v false 'proxies.velocity.enabled'
         cat config/paper-global.yml | dasel put -r yaml -t string -o config/paper-global.yml -v secret 'proxies.velocity.secret'
         cat spitgot.yml | dasel put -r yaml -t bool -o spigot.yml -v true 'settings.bungeecord'
+        cat pufferfish.yml | dasel put -r yaml -t bool -o pufferfish.yml -v true 'misc.disable-out-of-order-chat'
       args:
         chdir: ~/worker
         executable: /bin/bash
@@ -85,14 +86,6 @@
           on join:
             message "Yardstick 2.0 Minecraft Benchmark"
             make console execute command "/op %player%"
-
-          command /trackzombies:
-            trigger:
-              message "Tracking zombies for %player%"
-              loop all entities in radius 12 of player:
-                loop-value is a zombie:
-                  set {_loc} to location of loop-value
-                  send "&6Zombie at &e%{_loc}%" to player
 
     - name: Run multipaper worker node using jolokia
       shell: |

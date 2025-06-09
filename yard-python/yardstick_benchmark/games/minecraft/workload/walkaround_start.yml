@@ -16,6 +16,8 @@
     HOSTNAME: "{{inventory_hostname}}"
     DENSITY: "{{density}}"
     MAX_RADIUS: "{{max_radius}}"
+    WORKLOAD: "{{workload}}"
+    WORLDNAME: "{{world_name}}"
   tasks:
     - name: Set game spawn location
       shell: source ~/.nvm/nvm.sh && node set_spawn.js
@@ -27,7 +29,7 @@
     - name: Run Minecraft bot
       shell: |
           bash -i << EOF
-          nohup node walkaround_bot.js > bot-{{ inventory_hostname }}.log 2>&1 </dev/null & 
+          nohup node master_bot.js > bot-{{ inventory_hostname }}.log 2>&1 </dev/null & 
           echo $! > bot-{{inventory_hostname}}.pid
           exit
           EOF

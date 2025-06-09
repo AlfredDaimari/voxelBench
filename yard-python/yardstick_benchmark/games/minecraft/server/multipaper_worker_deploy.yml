@@ -70,7 +70,7 @@
 
     - name: Gracefully shutdown worker template run
       shell: |
-        kill -SIGTERM $(cat template.pid)
+        kill -SIGKILL $(cat template.pid)
         rm template.log
       args:
         chdir: ~/worker
@@ -95,4 +95,10 @@
     - name: Download Skript Minecraft
       get_url:
         url: https://github.com/SkriptLang/Skript/releases/download/2.11.2/Skript-2.11.2.jar
-        dest: "~/worker/plugins/Skript-2.11.2.jar"  
+        dest: "~/worker/plugins/Skript-2.11.2.jar"
+
+    - name: Download Minecraft essentials
+      copy:
+         src: "{{essentials_plugin}}"
+         dest: "~/worker/plugins/EssentialsX-2.21.1.jar"
+

@@ -36,6 +36,13 @@
         flat: yes
       loop: "{{ log_files.files }}"
 
+    - name: Get worker bot position log file
+      ansible.builtin.fetch:
+        src: "{{ wd }}/logs/bots.log"
+        dest: "{{ dest }}/{{ ansible_hostname }}-bots-pos.log"
+        flat: yes
+      ignore_errors: true
+
     - name: Find all log files in worker directory
       find:
         paths: "~/velocity/logs"

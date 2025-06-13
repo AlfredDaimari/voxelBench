@@ -1,6 +1,8 @@
 from yardstick_benchmark.model import RemoteApplication, Node, VagrantNode
 from pathlib import Path
 from datetime import timedelta
+from glob import glob
+from itertools import chain
 
 
 class WalkAround(RemoteApplication):
@@ -22,30 +24,13 @@ class WalkAround(RemoteApplication):
         workload: str = "walk",
         world_name: str = "CastleLividus",
     ):
+        jsdir = Path(__file__).parent.parent.parent.parent.parent.parent / "yard-js"
         scripts = [
-            str(
-                Path(__file__).parent.parent.parent.parent.parent.parent
-                / "yard-js/master_bot.js"
-            ),
-            str(
-                Path(__file__).parent.parent.parent.parent.parent.parent
-                / "yard-js/walkaround_worker_bot.js"
-            ),
-            str(
-                Path(__file__).parent.parent.parent.parent.parent.parent
-                / "yard-js/pvp_worker_bot.js"
-            ),
-            str(
-                Path(__file__).parent.parent.parent.parent.parent.parent
-                / "yard-js/pve_worker_bot.js"
-            ),
-            str(
-                Path(__file__).parent.parent.parent.parent.parent.parent
-                / "yard-js/build_worker_bot.js"
-            ),
-
-            str(Path(__file__).parent / "set_spawn.js"),
+            file
+            for file in chain(glob(str(jsdir) + "/*.js"), glob(str(jsdir) + "/*.json"))
         ]
+        scripts.append(str(Path(__file__).parent / "set_spawn.js"))
+
         super().__init__(
             "walkaround",
             nodes,

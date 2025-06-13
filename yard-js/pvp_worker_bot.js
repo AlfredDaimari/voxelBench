@@ -96,6 +96,15 @@ function pvpModel(bot, _) {
     });
   };
 
+  // log bot position every 0.5 seconds
+  setInterval(
+    () =>
+      parentPort.postMessage(
+        `${username}:${bot.entity.position.x}-${bot.entity.position.y}`,
+      ),
+    500,
+  );
+
   bot.once("spawn", equipArmorAndSword);
   bot.once("spawn", beginPVP);
 }

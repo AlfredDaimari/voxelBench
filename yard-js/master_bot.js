@@ -1,5 +1,5 @@
 const v = require("vec3");
-const { Worker } = require("worker_threads");
+const { Worker, parentPort } = require("worker_threads");
 const mineflayer = require("mineflayer");
 const utils = require("./utils");
 
@@ -17,6 +17,7 @@ const density = parseInt(process.env.DENSITY || 1);
 const max_radius = parseInt(process.env.MAX_RADIUS || 500);
 const spawned_bot_locations = {};
 const workload = process.env.WORKLOAD || "walk";
+const { logger } = require("./logger");
 
 const teleportLocs = utils.getTeleportationLocations(
   spawn_x,
@@ -79,8 +80,9 @@ function start_worker(username) {
 
   return new Promise((resolve, reject) => {
     const worker = new Worker(workloadFile, { workerData });
+    // log to winston position of worker bots
+    worker.on("message", (msg) => logger.info(msg));
 
-    worker.on("message", resolve);
     worker.on("error", reject);
     worker.on("exit", (code) => {
       workers.delete(username);

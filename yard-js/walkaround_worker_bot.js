@@ -2,8 +2,9 @@ const pathfinder = require("mineflayer-pathfinder").pathfinder;
 const Movements = require("mineflayer-pathfinder").Movements;
 const { GoalXZ } = require("mineflayer-pathfinder").goals;
 const mineflayerViewer = require("prismarine-viewer").headless;
-const { workerData } = require("worker_threads");
+const { workerData, parentPort } = require("worker_threads");
 const utils = require("./utils");
+const { default: logger } = require("./logger");
 
 /**
  * Find next coordinate to walk to
@@ -12,8 +13,8 @@ const utils = require("./utils");
  * @returns {GoalXZ} next walking position
  */
 function nextGoal(currentX, currentZ) {
-  let x = currentX + utils.getRandomInt(256) - workerData.box_width / 2;
-  let z = currentZ + utils.getRandomInt(256) - workerData.box_width / 2;
+  let x = currentX + utils.getRandomIntInterval(50) - workerData.box_width / 2;
+  let z = currentZ + utils.getRandomIntInterval(50) - workerData.box_width / 2;
   /*
   let ts = Date.now() / 1000;
   console.log(
@@ -60,22 +61,27 @@ function walk(bot, _) {
     let defaultMove = new Movements(bot);
     defaultMove.allowSprinting = false;
     defaultMove.canDig = true;
+    defaultMove.allowParkour = true;
+    defaultMove.allowFreeMotion = true;
     bot.pathfinder.setMovements(defaultMove);
 
     var goal = nextGoal(workerData.spawn_z, workerData.spawn_z);
+    bot.pathfinder.setGoal(goal);
 
-    while (true) {
-      goal = nextGoal(goal.x, goal.z);
-      try {
-        await bot.pathfinder.goto(goal);
-      } catch (e) {
-        // if the bot cannot find a path, carry on and let it try to move somewhere else
-        if (e.name != "NoPath" && e.name != "Timeout") {
-          throw e;
-        }
-      }
-    }
+    bot.on("goal_reached", () => {
+      goal = nexGoal(goal.x, goal.z);
+      bot.pathfinder.setGoal(goal);
+    });
   };
+  // log bot position every 0.5 seconds
+  setInterval(
+    () =>
+      parentPort.postMessage(
+        `${username}:${bot.entity.position.x}-${bot.entity.position.y}`,
+      ),
+    500,
+  );
+
   bot.once("spawn", beginWalking);
 }
 

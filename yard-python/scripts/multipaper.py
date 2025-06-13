@@ -14,6 +14,9 @@ master_node = vagrant.get_vms_with_tag("master")
 worker_nodes = vagrant.get_vms_with_tag("worker")
 bot_nodes = vagrant.get_vms_with_tag("bot")
 telegraf = Telegraf(master_node + worker_nodes + bot_nodes)
+wl = WalkAround(
+    bot_nodes, master_node[0].ansible_host, timedelta(seconds=120), bots_per_node=5
+)
 
 
 def get_world_spawn_json():
@@ -40,6 +43,7 @@ def deploy_mult():
     multipaper_worker.deploy()
     multipaper_worker.start()
 
+
 def stop_mult():
     """
     Stop running multipaper
@@ -55,13 +59,14 @@ def deploy_bot():
     """
     world: sys.argv[1]
     """
-    wl = WalkAround(
-        bot_nodes, master_node[0].ansible_host, timedelta(seconds=120), bots_per_node=5
-    )
     wl.setup_recording_nodes(bot_nodes, 1)
     wl.deploy()
-    #wl.start()
-    #sleep(120)
+
+
+def start_bot():
+    wl.setup_recording_nodes(bot_nodes)
+    wl.start()
+    sleep(120)
 
 
 def start_telegraf():

@@ -92,6 +92,15 @@ function pveModel(bot, _) {
     }, 1000);
   };
 
+  // log bot position every 0.5 seconds
+  setInterval(
+    () =>
+      parentPort.postMessage(
+        `${username}:${bot.entity.position.x}-${bot.entity.position.y}`,
+      ),
+    500,
+  );
+
   bot.once("spawn", beginPVE);
 }
 

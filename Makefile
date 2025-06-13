@@ -25,14 +25,14 @@ test-tel-stop:
 # runs one bot to test walking workload (note the world should be the same as 
 # one used to run test-deploy )
 test-walkload:
-	@echo "Running one bot locally against cluster"
+	@echo "Running two bots locally against cluster"
 	@{ \
 	COORDS=$$(cd yard-python && poetry run mult-get-world_spawn $(world)); \
 	SPAWN_X=$$(echo "$$COORDS" | jq -r '.spawn_x'); \
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
 	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y , $$SPAWN_Z"; \
-	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=1 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local node master_bot.js; \
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=2 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local node master_bot.js; \
 	}
 
 test-pvp:

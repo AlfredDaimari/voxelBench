@@ -9,6 +9,14 @@ function getRandomInt(max) {
 }
 
 /**
+ * Get random int in an interval
+ * max = 50, interval = -50:50
+ */
+function getRandomIntInterval(max) {
+  return Math.floor(Math.random() * 2 * max) - max;
+}
+
+/**
  * Time left in workload
  * @returns {Number} time in seconds
  */
@@ -89,6 +97,7 @@ module.exports = {
   createBot,
   getTimestamp,
   getRandomInt,
+  getRandomIntInterval,
   getTeleportationLocations,
   get_time_left,
 };

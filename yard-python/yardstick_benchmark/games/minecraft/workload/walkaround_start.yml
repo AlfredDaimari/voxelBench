@@ -25,6 +25,7 @@
         chdir: "{{ wd }}"
         executable: /bin/bash
       run_once: true # run once
+      when: false
     
     - name: Run Minecraft bot
       shell: |

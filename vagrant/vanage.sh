@@ -88,12 +88,14 @@ function set_config() {
 
 	WORKER_MEMORY=$(cat multipaper.toml | tomlq .worker.memory)
 
-	worker_cpus_str=$(cat multipaper.toml | tomlq .worker.cpu)
-	worker_totals_str=$(cat multipaper.toml | tomlq .worker.total)
-	worker_cpus_str=$(echo $worker_cpus_str | tr -d [ | tr -d ] | tr -d '\n' | tr -d ,)
-	worker_totals_str=$(echo $worker_totals_str | tr -d [ | tr -d ] | tr -d '\n' | tr -d ,)
-	IFS=',' read -r -a WORKER_CPUS <<<$worker_cpus_str
-	IFS=',' read -r -a WORKER_TOTALS <<<$worker_totals_str
+  WORKER_TOTAL=$(cat multipaper.toml | tomlq .worker.total)
+  WORKER_CPU=$(cat multipaper.toml | tomlq .worker.cpu)
+  #worker_cpus_str=$(cat multipaper.toml | tomlq .worker.cpu)
+	#worker_totals_str=$(cat multipaper.toml | tomlq .worker.total)
+	#worker_cpus_str=$(echo $worker_cpus_str | tr -d [ | tr -d ] | tr -d '\n' | tr -d ,)
+	#worker_totals_str=$(echo $worker_totals_str | tr -d [ | tr -d ] | tr -d '\n' | tr -d ,)
+	#IFS=',' read -r -a WORKER_CPUS <<<$worker_cpus_str
+	#IFS=',' read -r -a WORKER_TOTALS <<<$worker_totals_str
 
 	BOT_MEMORY=$(cat multipaper.toml | tomlq .bot.memory)
 	BOT_CPU=$(cat multipaper.toml | tomlq .bot.cpu)
@@ -139,26 +141,26 @@ function create_vms() {
 	export BOT_MEMORY BOT_CPU BOT_TOTAL
 
 	log_dt "... Setting Worker Config ..."
-	log_dt "memory=${WORKER_MEMORY}mb CPU=$2 Total=$1"
-	export WORKER_MEMORY WORKER_CPU=$2 WORKER_TOTAL=$1
+	log_dt "memory=${WORKER_MEMORY}mb CPU=${WORKER_CPU} Total=${WORKER_TOTAL}"
+	export WORKER_MEMORY WORKER_CPU WORKER_TOTAL
 	log_dt "... Creating VMs ..."
 	BLA::start_loading_animation "vagrant is creating worker/master vms"
 	VAGRANT_VAGRANTFILE=MultVagrantfile.rb vagrant up >vagrant.log
 	BLA::stop_loading_animation
 
 	BLA::start_loading_animation "vagrant is creating bot vms"
-	#VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
+	VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
 	BLA::stop_loading_animation
 
 	log_dt "... VMS Created: Now Creating Inventory TOML File ..."
 	create_inventory_toml
-	log_dt "... Invetory Created: Now running benchmark ..."
+	log_dt "... Invetory Created: Now benchmark can be run..."
 	# run the benchmark
-	log_dt "... Benchmark Completed: Now destroying VMs ..."
-	BLA::start_loading_animation "vagrant is destroying vms"
+	#log_dt "... Benchmark Completed: Now destroying VMs ..."
+	#BLA::start_loading_animation "vagrant is destroying vms"
 	#VAGRANT_VAGRANTFILE=MultVagrantfile.rb vagrant destroy -f >>vagrant.log
 	#VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant destroy -f >>vagrant.log
-	BLA::stop_loading_animation
+	#BLA::stop_loading_animation
 	echo -e "===x===x===x===x===x===x===x===x===x===x===x===x===x===x===\n\n\n\n\n"
 }
 
@@ -171,8 +173,5 @@ function create_vms() {
 install_yq
 set_config
 #setup_minecraft_network
-for total in $WORKER_TOTALS; do
-	for cpu in $WORKER_CPUS; do
-		create_vms $total $cpu
-	done
-done
+create_vms
+

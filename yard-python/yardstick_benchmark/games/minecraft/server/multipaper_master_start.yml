@@ -38,6 +38,7 @@
         nohup tail -f /dev/null > /tmp/master_stdin &
         echo $! > tail_fifo.pid
         nohup java -Xmx{{memory}}M -jar velocity-3.4.0-SNAPSHOT-496.jar </tmp/master_stdin >master.log &
+        echo $! > master.pid
       args:
         chdir: ~/velocity
         executable: /bin/bash

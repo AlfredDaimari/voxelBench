@@ -2,7 +2,23 @@
   hosts: all
 
   tasks:
-    - name: Shutdown nohup multipaper velocity
-      command: pkill -SIGTERM -f "java -jar velocity-3.4.0-SNAPSHOT-496.jar"
+    - name: Shutdown multipaper velocity fifo pipe process
+      shell: |
+        kill -SIGKILL $(cat tail_fifo.pid)
       ignore_errors: true
+      args:
+        executable: /bin/bash
 
+    - name: Shutdown multipaper master
+      shell: |
+        kill -SIGKILL $(cat master.pid)
+      ignore_errors: true
+      args:
+        executable: /bin/bash
+
+    - name: Shutdown mutlipaper worker
+      shell: |
+        kill -SIGKILL $(cat worker.pid)
+      ignore_errors: true
+      args:
+        execuatble: /bin/bash

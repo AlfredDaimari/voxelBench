@@ -6,6 +6,10 @@ test-mult:
 	@echo "Setting up multipaper on running nodes"
 	cd yard-python && poetry run dmult $(world)
 
+test-mult-stop:
+	@echo "Stopping multipaper"
+	cd yard-python && poetry run dmult-s
+
 test-bot:
 	@echo "Deploying bot to cluster"
 	cd yard-python && poetry run dmult-b
@@ -13,6 +17,10 @@ test-bot:
 test-tel:
 	@echo "Deploying telegraf monitoring to cluster"
 	cd yard-python && poetry run dmult-t
+
+test-tel-stop:
+	@echo "Stopping telegraph"
+	cd yard-python && poetry run smult-t
 
 # runs one bot to test walking workload (note the world should be the same as 
 # one used to run test-deploy )
@@ -49,6 +57,13 @@ test-pve:
 	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=2 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=pve DURATION=120 DENSITY=1 node master_bot.js; \
 	}
 
+test-fetch:
+	@echo "Fetching data"
+	cd yard-python && poetry run mult-fetch
+
+test-clean:
+	@echo "Cleaning up data"
+	cd yard-python && poetry run mult-clean
+
 nodes-destroy:
-	@cd vagrant && VAGRANT_VAGRANTFILE=MultVagrantfile.rb vagrant destroy -f
-	@cd vagrant && VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant destroy -f
+	@cd vagrant && bash remove.sh

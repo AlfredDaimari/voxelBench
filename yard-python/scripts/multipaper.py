@@ -40,6 +40,16 @@ def deploy_mult():
     multipaper_worker.deploy()
     multipaper_worker.start()
 
+def stop_mult():
+    """
+    Stop running multipaper
+    """
+    multipaper_master = MultiPaper(master_node, worker_nodes, "master")
+    multipaper_worker = MultiPaper(master_node, worker_nodes, "worker")
+
+    multipaper_master.stop()
+    multipaper_worker.stop()
+
 
 def deploy_bot():
     """
@@ -50,8 +60,8 @@ def deploy_bot():
     )
     wl.setup_recording_nodes(bot_nodes, 1)
     wl.deploy()
-    wl.start()
-    sleep(120)
+    #wl.start()
+    #sleep(120)
 
 
 def start_telegraf():
@@ -69,5 +79,9 @@ def fetch():
     timestamp = (
         datetime.now().isoformat(timespec="minutes").replace("-", "").replace(":", "")
     )
-    dest = Path(Path(__file__).parent.parent / f"data/{timestamp}")
+    dest = Path(Path(__file__).parent.parent.parent / f"data/{timestamp}")
     yardstick_benchmark.fetch(dest, master_node + worker_nodes + bot_nodes)
+
+
+def clean():
+    yardstick_benchmark.clean(master_node + worker_nodes + bot_nodes)

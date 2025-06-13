@@ -19,18 +19,31 @@ class WalkAround(RemoteApplication):
         bots_per_node: int = 1,
         density: int = 1,
         max_radius: int = 10000,
-        workload: str = 'walk',
-        world_name: str = 'CastleLividus'
+        workload: str = "walk",
+        world_name: str = "CastleLividus",
     ):
         scripts = [
             str(
                 Path(__file__).parent.parent.parent.parent.parent.parent
-                / "yard-js/walkaround_bot.js"
+                / "yard-js/master_bot.js"
             ),
             str(
                 Path(__file__).parent.parent.parent.parent.parent.parent
                 / "yard-js/walkaround_worker_bot.js"
             ),
+            str(
+                Path(__file__).parent.parent.parent.parent.parent.parent
+                / "yard-js/pvp_worker_bot.js"
+            ),
+            str(
+                Path(__file__).parent.parent.parent.parent.parent.parent
+                / "yard-js/pve_worker_bot.js"
+            ),
+            str(
+                Path(__file__).parent.parent.parent.parent.parent.parent
+                / "yard-js/build_worker_bot.js"
+            ),
+
             str(Path(__file__).parent / "set_spawn.js"),
         ]
         super().__init__(
@@ -56,9 +69,9 @@ class WalkAround(RemoteApplication):
                 "bots_join_delay": bots_join_delay.total_seconds(),
                 "bots_per_node": bots_per_node,
                 "density": density,
-                "max_radius":max_radius,
+                "max_radius": max_radius,
                 "workload": workload,
-                "world_name": world_name
+                "world_name": world_name,
             },
         )
 

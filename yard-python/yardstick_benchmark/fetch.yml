@@ -14,7 +14,39 @@
       ansible.builtin.fetch:
         src: "{{ item.path }}"
         dest: "{{ dest }}/{{ item.path | basename }}"
+        flat: yes
       loop: "{{ csv_files.files }}"
 
-    - debug:
-        msg: "Output files have been written to {{dest}}"
+- name: Get logs from worker nodes
+  gather_facts: true
+  hosts: all
+  tasks:
+    - name: Find all log files in worker directory
+      find:
+        paths: "~/worker/logs"
+        patterns: "*.log"
+        recurse: true
+      register: log_files
+      ignore_errors: true 
+
+    - name: Get log files from worker nodes
+      ansible.builtin.fetch:
+        src: "{{ item.path }}"
+        dest: "{{ dest }}/{{ansible_hostname}}-{{ item.path | basename }}"
+        flat: yes
+      loop: "{{ log_files.files }}"
+
+    - name: Find all log files in worker directory
+      find:
+        paths: "~/velocity/logs"
+        patterns: "*.log"
+        recurse: true
+      register: master_log_files
+      ignore_errors: true 
+
+    - name: Get log files from master node
+      ansible.builtin.fetch:
+        src: "{{ item.path }}"
+        dest: "{{ dest }}/master-{{ item.path | basename }}"
+        flat: yes
+      loop: "{{ master_log_files.files }}"

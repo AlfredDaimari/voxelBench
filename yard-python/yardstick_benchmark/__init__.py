@@ -12,7 +12,7 @@ def fetch(dest: Path, nodes: list[Node] | list[VagrantNode]):
     ).run()
 
 
-def clean(nodes: list[Node]):
+def clean(nodes: list[Node] | list[VagrantNode]):
     return RemoteAction(
         "clean",
         nodes,

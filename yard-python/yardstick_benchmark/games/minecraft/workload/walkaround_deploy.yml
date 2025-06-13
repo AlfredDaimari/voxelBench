@@ -1,5 +1,5 @@
 ---
-- name: Deploy Minecraft WalkAround workload
+- name: Deploy Minecraft Bot Node
   gather_facts: true
   hosts: all
   tasks:
@@ -22,12 +22,19 @@
       shell: |
         if ! test -f ~/.nvm/nvm.sh
         then
-          wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
+          wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
         fi
     
-    - name: Install node 18 and mineflayer, pathfinder, pve-mineflayer, construction-mineflayer
+    - name: Install node v.22.16.0
       shell: |
-        source ~/.nvm/nvm.sh && nvm install 18 && npm install mineflayer && npm install mineflayer-pathfinder && npm install mineflayer-pvp       
+        source ~/.nvm/nvm.sh && nvm install 22 
+      args:
+        executable: /bin/bash
+        chdir: "{{ wd }}"
+
+    - name: Install mineflayer, pathfinder, pve, construct
+      shell: |
+        source ~/.nvm/nvm.sh && npm install mineflayer && npm install mineflayer-pathfinder && npm install mineflayer-pvp
       args:
         executable: /bin/bash
         chdir: "{{ wd }}"
@@ -35,10 +42,10 @@
     - name: Checkout RCON client
       git:
         repo: https://github.com/tehbeard/node-rcon.git
-        dest: "{{wd}}/rcon"
+        dest: "{{ wd }}/rcon"
     
     - name: Copy scripts
       copy:
-        src: "{{item}}"
-        dest: "{{wd}}"
+        src: "{{ item }}"
+        dest: "{{ wd }}"
       with_items: "{{scripts}}"

@@ -93,6 +93,7 @@
         nohup tail -f /dev/null > /tmp/worker_stdin &
         echo $! > tail_fifo.pid 
         nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar multipaper-1.20.1-57.jar </tmp/worker_stdin > "worker-{{inventory_hostname}}.log" &
+        echo $! > worker.pid
       args:
         chdir: ~/worker
         executable: /bin/bash

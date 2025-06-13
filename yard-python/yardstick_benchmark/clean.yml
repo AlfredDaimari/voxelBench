@@ -3,7 +3,15 @@
   gather_facts: true
   hosts: all
   tasks:
+    - name: Find all CSV files in wd
+      find:
+        paths: "{{ wd }}"
+        patterns: "metrics-*.csv"
+        recurse: true
+      register: csv_files
+
     - name: Remove data from nodes
       file:
-        path: "{{node_wd}}"
+        path: "{{ item.path }}"
         state: absent
+      loop: "{{ csv_files.files }}"

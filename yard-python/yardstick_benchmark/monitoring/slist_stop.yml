@@ -1,0 +1,12 @@
+---
+- name: Stop player distribution monitoring
+  gather_facts: true
+  hosts: all
+
+  tasks:
+    - name: stop player distribution monitoring
+      shell: |
+        kill -SIGKILL $(cat slist.pid)
+      args:
+        chdir: "{{ wd }}"
+        executable: /bin/bash

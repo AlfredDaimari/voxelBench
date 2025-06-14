@@ -1,13 +1,16 @@
+from datetime import timedelta, datetime
+from time import sleep
+from pathlib import Path
+import sys
+
 import yardstick_benchmark
 from yardstick_benchmark.provisioning import VagrantVMs
 from yardstick_benchmark.games.minecraft.server import MultiPaper
 import yardstick_benchmark.games.minecraft.utils as mutils
 from yardstick_benchmark.monitoring import Telegraf
 from yardstick_benchmark.games.minecraft.workload import WalkAround
-from datetime import timedelta, datetime
-from time import sleep
-from pathlib import Path
-import sys
+from yardstick_benchmark.monitoring import start_player_distribution_monitoring
+from yardstick_benchmark.monitoring import stop_player_distribution_monitoring
 
 vagrant = VagrantVMs()
 master_node = vagrant.get_vms_with_tag("master")
@@ -90,3 +93,10 @@ def fetch():
 
 def clean():
     yardstick_benchmark.clean(master_node + worker_nodes + bot_nodes)
+
+
+def start_pdist_monitoring():
+    start_player_distribution_monitoring(worker_nodes)
+
+def stop_pdist_monitoring():
+    stop_player_distribution_monitoring(worker_nodes)

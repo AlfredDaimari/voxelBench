@@ -1,0 +1,18 @@
+---
+- name: Start player distribution monitoring
+  gather_facts: true
+  hosts: all
+
+  tasks:
+    - name: setup working directory if non-existent
+      file:
+        path: "{{ wd }}"
+        state: directory
+
+    - name: run player distribution monitoring
+      shell: |
+        nohup bash -c 'while true; do echo slist > /tmp/worker_stdin; sleep 1; done' > slist.log 2>&1 </dev/null &
+        echo $! > slist.pid
+      args:
+        executable: /bin/bash
+        chdir: "{{ wd }}"

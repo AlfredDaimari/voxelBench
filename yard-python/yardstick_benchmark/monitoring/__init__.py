@@ -1,4 +1,4 @@
-from yardstick_benchmark.model import RemoteApplication, Node, VagrantNode
+from yardstick_benchmark.model import RemoteAction, RemoteApplication, Node, VagrantNode
 import os
 from enum import Enum
 import sys
@@ -62,3 +62,21 @@ class Telegraf(RemoteApplication):
         self.inv.setdefault("minecraft_servers", {}).setdefault("hosts", {})[
             node.host if isinstance(node, Node) else node.name
         ] = this_host
+
+
+def start_player_distribution_monitoring(nodes: list[VagrantNode]):
+    """
+    Run the slist command on every worker stdin at 1 second intervals
+    """
+    RemoteAction(
+        "start-player-dist-monitoring", nodes, Path(__file__).parent / "slist_start.yml"
+    ).run()
+
+
+def stop_player_distribution_monitoring(nodes: list[VagrantNode]):
+    """
+    Stop running the slist command on each worker stdin
+    """
+    RemoteAction(
+        "stop-player-dist-monitoring", nodes, Path(__file__).parent / "slist_stop.yml"
+    ).run()

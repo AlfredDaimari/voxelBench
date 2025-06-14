@@ -312,6 +312,20 @@ files = [
 ]
 
 [[package]]
+name = "mcipc"
+version = "2.4.2"
+description = "A Minecraft server inter-process communication library."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "mcipc-2.4.2-py3-none-any.whl", hash = "sha256:a1a14d06956ab8e7a0571b2dc0f9a2ea509f44c1c49845b27355d7c116d8c580"},
+    {file = "mcipc-2.4.2.tar.gz", hash = "sha256:b2899b5749f12c26a477e7d8cdcea65bc96c65b795728825d24fed3447af43dc"},
+]
+
+[package.dependencies]
+rcon = "*"
+
+[[package]]
 name = "mcrcon"
 version = "0.7.0"
 description = "A client for handling Remote Commands (RCON) to a Minecraft server."
@@ -502,6 +516,20 @@ files = [
 ]
 
 [[package]]
+name = "rcon"
+version = "2.1.1"
+description = "An RCON client library."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "rcon-2.1.1-py3-none-any.whl", hash = "sha256:cabfa4ae8db97503fbe6930ab0d339a9fa3503f1ac3990c769d79d64d16f5be6"},
+    {file = "rcon-2.1.1.tar.gz", hash = "sha256:fa4b7f76eeef8378eb1db67e603411caa43e3cd15295dea8c2553f7ebbfb6b47"},
+]
+
+[package.extras]
+gui = ["pygobject", "pygtk"]
+
+[[package]]
 name = "resolvelib"
 version = "1.0.1"
 description = "Resolve abstract dependencies into concrete ones"
@@ -562,4 +590,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "dd01ebae5cb16e407bb6917cccc2f7951cbc0d3adb7888ea02b606b4241371d3"
+content-hash = "d7aa01a749a49c10b77eef349defe23f08a4291cf72960e4313bb75940cbdeaa"

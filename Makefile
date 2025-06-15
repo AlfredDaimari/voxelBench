@@ -1,5 +1,5 @@
 setup:
-	@echo "Running yardstick 2.0 benchmark"
+	@echo "Setting up nodes for voxelBench"
 	@cd vagrant && ./vanage.sh
 
 test-mult:
@@ -67,3 +67,7 @@ test-clean:
 
 nodes-destroy:
 	@cd vagrant && bash remove.sh
+
+build-chunkLogger:
+	@cd java && mvn clean package
+	mv java/target/ChunkLogger-1.0.jar yard-python/yardstick_benchmark/games/minecraft/plugins/

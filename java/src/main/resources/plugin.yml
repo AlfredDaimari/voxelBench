@@ -1,0 +1,4 @@
+name: ChunkLogger
+version: 1.0
+main: ChunkLogger
+api-version: 1.13

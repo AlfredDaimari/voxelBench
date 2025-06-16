@@ -186,6 +186,12 @@
   data_format = 'csv'
   csv_header = true
 
+[[outputs.file]]
+  files = ["metrics-diskio-{{inventory_hostname}}.csv"]
+  namespass = ["diskio"]
+  data_format = 'csv'
+  csv_header = true
+
 ###############################################################################
 #                            PROCESSOR PLUGINS                                #
 ###############################################################################

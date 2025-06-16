@@ -79,6 +79,11 @@
         chdir: ~/worker
         executable: /bin/bash
 
+    - name: Ensure Skript script directory exists
+      file:
+        path: ~/worker/plugins/Skript/scripts/
+        state: directory
+
     - name: Copy Skript auto-op script
       copy:
         dest: ~/worker/plugins/Skript/scripts/autop.sk

@@ -57,3 +57,10 @@
         dest: "{{ dest }}/master-{{ item.path | basename }}"
         flat: yes
       loop: "{{ master_log_files.files }}"
+
+    - name: Get chunk log files from worker nodes
+      ansible.builtin.fetch:
+        src: "~/worker/chunk-logs.txt"
+        dest: "{{ dest }}/{{ ansible_hostname }}-chunk-logs.txt"
+        flat: yes
+      ignore_errors: true

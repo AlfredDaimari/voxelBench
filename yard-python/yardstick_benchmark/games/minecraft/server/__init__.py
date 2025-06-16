@@ -54,8 +54,8 @@ class MultiPaper(RemoteApplication):
                     "server_properties_template": str(
                         Path(__file__).parent / "server.properties.j2"
                     ),
-                    "essentials_plugin": str(
-                        Path(__file__).parent.parent / "plugins/EssentialsX-2.21.1.jar"
+                    "plugins": str(
+                        Path(__file__).parent.parent / "plugins"
                     ),
                 },
             )

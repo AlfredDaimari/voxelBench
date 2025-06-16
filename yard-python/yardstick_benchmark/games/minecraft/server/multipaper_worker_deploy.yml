@@ -97,8 +97,10 @@
         url: https://github.com/SkriptLang/Skript/releases/download/2.11.2/Skript-2.11.2.jar
         dest: "~/worker/plugins/Skript-2.11.2.jar"
 
-    - name: Download Minecraft essentials
+    - name: Copy Minecraft essential plugins
       copy:
-         src: "{{essentials_plugin}}"
-         dest: "~/worker/plugins/EssentialsX-2.21.1.jar"
+        src: "{{ item }}"
+        dest: "~/worker/plugins/"
+        mode: '0644'
+      with_fileglob: "{{ plugins }}/*.jar"
 

@@ -1,11 +1,20 @@
 from yardstick_benchmark.model import RemoteApplication, Node, VagrantNode
+from yardstick_benchmark.games.minecraft.utils import get_world_spawn
 from pathlib import Path
 from datetime import timedelta
 from glob import glob
 from itertools import chain
+from enum import Enum
+
+class Work(Enum):
+    walk = "walk"
+    pvp = "pvp"
+    pve = "pve"
+    build = "build"
+    redstone = "redstone"
 
 
-class WalkAround(RemoteApplication):
+class Workload(RemoteApplication):
     def __init__(
         self,
         nodes: list[Node] | list[VagrantNode],
@@ -22,7 +31,7 @@ class WalkAround(RemoteApplication):
         density: int = 1,
         max_radius: int = 10000,
         workload: str = "walk",
-        world_name: str = "CastleLividus",
+        world: str = "CastleLividus",
     ):
         jsdir = Path(__file__).parent.parent.parent.parent.parent.parent / "yard-js"
         scripts = [
@@ -34,10 +43,10 @@ class WalkAround(RemoteApplication):
         super().__init__(
             "walkaround",
             nodes,
-            Path(__file__).parent / "walkaround_deploy.yml",
-            Path(__file__).parent / "walkaround_start.yml",
-            Path(__file__).parent / "walkaround_stop.yml",
-            Path(__file__).parent / "walkaround_cleanup.yml",
+            Path(__file__).parent / "bot_deploy.yml",
+            Path(__file__).parent / "workload_start.yml",
+            Path(__file__).parent / "workload_stop.yml",
+            Path(__file__).parent / "bot_cleanup.yml",
             extravars={
                 "hostnames": [n.host for n in nodes]
                 if isinstance(nodes[0], Node)
@@ -56,11 +65,11 @@ class WalkAround(RemoteApplication):
                 "density": density,
                 "max_radius": max_radius,
                 "workload": workload,
-                "world_name": world_name,
+                "world_name": world,
             },
         )
 
-    # remember to call this function before running WalkAround
+    # remember to call this function before running workload
     def setup_recording_nodes(self, nodes: list[VagrantNode], total: int = 0):
         """
         Sets up bot nodes that would record gameplay
@@ -75,3 +84,52 @@ class WalkAround(RemoteApplication):
             self.inv["all"]["hosts"][nodes[i].name]["record"] = True
         for i in range(total, len(nodes)):
             self.inv["all"]["hosts"][nodes[i].name]["record"] = False
+
+    @property
+    def bots_per_node(self) -> int:
+        return self.extravars["bots_per_node"]
+
+    @bots_per_node.setter
+    def bots_per_node(self, bots_per_node: int):
+        self.extravars["bots_per_node"] = bots_per_node
+    
+    @property
+    def bots_join_delay(self) -> int:
+        return self.extravars["bots_join_delay"] 
+    
+
+    @bots_join_delay.setter
+    def bots_join_delay(self, delay:timedelta):
+        """
+        Reset bots join delay to a new timing
+
+        Parameter
+        ----
+        delay: timedelta
+            time delay between two bots joining
+        Other Info
+        ----
+        This also updates the duration setting of the workload
+        """
+
+        self.extravars["bots_join_delay"] = delay.total_seconds()
+        self.extravars["duration"] = 30 + self.bots_join_delay * self.bots_per_node + 60
+
+    @property
+    def duration(self):
+        return self.extravars["duration"]
+
+    def setup_new_experiment(self, workload: Work, radius: int, density: int) -> None:
+        assert workload in Work.__members__
+        self.extravars["workload"] = workload
+        self.extravars["radius"] = radius
+        self.extravars["density"] = density
+
+        # also setting up world spawn
+        world_spawn  = get_world_spawn(self.extravars["world_name"])
+        self.extravars["spawn_x"] = world_spawn.x
+        self.extravars["spawn_y"] = world_spawn.y
+        self.extravars["spawn_z"] = world_spawn.z
+
+
+    

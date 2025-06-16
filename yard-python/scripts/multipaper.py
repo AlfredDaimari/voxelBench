@@ -8,7 +8,7 @@ from yardstick_benchmark.provisioning import VagrantVMs
 from yardstick_benchmark.games.minecraft.server import MultiPaper
 import yardstick_benchmark.games.minecraft.utils as mutils
 from yardstick_benchmark.monitoring import Telegraf
-from yardstick_benchmark.games.minecraft.workload import WalkAround
+from yardstick_benchmark.games.minecraft.workload import Workload
 from yardstick_benchmark.monitoring import start_player_distribution_monitoring
 from yardstick_benchmark.monitoring import stop_player_distribution_monitoring
 
@@ -17,7 +17,7 @@ master_node = vagrant.get_vms_with_tag("master")
 worker_nodes = vagrant.get_vms_with_tag("worker")
 bot_nodes = vagrant.get_vms_with_tag("bot")
 telegraf = Telegraf(master_node + worker_nodes + bot_nodes)
-wl = WalkAround(
+wl = Workload(
     bot_nodes, master_node[0].ansible_host, timedelta(seconds=120), bots_per_node=5
 )
 

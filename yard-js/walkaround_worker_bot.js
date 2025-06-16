@@ -74,13 +74,15 @@ function walk(bot, _) {
     });
   };
   // log bot position every 0.5 seconds
-  setInterval(
-    () =>
+  setInterval(() => {
+    try {
       parentPort.postMessage(
         `${username}:${bot.entity.position.x}-${bot.entity.position.y}`,
-      ),
-    500,
-  );
+      );
+    } catch {
+      console.log("Error: could not post bot.entity.position.x/y to master");
+    }
+  }, 500);
 
   bot.once("spawn", beginWalking);
 }

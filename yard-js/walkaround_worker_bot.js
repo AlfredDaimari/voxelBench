@@ -6,7 +6,6 @@ const { workerData, parentPort } = require("worker_threads");
 const utils = require("./utils");
 const { default: logger } = require("./logger");
 
-
 var worker_bot;
 /**
  * Find next coordinate to walk to
@@ -67,7 +66,7 @@ function walk(bot, _) {
     defaultMove.allowFreeMotion = true;
     bot.pathfinder.setMovements(defaultMove);
 
-    var goal = nextGoal(workerData.spawn_z, workerData.spawn_z);
+    var goal = nextGoal(workerData.spawn_x, workerData.spawn_z);
     bot.pathfinder.setGoal(goal);
 
     bot.on("goal_reached", () => {
@@ -79,20 +78,20 @@ function walk(bot, _) {
   setInterval(() => {
     try {
       parentPort.postMessage(
-        `${username}:${bot.entity.position.x}-${bot.entity.position.y}`,
+        `${username}:${bot.entity.position.x}-${bot.entity.position.z}`,
       );
     } catch {
-      console.log("Error: could not post bot.entity.position.x/y to master");
+      console.log("Error: could not post bot.entity.position.x/z to master");
     }
   }, 500);
 
   bot.once("spawn", beginWalking);
 }
 
-function reconnect(){
-    console.log(`bot disconnect: ${workerData.username} - connecting again`); 
-    worker_bot = utils.createBot(workerData.username, plugins)
-    worker_bot.on("playerLeft", reconnect)
+function reconnect() {
+  console.log(`bot disconnect: ${workerData.username} - connecting again`);
+  worker_bot = utils.createBot(workerData.username, plugins);
+  worker_bot.on("playerLeft", reconnect);
 }
 
 function run() {
@@ -110,7 +109,7 @@ function run() {
   worker_bot.on("error", console.log);
 
   // reconnect on disconnect
-  worker_bot.on("playerLeft", reconnect)
+  worker_bot.on("playerLeft", reconnect);
 }
 
 run();

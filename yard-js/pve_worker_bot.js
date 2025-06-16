@@ -1,4 +1,4 @@
-const { workerData } = require("worker_threads");
+const { workerData, parentPort } = require("worker_threads");
 const utils = require("./utils");
 const mineflayerViewer = require("prismarine-viewer").headless;
 const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
@@ -7,6 +7,9 @@ const armorManager = require("mineflayer-armor-manager");
 const { setTimeout } = require("timers/promises");
 
 var worker_bot;
+const plugins = {
+  pveModel,
+};
 /**
  * Video Recording function
  * video will be saved in the videos directory in project root
@@ -26,7 +29,7 @@ function recordBotInFirstPerson(bot, _) {
   });
 }
 
-function pveModel(bot, _) {
+async function pveModel(bot, _) {
   bot.loadPlugin(pathfinder);
   bot.loadPlugin(pvp);
   bot.loadPlugin(armorManager);
@@ -65,59 +68,43 @@ function pveModel(bot, _) {
     );
   };
 
-  const beginPVE = async () => {
-    // ask bots in your chunk area to fight y
-    setInterval(() => {
-      for (i = 0; i < workerData.spawn_neighbours.length; i++) {
-        if (workerData.username != workerData.spawn_neighbours[i])
-          bot.chat(`/msg ${workerData.spawn_neighbours[i]} fight me`);
-      }
-    }, 6000);
+  await equipArmorAndSword();
 
-    await equipArmorAndSword();
+  setInterval(() => {
+    let entity = null;
 
-    setInterval(async () => {
-      let entity = null;
+    const filter = (e) =>
+      (e.type === "hostile" || e.type === "mob") &&
+      e.position.distanceTo(bot.entity.position) < 10 &&
+      e.displayName !== "Armor Stand"; // Mojang classifies armor stands as mobs for some reason?
+    entity = bot.nearestEntity(filter);
 
-      const filter = (e) =>
-        (e.type === "hostile" || e.type === "mob") &&
-        e.position.distanceTo(bot.entity.position) < 10 &&
-        e.displayName !== "Armor Stand"; // Mojang classifies armor stands as mobs for some reason?
-      entity = bot.nearestEntity(filter);
-
-      if (entity != null) {
-        bot.pvp.attack(entity);
-      } else {
-        bot.chat("/summon polar_bear");
-      }
-    }, 1000);
-  };
+    if (entity != null) {
+      bot.pvp.attack(entity);
+    } else {
+      bot.chat("/summon polar_bear");
+    }
+  }, 20000);
 
   // log bot position every 0.5 seconds
   setInterval(() => {
     try {
       parentPort.postMessage(
-        `${username}:${bot.entity.position.x}-${bot.entity.position.y}`,
+        `${username}:${bot.entity.position.x}-${bot.entity.position.z}`,
       );
     } catch {
-      console.log("Error: could not post bot.entity.position.x/y to master");
+      console.log("Error: could not post bot.entity.position.x/z to master");
     }
   }, 500);
-
-  bot.once("spawn", beginPVE);
 }
 
-function reconnect(){
-    console.log(`bot disconnect: ${workerData.username} - connecting again`); 
-    worker_bot = utils.createBot(workerData.username, plugins)
-    worker_bot.on("playerLeft", reconnect)
+function reconnect() {
+  console.log(`bot disconnect: ${workerData.username} - connecting again`);
+  worker_bot = utils.createBot(workerData.username, plugins);
+  worker_bot.on("playerLeft", reconnect);
 }
 
 function run() {
-  const plugins = {
-    pveModel,
-  };
-
   if (workerData.record) {
     plugins.recordBotInFirstPerson = recordBotInFirstPerson;
   }
@@ -127,7 +114,7 @@ function run() {
   worker_bot.on("kicked", console.log);
   worker_bot.on("error", console.log);
 
-  worker_bot.on('playerLeft', reconnect)
+  worker_bot.on("playerLeft", reconnect);
 }
 
 run();

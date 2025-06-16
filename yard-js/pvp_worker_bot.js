@@ -1,4 +1,4 @@
-const { workerData } = require("worker_threads");
+const { workerData, parentPort } = require("worker_threads");
 const utils = require("./utils");
 const mineflayerViewer = require("prismarine-viewer").headless;
 const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
@@ -6,6 +6,10 @@ const pvp = require("mineflayer-pvp").plugin;
 const armorManager = require("mineflayer-armor-manager");
 
 var worker_bot;
+const plugins = {
+  pvpModel,
+};
+
 /**
  * Video Recording function
  * video will be saved in the videos directory in project root
@@ -13,6 +17,8 @@ var worker_bot;
 const hostname = process.env.HOSTNAME;
 const workload = process.env.WORKLOAD || "walk";
 const username = workerData.username;
+
+/*
 function recordBotInFirstPerson(bot, _) {
   bot.once("spawn", () => {
     mineflayerViewer(bot, {
@@ -23,11 +29,14 @@ function recordBotInFirstPerson(bot, _) {
     });
   });
 }
+*/
 
 function pvpModel(bot, _) {
   bot.loadPlugin(pathfinder);
   bot.loadPlugin(pvp);
   bot.loadPlugin(armorManager);
+
+  workerData.spawn_neighbours = new Set(workerData.spawn_neighbours);
 
   const equipArmorAndSword = () => {
     // first teleport to a location
@@ -64,18 +73,20 @@ function pvpModel(bot, _) {
   };
 
   const beginPVP = () => {
-    // ask bots in your chunk area to fight y
+    // ask bots in your chunk area to fight u
     setInterval(() => {
-      for (i = 0; i < workerData.spawn_neighbours.length; i++) {
-        if (workerData.username != workerData.spawn_neighbours[i])
-          bot.chat(`/msg ${workerData.spawn_neighbours[i]} fight me`);
-      }
+      const targets = [...workerData.spawn_neighbours].filter(
+        (neighbour) => neighbour != workerData.username,
+      );
+      const target = targets[Math.floor(Math.random() * targets.length)];
+      bot.chat(`/msg ${target} fight me`);
     }, 6000);
 
-    bot.on("chat", (username_opp, message) => {
-      if (message.includes("fight me")) {
-        bot.pvp.attackRange = 32;
-        const player = bot.players[username_opp];
+    bot.on("chat", (username_op, message) => {
+      if (message.includes("fight me") && username_op != "me") {
+        workerData.spawn_neighbours.add(username_op);
+        bot.pvp.attackRange = 128;
+        const player = bot.players[username_op];
 
         if (!player) {
           bot.chat("I can't see you.");
@@ -84,15 +95,7 @@ function pvpModel(bot, _) {
 
         // ask challenging bot to fight you back as well
         bot.pvp.attack(player.entity);
-        bot_in_neighbour = false;
-        for (i = 0; i < workerData.spawn_neighbours.length; i++) {
-          if (workerData.spawn_neighbours.length == username_opp)
-            workerData.spawn_neighbours.push(username_opp);
-        }
-      }
-
-      if (message === "stop") {
-        bot.pvp.stop();
+        workerData.spawn_neighbours.add(username_op);
       }
     });
   };
@@ -101,10 +104,10 @@ function pvpModel(bot, _) {
   setInterval(() => {
     try {
       parentPort.postMessage(
-        `${username}:${bot.entity.position.x}-${bot.entity.position.y}`,
+        `${username}:${bot.entity.position.x}-${bot.entity.position.z}`,
       );
     } catch {
-      console.log("Error: could not post bot.entity.position.x/y to master");
+      console.log("Error: could not post bot.entity.position.x/z to master");
     }
   }, 500);
 
@@ -112,20 +115,19 @@ function pvpModel(bot, _) {
   bot.once("spawn", beginPVP);
 }
 
-function reconnect(){
-    console.log(`bot disconnect: ${workerData.username} - connecting again`); 
-    worker_bot = utils.createBot(workerData.username, plugins)
-    worker_bot.on("playerLeft", reconnect)
+function reconnect() {
+  console.log(`bot disconnect: ${workerData.username} - connecting again`);
+  worker_bot = utils.createBot(workerData.username, plugins);
+  worker_bot.on("playerLeft", reconnect);
 }
 
 function run() {
-  const plugins = {
-    pvpModel,
-  };
-
+  /*
+   *
   if (workerData.record) {
     plugins.recordBotInFirstPerson = recordBotInFirstPerson;
   }
+  */
 
   worker_bot = utils.createBot(workerData.username, plugins);
 
@@ -133,7 +135,7 @@ function run() {
   worker_bot.on("error", console.log);
 
   // reconnect on disconnect
-  worker_bot.on("playerLeft", reconnect)
+  worker_bot.on("playerLeft", reconnect);
 }
 
 run();

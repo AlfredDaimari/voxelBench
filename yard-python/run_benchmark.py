@@ -13,6 +13,7 @@ from pathlib import Path
 from pyfiglet import Figlet
 import subprocess
 import toml
+import shutil
 
 if __name__ == "__main__":
     # node setup
@@ -93,6 +94,9 @@ if __name__ == "__main__":
                             f,
                         )
 
+                    # copy config file to destination location
+                    shutil.copy(node_config, dest)
+
                     # setup experiment
                     wl.bots_per_node = player
                     wl.bots_join_delay = timedelta(seconds=joinDelaySecs)
@@ -121,4 +125,4 @@ if __name__ == "__main__":
                     multipaper_worker.stop_restart()
 
     # removing node setup
-    # subprocess.run(["bash", "remove.sh"], cwd=subprocess_wd)
+    subprocess.run(["bash", "remove.sh"], cwd=subprocess_wd)

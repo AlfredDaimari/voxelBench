@@ -6,7 +6,7 @@
     - name: Find all CSV files in wd
       find:
         paths: "{{ wd }}"
-        patterns: "metrics-*.csv"
+        patterns: "*.csv"
         recurse: true
       register: csv_files
 
@@ -15,3 +15,17 @@
         path: "{{ item.path }}"
         state: absent
       loop: "{{ csv_files.files }}"
+
+    - name: Find all log files in wd
+      find:
+        paths: "{{ wd }}"
+        patterns: "*.log"
+        recurse: true
+      register: log_files
+
+    - name: Remove data from nodes
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ log_files.files }}"
+

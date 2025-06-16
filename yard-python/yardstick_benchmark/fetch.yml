@@ -27,7 +27,7 @@
         patterns: "*.log"
         recurse: true
       register: log_files
-      ignore_errors: true 
+      ignore_errors: true
 
     - name: Get log files from worker nodes
       ansible.builtin.fetch:
@@ -36,13 +36,35 @@
         flat: yes
       loop: "{{ log_files.files }}"
 
-    - name: Get worker bot position log file
-      ansible.builtin.fetch:
+    - name: Get chunk log files from worker nodes
+      fetch:
+        src: "~/worker/chunk-logs.txt"
+        dest: "{{ dest }}/{{ ansible_hostname }}-chunk-logs.txt"
+        flat: yes
+      ignore_errors: true
+
+- name: Get bot position from bot nodes
+  gather_facts: true
+  hosts: all
+  tasks:
+    - name: Get bot position log file
+      fetch:
         src: "{{ wd }}/logs/bots.log"
         dest: "{{ dest }}/{{ ansible_hostname }}-bots-pos.log"
         flat: yes
       ignore_errors: true
 
+    - name: Get master bot log file
+      fetch:
+        src: "{{ wd }}/bot-{{ inventory_hostname }}.log"
+        dest: "{{ dest }}/{{ ansible_hostname }}-master-bot.log"
+        flat: yes
+      ignore_errors: true
+
+- name: Get logs from master node
+  gather_facts: true
+  hosts: all
+  tasks:
     - name: Find all log files in worker directory
       find:
         paths: "~/velocity/logs"
@@ -58,9 +80,23 @@
         flat: yes
       loop: "{{ master_log_files.files }}"
 
-    - name: Get chunk log files from worker nodes
+- name: Get video files from bot
+  gather_facts: true
+  hosts: all
+  tasks:
+    - name: Get recorded video files from bot nodes
+      find:
+        paths: "{{ wd }}"
+        patterns: "*.mp4"
+        recurse: true
+      register: mp4_files
+
+    - name: Fetch the found video files
       ansible.builtin.fetch:
-        src: "~/worker/chunk-logs.txt"
-        dest: "{{ dest }}/{{ ansible_hostname }}-chunk-logs.txt"
+        src: "{{ item.path }}"
+        dest: "{{ dest }}/{{ item.path | basename }}"
         flat: yes
-      ignore_errors: true
+      loop: "{{ mp4_files.files }}"
+
+
+

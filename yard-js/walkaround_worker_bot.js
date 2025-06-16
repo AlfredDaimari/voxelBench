@@ -6,6 +6,8 @@ const { workerData, parentPort } = require("worker_threads");
 const utils = require("./utils");
 const { default: logger } = require("./logger");
 
+
+var worker_bot;
 /**
  * Find next coordinate to walk to
  * @param {number} currentX x-coordinate
@@ -38,7 +40,7 @@ const username = workerData.username;
 function recordBotInFirstPerson(bot, _) {
   bot.once("spawn", () => {
     mineflayerViewer(bot, {
-      output: `../videos/${hostname}-${workload}-${username}-${utils.getTimestamp()}.mp4`,
+      output: `videos/${hostname}-${workload}-${username}-${utils.getTimestamp()}.mp4`,
       frames: (utils.get_time_left() / 1000) * 60,
       width: 512,
       height: 512,
@@ -87,6 +89,12 @@ function walk(bot, _) {
   bot.once("spawn", beginWalking);
 }
 
+function reconnect(){
+    console.log(`bot disconnect: ${workerData.username} - connecting again`); 
+    worker_bot = utils.createBot(workerData.username, plugins)
+    worker_bot.on("playerLeft", reconnect)
+}
+
 function run() {
   const plugins = {
     walk,
@@ -96,10 +104,13 @@ function run() {
     plugins.recordBotInFirstPerson = recordBotInFirstPerson;
   }
 
-  const worker_bot = utils.createBot(workerData.username, plugins);
+  worker_bot = utils.createBot(workerData.username, plugins);
 
   worker_bot.on("kicked", console.log);
   worker_bot.on("error", console.log);
+
+  // reconnect on disconnect
+  worker_bot.on("playerLeft", reconnect)
 }
 
 run();

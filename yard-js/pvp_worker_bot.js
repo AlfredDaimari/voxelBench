@@ -5,6 +5,7 @@ const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
 const pvp = require("mineflayer-pvp").plugin;
 const armorManager = require("mineflayer-armor-manager");
 
+var worker_bot;
 /**
  * Video Recording function
  * video will be saved in the videos directory in project root
@@ -15,7 +16,7 @@ const username = workerData.username;
 function recordBotInFirstPerson(bot, _) {
   bot.once("spawn", () => {
     mineflayerViewer(bot, {
-      output: `../videos/${hostname}-${workload}-${username}-${utils.getTimestamp()}.mp4`,
+      output: `videos/${hostname}-${workload}-${username}-${utils.getTimestamp()}.mp4`,
       frames: (utils.get_time_left() / 1000) * 60,
       width: 512,
       height: 512,
@@ -111,6 +112,12 @@ function pvpModel(bot, _) {
   bot.once("spawn", beginPVP);
 }
 
+function reconnect(){
+    console.log(`bot disconnect: ${workerData.username} - connecting again`); 
+    worker_bot = utils.createBot(workerData.username, plugins)
+    worker_bot.on("playerLeft", reconnect)
+}
+
 function run() {
   const plugins = {
     pvpModel,
@@ -120,10 +127,13 @@ function run() {
     plugins.recordBotInFirstPerson = recordBotInFirstPerson;
   }
 
-  const worker_bot = utils.createBot(workerData.username, plugins);
+  worker_bot = utils.createBot(workerData.username, plugins);
 
   worker_bot.on("kicked", console.log);
   worker_bot.on("error", console.log);
+
+  // reconnect on disconnect
+  worker_bot.on("playerLeft", reconnect)
 }
 
 run();

@@ -6,6 +6,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 
 
 public class ChunkLogger extends JavaPlugin {
@@ -13,20 +14,23 @@ public class ChunkLogger extends JavaPlugin {
 
   @Override
   public void onEnable(){
-    logFile = new File("chunk_log.txt");
+    logFile = new File("chunk-logs.txt");
     new BukkitRunnable(){
       
       @Override
       public void run(){
         try (FileWriter writer = new FileWriter(logFile, true))
         {
-            String cur_time = "[" + (System.currentTimeMillis() / 1000) + "]\n";
+            long epoch = Instant.now().getEpochSecond();
+            
             for (World world : Bukkit.getWorlds()){
               Chunk[] loadedChunks = world.getLoadedChunks();
               for (Chunk chunk : loadedChunks){
                 int chunkX = chunk.getX();
                 int chunkZ = chunk.getZ();
-                writer.write(String.format("%s %s x=%d z=%d\n", cur_time, world, chunkX, chunkZ));
+                int startX = chunkX * 16;
+                int startZ = chunkZ * 16;
+                writer.write(String.format("[%d] %s x=%d z=%d [x=%d,z=%d]\n", epoch, world, chunkX, chunkZ, startX, startZ));
               }
             }
             writer.flush();

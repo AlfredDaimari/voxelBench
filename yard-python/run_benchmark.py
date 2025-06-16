@@ -1,13 +1,16 @@
 import yardstick_benchmark
 from yardstick_benchmark.provisioning import VagrantVMs
 from yardstick_benchmark.games.minecraft.server import MultiPaper
-import yardstick_benchmark.games.minecraft.utils as mutils
-from yardstick_benchmark.monitoring import Telegraf
-from yardstick_benchmark.games.minecraft.workload import WalkAround
+from yardstick_benchmark.monitoring import (
+    Telegraf,
+    start_player_distribution_monitoring,
+    stop_player_distribution_monitoring,
+)
+from yardstick_benchmark.games.minecraft.workload import Workload
 from datetime import timedelta, datetime
 from time import sleep
 from pathlib import Path
-import sys
+from pyfiglet import Figlet
 import subprocess
 import toml
 
@@ -19,18 +22,43 @@ if __name__ == "__main__":
     with open(str(node_config)) as f:
         config = toml.load(f)
 
-    # only reduced to walk and pvp models
-    world = config["benchmark"]["WORLD"]
+    # get benchmark configs
+    world = config["benchmark"]["world"]
     player_models = config["benchmark"]["playerModel"]
-    densities = config["benchmark"]["DENSITY"]
-    radiuss = config["benchmark"]["RADIUS"]
-    player_counts = config["benchmark"]["PLAYERS"]
+    densities = config["benchmark"]["density"]
+    radiuss = config["benchmark"]["radius"]
+    player_counts = config["benchmark"]["players"]
+    joinDelaySecs = config["benchmark"]["joinDelaySecs"]
+    world_path = Path(__file__).parent.parent / f"worlds/{world}.zip"
+    fig_writer = Figlet(font="banner3")
 
-    # subprocess.run(["bash", "-c", str(sh_file)], cwd=subprocess_wd)
+    subprocess.run(["bash", "-c", str(sh_file)], cwd=subprocess_wd)
 
     # setup world setting
+    vagrant = VagrantVMs()
+    master_node = vagrant.get_vms_with_tag("master")
+    worker_nodes = vagrant.get_vms_with_tag("worker")
+    bot_nodes = vagrant.get_vms_with_tag("bot")
+
     # setup multipaper
-    # setup bot nodes
+    multipaper_master = MultiPaper(master_node, worker_nodes, "master")
+    multipaper_worker = MultiPaper(master_node, worker_nodes, "worker")
+    multipaper_master.set_world_as(world_path)
+
+    multipaper_master.deploy()
+    multipaper_master.start()
+    multipaper_worker.deploy()
+    multipaper_worker.start()
+
+    # setup bot nodes and telegraph
+    wl = Workload(bot_nodes, master_node[0].ansible_host)
+    wl.deploy()
+
+    telegraf = Telegraf(master_node + worker_nodes + bot_nodes)
+    for worker_node in worker_nodes:
+        telegraf.add_input_jolokia_agent(worker_node)
+        telegraf.add_input_execd_minecraft_ticks(worker_node)
+    telegraf.deploy()
 
     # run different set of workloads, and different player counts, different densities (each for 10 minutes)
 
@@ -65,15 +93,32 @@ if __name__ == "__main__":
                             f,
                         )
 
+                    # setup experiment
+                    wl.bots_per_node = player
+                    wl.bots_join_delay = timedelta(seconds=joinDelaySecs)
+                    wl.setup_new_experiment(model, radius, density)
                     # start running telegraph
+                    telegraf.start()
+                    # start pdist monitoring
+                    start_player_distribution_monitoring(worker_nodes)
                     # run workload
-                    # sleep for 10 minutes
-                    # stop running telegraph
+                    wl.setup_recording_nodes(bot_nodes, 0)
+                    wl.start()
+                    # sleep
+                    print(fig_writer.renderText(f"Sleeping =={wl.duration + 10}== seconds"))
+                    sleep(wl.duration + 10)
+                    # stop running telegrap
+                    telegraf.stop()
+                    # stop pdist monitoring
+                    stop_player_distribution_monitoring(worker_nodes)
                     # copy data files
+                    yardstick_benchmark.fetch(
+                        dest, master_node + worker_nodes + bot_nodes
+                    )
                     # remove data files
-                    # stop worker nodes
-                    # restart worker nodes
-                    # continue to the top of the loop
+                    yardstick_benchmark.clean(master_node + worker_nodes + bot_nodes)
+                    # stop restart worker nodes to reset logs
+                    multipaper_worker.stop_restart()
 
     # removing node setup
-    #subprocess.run(["bash", "remove.sh"], cwd=subprocess_wd)
+    # subprocess.run(["bash", "remove.sh"], cwd=subprocess_wd)

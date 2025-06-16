@@ -1,0 +1,23 @@
+- name: Shutdown & Restart workers
+  hosts: all
+
+  tasks:
+    - name: Shutdown nohup multipaper java jolokia worker
+      shell: | 
+        kill -SIGKILL $(cat jolokia.pid)
+        kill -SIGKILL $(cat tail_fifo.pid)
+      args:
+        chdir: ~/worker
+        executable: /bin/bash
+
+    - name: Restart multipaper worker node using jolokia
+      shell: |
+        rm /tmp/worker_stdin
+        mkfifo /tmp/worker_stdin
+        nohup tail -f /dev/null > /tmp/worker_stdin &
+        echo $! > tail_fifo.pid 
+        nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar multipaper-1.20.1-57.jar </tmp/worker_stdin > "worker-{{inventory_hostname}}.log" &
+        echo $! > jolokia.pid
+      args:
+        chdir: ~/worker
+        executable: /bin/bash

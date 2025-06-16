@@ -47,7 +47,7 @@ class MultiPaper(RemoteApplication):
                 worker_nodes,
                 Path(__file__).parent / "multipaper_worker_deploy.yml",
                 Path(__file__).parent / "multipaper_worker_start.yml",
-                Path(__file__).parent / "multipaper_worker_stop.yml",
+                Path(__file__).parent / "multipaper_worker_stop_restart.yml",
                 Path(__file__).parent / "multipaper_cleanup.yml",
                 extravars={
                     "master": master_node[0].ansible_host,
@@ -64,3 +64,10 @@ class MultiPaper(RemoteApplication):
     def set_world_as(self, path: Path):
         self.extravars["world_path"] = str(path)
         self.extravars["world_name"] = str(path).split("/")[-1].split(".")[0]
+
+    def stop_restart(self):
+        """
+        Warning: This can only be safely done for worker nodes
+        """
+        assert self.deploy_action.name == "multipaper-worker"
+        self.stop()

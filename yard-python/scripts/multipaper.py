@@ -62,12 +62,11 @@ def deploy_bot():
     """
     world: sys.argv[1]
     """
-    wl.setup_recording_nodes(bot_nodes, 1)
     wl.deploy()
 
 
 def start_bot():
-    wl.setup_recording_nodes(bot_nodes)
+    wl.setup_recording_nodes(bot_nodes, 1)
     wl.start()
     sleep(120)
 

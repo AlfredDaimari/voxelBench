@@ -16,6 +16,7 @@ toml = "^0.10.2"
 mcrcon = "^0.7.0"
 nbt = "^1.5.1"
 mcipc = "^2.4.2"
+pyfiglet = "^1.0.3"
 
 [tool.poetry.scripts]
 dmult = "scripts.multipaper:deploy_mult"

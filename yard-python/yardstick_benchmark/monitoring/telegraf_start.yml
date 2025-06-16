@@ -9,13 +9,12 @@
         find -type f -executable -name telegraf
       register: find_telegraf
       args:
-        chdir: "{{wd}}"
+        chdir: "{{ wd }}"
     
     - name: Run Telegraf
-      shell:
-        cmd: |
-          nohup {{find_telegraf.stdout}} --config telegraf-{{inventory_hostname}}.conf --pidfile telegraf-{{inventory_hostname}}.pid &> telegraf.log &
+      shell: |
+        nohup {{find_telegraf.stdout}} --config telegraf-{{inventory_hostname}}.conf --pidfile telegraf-{{inventory_hostname}}.pid &> telegraf.log &
       args:
-        chdir: "{{wd}}"
+        chdir: "{{ wd }}"
         executable: /bin/bash
 

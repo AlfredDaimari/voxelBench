@@ -71,3 +71,6 @@ nodes-destroy:
 build-chunkLogger:
 	@cd java && mvn clean package
 	mv java/target/ChunkLogger-1.0.jar yard-python/yardstick_benchmark/games/minecraft/plugins/
+
+run-mult-bench:
+	@cd yard-python && poetry run python3 run_benchmark.py

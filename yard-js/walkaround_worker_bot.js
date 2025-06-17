@@ -8,7 +8,7 @@ const { default: logger } = require("./logger");
 
 var worker_bot;
 const plugins = {
-    walk,
+  walk,
 };
 
 /**
@@ -78,7 +78,7 @@ function walk(bot, _) {
       bot.pathfinder.setGoal(goal);
     });
   };
-  // log bot position every 0.5 seconds
+  // log bot position every 2 seconds
   setInterval(() => {
     try {
       parentPort.postMessage(
@@ -87,7 +87,7 @@ function walk(bot, _) {
     } catch {
       console.log("Error: could not post bot.entity.position.x/z to master");
     }
-  }, 500);
+  }, 2000);
 
   bot.once("spawn", beginWalking);
 }
@@ -99,15 +99,18 @@ function reconnect() {
 }
 
 function run() {
-
   if (workerData.record) {
     plugins.recordBotInFirstPerson = recordBotInFirstPerson;
   }
 
   worker_bot = utils.createBot(workerData.username, plugins);
 
-  worker_bot.on("kicked", console.log);
-  worker_bot.on("error", console.log);
+  worker_bot.on("kicked", () =>
+    parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
+  );
+  worker_bot.on("error", () =>
+    parentPort.postMessage(`${workerData.username}:error:${err}`),
+  );
 
   // reconnect on disconnect
   worker_bot.on("playerLeft", reconnect);

@@ -86,7 +86,7 @@ async function pveModel(bot, _) {
     }
   }, 20000);
 
-  // log bot position every 0.5 seconds
+  // log bot position every 2 seconds
   setInterval(() => {
     try {
       parentPort.postMessage(
@@ -95,7 +95,7 @@ async function pveModel(bot, _) {
     } catch {
       console.log("Error: could not post bot.entity.position.x/z to master");
     }
-  }, 500);
+  }, 2000);
 }
 
 function reconnect() {
@@ -111,8 +111,12 @@ function run() {
 
   worker_bot = utils.createBot(workerData.username, plugins);
 
-  worker_bot.on("kicked", console.log);
-  worker_bot.on("error", console.log);
+  worker_bot.on("kicked", () =>
+    parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
+  );
+  worker_bot.on("error", () =>
+    parentPort.postMessage(`${workerData.username}:error:${err}`),
+  );
 
   worker_bot.on("playerLeft", reconnect);
 }

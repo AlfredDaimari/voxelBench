@@ -113,7 +113,7 @@ class Workload(RemoteApplication):
         """
 
         self.extravars["bots_join_delay"] = delay.total_seconds()
-        self.extravars["duration"] = 30 + self.bots_join_delay * self.bots_per_node + 60*5
+        self.extravars["duration"] = 30 + self.bots_join_delay * self.bots_per_node + 60*3
 
     @property
     def duration(self):

@@ -7,6 +7,10 @@ const utils = require("./utils");
 const { default: logger } = require("./logger");
 
 var worker_bot;
+const plugins = {
+    walk,
+};
+
 /**
  * Find next coordinate to walk to
  * @param {number} currentX x-coordinate
@@ -70,7 +74,7 @@ function walk(bot, _) {
     bot.pathfinder.setGoal(goal);
 
     bot.on("goal_reached", () => {
-      goal = nexGoal(goal.x, goal.z);
+      goal = nextGoal(goal.x, goal.z);
       bot.pathfinder.setGoal(goal);
     });
   };
@@ -95,9 +99,6 @@ function reconnect() {
 }
 
 function run() {
-  const plugins = {
-    walk,
-  };
 
   if (workerData.record) {
     plugins.recordBotInFirstPerson = recordBotInFirstPerson;

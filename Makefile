@@ -73,4 +73,15 @@ build-chunkLogger:
 	mv java/target/ChunkLogger-1.0.jar yard-python/yardstick_benchmark/games/minecraft/plugins/
 
 run-mult-bench:
-	@cd yard-python && poetry run python3 run_benchmark.py
+	@echo "Running VoxelBench Multipaper"
+	@{ \
+		MASTER_MEMORY=$$(cat multipaper.toml | tomlq .master.memory); \
+		MASTER_CPU=$$(cat multipaper.toml | tomlq .master.cpu); \
+		WORKER_MEMORY=$$(cat multipaper.toml | tolmq .worker.memory); \
+		WORKER_TOTAL=$$(cat multipaper.toml | tolmq .worker.total); \
+		WORKER_CPU=$$(cat multipaper.toml | tolmq .worker.cpu); \
+		BOT_MEMORY=$$(cat multipaper.toml | tolmq .bot.memory); \
+		BOT_CPU=$$(cat multipaper.toml | tolmq .bot.cpu); \
+		BOT_TOTAL=$$(cat multipaper.toml | tolmq .bot.total); \
+		cd yard-python && poetry run python3 run_benchmark.py
+	}

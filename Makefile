@@ -75,13 +75,13 @@ build-chunkLogger:
 run-mult-bench:
 	@echo "Running VoxelBench Multipaper"
 	@{ \
-		MASTER_MEMORY=$$(cat multipaper.toml | tomlq .master.memory); \
-		MASTER_CPU=$$(cat multipaper.toml | tomlq .master.cpu); \
-		WORKER_MEMORY=$$(cat multipaper.toml | tolmq .worker.memory); \
-		WORKER_TOTAL=$$(cat multipaper.toml | tolmq .worker.total); \
-		WORKER_CPU=$$(cat multipaper.toml | tolmq .worker.cpu); \
-		BOT_MEMORY=$$(cat multipaper.toml | tolmq .bot.memory); \
-		BOT_CPU=$$(cat multipaper.toml | tolmq .bot.cpu); \
-		BOT_TOTAL=$$(cat multipaper.toml | tolmq .bot.total); \
+		MASTER_MEMORY=$$(cat vagrant/multipaper.toml | tomlq .master.memory); \
+		MASTER_CPU=$$(cat vagrant/multipaper.toml | tomlq .master.cpu); \
+		WORKER_MEMORY=$$(cat vagrant/multipaper.toml | tolmq .worker.memory); \
+		WORKER_TOTAL=$$(cat vagrant/multipaper.toml | tolmq .worker.total); \
+		WORKER_CPU=$$(cat vagrant/multipaper.toml | tolmq .worker.cpu); \
+		BOT_MEMORY=$$(cat vagrant/multipaper.toml | tolmq .bot.memory); \
+		BOT_CPU=$$(cat vagrant/multipaper.toml | tolmq .bot.cpu); \
+		BOT_TOTAL=$$(cat vagrant/multipaper.toml | tolmq .bot.total); \
 		cd yard-python && poetry run python3 run_benchmark.py \
 	}

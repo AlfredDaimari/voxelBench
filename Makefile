@@ -83,5 +83,5 @@ run-mult-bench:
 		BOT_MEMORY=$$(cat multipaper.toml | tolmq .bot.memory); \
 		BOT_CPU=$$(cat multipaper.toml | tolmq .bot.cpu); \
 		BOT_TOTAL=$$(cat multipaper.toml | tolmq .bot.total); \
-		cd yard-python && poetry run python3 run_benchmark.py
+		cd yard-python && poetry run python3 run_benchmark.py \
 	}

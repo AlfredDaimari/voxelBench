@@ -122,7 +122,7 @@ if __name__ == "__main__":
                     # remove data files
                     yardstick_benchmark.clean(master_node + worker_nodes + bot_nodes)
                     # stop restart worker nodes to reset logs
-                    multipaper_worker.stop_restart()
+                    multipaper_worker.restart()
 
     # removing node setup
     subprocess.run(["bash", "remove.sh"], cwd=subprocess_wd)

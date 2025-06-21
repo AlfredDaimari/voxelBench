@@ -1,0 +1,13 @@
+- name: Shutdown workers
+  hosts: all
+
+  tasks:
+    - name: Shutdown nohup multipaper java jolokia worker
+      shell: | 
+        kill -SIGKILL $(cat jolokia.pid)
+        kill -SIGKILL $(cat tail_fifo.pid)
+      args:
+        chdir: ~/worker
+        executable: /bin/bash
+
+

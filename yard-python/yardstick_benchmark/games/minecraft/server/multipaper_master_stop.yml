@@ -1,24 +1,10 @@
-- name: Shutdown multipaper
+- name: Shutdown multipaper master
   hosts: all
-
   tasks:
-    - name: Shutdown multipaper velocity fifo pipe process
-      shell: |
-        kill -SIGKILL $(cat tail_fifo.pid)
-      ignore_errors: true
-      args:
-        executable: /bin/bash
-
     - name: Shutdown multipaper master
       shell: |
         kill -SIGKILL $(cat master.pid)
       ignore_errors: true
       args:
         executable: /bin/bash
-
-    - name: Shutdown mutlipaper worker
-      shell: |
-        kill -SIGKILL $(cat worker.pid)
-      ignore_errors: true
-      args:
-        execuatble: /bin/bash
+        chdir: ~/velocity

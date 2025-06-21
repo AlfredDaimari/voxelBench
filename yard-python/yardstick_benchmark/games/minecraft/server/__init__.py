@@ -1,4 +1,4 @@
-from yardstick_benchmark.model import RemoteApplication, Node, VagrantNode
+from yardstick_benchmark.model import RemoteAction, RemoteApplication, Node, VagrantNode
 import os
 from pathlib import Path
 
@@ -47,16 +47,14 @@ class MultiPaper(RemoteApplication):
                 worker_nodes,
                 Path(__file__).parent / "multipaper_worker_deploy.yml",
                 Path(__file__).parent / "multipaper_worker_start.yml",
-                Path(__file__).parent / "multipaper_worker_stop_restart.yml",
+                Path(__file__).parent / "multipaper_worker_stop.yml",
                 Path(__file__).parent / "multipaper_cleanup.yml",
                 extravars={
                     "master": master_node[0].ansible_host,
                     "server_properties_template": str(
                         Path(__file__).parent / "server.properties.j2"
                     ),
-                    "plugins": str(
-                        Path(__file__).parent.parent / "plugins"
-                    ),
+                    "plugins": str(Path(__file__).parent.parent / "plugins"),
                 },
             )
 
@@ -65,9 +63,13 @@ class MultiPaper(RemoteApplication):
         self.extravars["world_path"] = str(path)
         self.extravars["world_name"] = str(path).split("/")[-1].split(".")[0]
 
-    def stop_restart(self):
+    def restart(self):
         """
         Warning: This can only be safely done for worker nodes
         """
         assert self.deploy_action.name == "multipaper-worker"
-        self.stop()
+        return RemoteAction(
+            "worker-restart",
+            self.nodes,
+            Path(__file__).parent / "multipaper_worker_restart.yml",
+        ).run()

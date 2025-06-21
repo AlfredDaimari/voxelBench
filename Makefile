@@ -8,7 +8,7 @@ test-mult:
 
 test-mult-stop:
 	@echo "Stopping multipaper"
-	cd yard-python && poetry run dmult-s
+	cd yard-python && poetry run smult 
 
 test-bot:
 	@echo "Deploying bot to cluster"

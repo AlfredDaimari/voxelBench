@@ -75,6 +75,7 @@
         cat config/paper-global.yml | dasel put -r yaml -t string -o config/paper-global.yml -v secret 'proxies.velocity.secret'
         cat spitgot.yml | dasel put -r yaml -t bool -o spigot.yml -v true 'settings.bungeecord'
         cat pufferfish.yml | dasel put -r yaml -t bool -o pufferfish.yml -v true 'misc.disable-out-of-order-chat'
+        cat spigot.yml | dasel put -r yaml -t string -o spigot.yml -v ./restart.sh 'settings.restart-script'
       args:
         chdir: ~/worker
         executable: /bin/bash
@@ -102,3 +103,16 @@
       args:
         chdir: ~/worker
         executable: /bin/bash
+
+    - name: Copy node restart on crash script
+      copy:
+        dest: ~/worker/restart.sh
+        content: |
+          rm /tmp/worker_stdin
+          mkfifo /tmp/worker_stdin
+          nohup tail -f /dev/null > /tmp/worker_stdin &
+          echo $! > tail_fifo.pid 
+          nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar multipaper-1.20.1-57.jar </tmp/worker_stdin > "worker-{{inventory_hostname}}.log" &
+          echo $! > jolokia.pid
+
+

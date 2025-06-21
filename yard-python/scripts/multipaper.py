@@ -72,8 +72,8 @@ def start_bot():
 
 
 def start_telegraf():
-    telegraf.add_input_jolokia_agent(bot_nodes[0])
-    telegraf.add_input_execd_minecraft_ticks(bot_nodes[0])
+    telegraf.add_input_jolokia_agent(worker_nodes[0])
+    telegraf.add_input_execd_minecraft_ticks(worker_nodes[0])
     telegraf.deploy()
     telegraf.start()
 

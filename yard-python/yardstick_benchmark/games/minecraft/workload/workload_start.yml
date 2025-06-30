@@ -18,6 +18,7 @@
     MAX_RADIUS: "{{max_radius}}"
     WORKLOAD: "{{workload}}"
     WORLDNAME: "{{world_name}}"
+    PVE_MOB: "{{mob}}"
   tasks:
     - name: Set game spawn location
       shell: source ~/.nvm/nvm.sh && node set_spawn.js

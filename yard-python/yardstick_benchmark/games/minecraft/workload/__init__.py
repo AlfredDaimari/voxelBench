@@ -32,6 +32,7 @@ class Workload(RemoteApplication):
         max_radius: int = 10000,
         workload: str = "walk",
         world: str = "CastleLividus",
+        mob: str = "polar_bear"
     ):
         jsdir = Path(__file__).parent.parent.parent.parent.parent.parent / "yard-js"
         scripts = [
@@ -66,6 +67,7 @@ class Workload(RemoteApplication):
                 "max_radius": max_radius,
                 "workload": workload,
                 "world_name": world,
+                "mob": mob,
             },
         )
 

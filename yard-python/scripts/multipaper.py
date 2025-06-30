@@ -17,9 +17,11 @@ master_node = vagrant.get_vms_with_tag("master")
 worker_nodes = vagrant.get_vms_with_tag("worker")
 bot_nodes = vagrant.get_vms_with_tag("bot")
 telegraf = Telegraf(master_node + worker_nodes + bot_nodes)
-wl = Workload(
-    bot_nodes, master_node[0].ansible_host, timedelta(seconds=120), bots_per_node=5
-)
+wl = None
+if len(bot_nodes) > 0:
+    wl = Workload(
+        bot_nodes, master_node[0].ansible_host, timedelta(seconds=120), bots_per_node=5
+    )
 
 
 def get_world_spawn_json():
@@ -62,13 +64,15 @@ def deploy_bot():
     """
     world: sys.argv[1]
     """
-    wl.deploy()
+    if wl != None:
+        wl.deploy()
 
 
 def start_bot():
-    wl.setup_recording_nodes(bot_nodes, 1)
-    wl.start()
-    sleep(120)
+    if wl != None:
+        wl.setup_recording_nodes(bot_nodes, 1)
+        wl.start()
+        sleep(120)
 
 
 def start_telegraf():
@@ -96,6 +100,7 @@ def clean():
 
 def start_pdist_monitoring():
     start_player_distribution_monitoring(worker_nodes)
+
 
 def stop_pdist_monitoring():
     stop_player_distribution_monitoring(worker_nodes)

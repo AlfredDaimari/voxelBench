@@ -17,7 +17,10 @@ const density = parseInt(process.env.DENSITY || 1);
 const max_radius = parseInt(process.env.MAX_RADIUS || 500);
 const spawned_bot_locations = {};
 const workload = process.env.WORKLOAD || "walk";
+const record = parseInt(process.env.RECORD || 0);
 const { logger } = require("./logger");
+const mob =
+  process.env.PVE_MOB == undefined ? "polar_bear" : process.env.PVE_MOB;
 
 const teleportLocs = utils.getTeleportationLocations(
   spawn_x,
@@ -26,7 +29,7 @@ const teleportLocs = utils.getTeleportationLocations(
   density,
   max_radius,
 );
-var totRecBots = 1;
+var totRecBots = record === 0 ? 0 : 1;
 
 // setup main start time across threads
 const start = Date.now();
@@ -45,6 +48,7 @@ function start_worker(username) {
     time_left_ms: utils.get_time_left(),
     spawn_y,
     box_width,
+    mob,
   };
 
   const spawnPointInd = utils.getRandomInt(teleportLocs.length);

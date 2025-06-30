@@ -4,7 +4,7 @@ memory=2048
 cpu=1
 
 [worker]
-memory=2048
+memory=4096
 cpu=2
 total=1
 
@@ -15,12 +15,12 @@ total=1
 
 # settings for python benchmark
 [benchmark]
-world='WorldOfWorlds'
+world='CastleLividus'
 playerModel=['walk']
-density=[2]
+density=[5]
 radius=[5000]
 # REDSTONE=['world 1', 'world 2']
-players=[4]
-# PVE_Mobs=['zombie', 'polar_bear', 'witch', 'elder dragon']
-# total duration of benchmark = 30 secs + (joinDelaySecs * playerCount/bot_total) + 5 minute
+players=[5]
+pve_mob='zombie' # will result into ['zombie', 'polar_bear']
+# total duration of benchmark = 30 secs + (joinDelaySecs * playerCount/bot_total) + 3 minute
 joinDelaySecs=5

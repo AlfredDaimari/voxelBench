@@ -56,19 +56,13 @@ function pvpModel(bot, _) {
       bot.chat(`/give ${workerData.username} minecraft:shield 1`);
       bot.chat(`/give ${workerData.username} minecraft:diamond_sword 1`);
 
-      // manually equipping armor
-      bot.chat(
-        `/replaceitem entity ${workerData.username} slot.armor.head minecraft:diamond_helmet 1 0`,
-      );
-      bot.chat(
-        `/replaceitem entity ${workerData.username} slot.armor.chest minecraft:diamond_chestplate 1 0`,
-      );
-      bot.chat(
-        `/replaceitem entity ${workerData.username} slot.armor.legs minecraft:diamond_leggings 1 0`,
-      );
-      bot.chat(
-        `/replaceitem entity ${workerData.username} slot.armor.feet minecraft:diamond_boots 1 0`,
-      );
+      // equipping armor
+      bot.armorManger.equipAll();
+      // equipping sword
+      const sword = bot.inventory
+        .items()
+        .find((item) => item.name.includes("sword"));
+      if (sword) bot.equip(sword, "hand");
     });
   };
 
@@ -113,6 +107,7 @@ function pvpModel(bot, _) {
 
   bot.once("spawn", equipArmorAndSword);
   bot.once("spawn", beginPVP);
+  bot.on("respawn", equipArmorAndSword);
 }
 
 function reconnect() {

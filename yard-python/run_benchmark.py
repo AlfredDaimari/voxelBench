@@ -30,6 +30,7 @@ if __name__ == "__main__":
     radiuss = config["benchmark"]["radius"]
     player_counts = config["benchmark"]["players"]
     joinDelaySecs = config["benchmark"]["joinDelaySecs"]
+    mob = config["benchmark"]["mob"]
     world_path = Path(__file__).parent.parent / f"worlds/{world}.zip"
     fig_writer = Figlet(font="banner3")
 
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     multipaper_worker.start()
 
     # setup bot nodes and telegraph
-    wl = Workload(bot_nodes, master_node[0].ansible_host)
+    wl = Workload(bot_nodes, master_node[0].ansible_host, mob=mob)
     wl.deploy()
 
     telegraf = Telegraf(master_node + worker_nodes + bot_nodes)
@@ -90,6 +91,7 @@ if __name__ == "__main__":
                                 "player": player,
                                 "density": density,
                                 "radius": radius,
+                                "mob": mob,
                             },
                             f,
                         )

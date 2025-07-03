@@ -10,6 +10,58 @@ const plugins = {
   walk,
 };
 
+const REDSTONE_USABLE_BLOCKS = [
+  'lever',
+  'stone_button',
+  'oak_button',
+  'birch_button',
+  'spruce_button',
+  'acacia_button',
+  'dark_oak_button',
+  'jungle_button',
+  'crimson_button',
+  'warped_button',
+  'heavy_weighted_pressure_plate',
+  'light_weighted_pressure_plate',
+  'stone_pressure_plate',
+  'oak_pressure_plate',
+  'spruce_pressure_plate',
+  'birch_pressure_plate',
+  'acacia_pressure_plate',
+  'jungle_pressure_plate',
+  'dark_oak_pressure_plate',
+  'crimson_pressure_plate',
+  'warped_pressure_plate',
+  'tripwire_hook',
+  'note_block',
+  'bell'
+]
+
+/**
+ * Find usable redstone blocks nearby
+ * @param {bot} mineflayer-bot
+ */
+async function activateRedstoneBlocksNearby(bot, radius = 20) {
+  const origin = bot.entity.position
+
+  for (let dx = -radius; dx <= radius; dx++) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dz = -radius; dz <= radius; dz++) {
+        const pos = origin.offset(dx, dy, dz)
+        const block = bot.blockAt(pos)
+
+        if (!block) continue
+
+        if (REDSTONE_USABLE_BLOCKS.includes(block.name)) {
+          if (bot.canSeeBlock(block)) {
+            await bot.activateBlock(block)
+          }
+        }
+      }
+    }
+  }
+}
+
 /**
  * Find next coordinate to walk to
  * @param {number} currentX x-coordinate
@@ -17,8 +69,8 @@ const plugins = {
  * @returns {GoalXZ} next walking position
  */
 function nextGoal(currentX, currentZ) {
-  let x = currentX + utils.getRandomIntInterval(50) - workerData.box_width / 2;
-  let z = currentZ + utils.getRandomIntInterval(50) - workerData.box_width / 2;
+  let x = currentX + utils.getRandomIntInterval(15) - workerData.box_width / 2;
+  let z = currentZ + utils.getRandomIntInterval(15) - workerData.box_width / 2;
   /*
   let ts = Date.now() / 1000;
   console.log(
@@ -72,7 +124,9 @@ function walk(bot, _) {
     var goal = nextGoal(workerData.spawn_x, workerData.spawn_z);
     bot.pathfinder.setGoal(goal);
 
-    bot.on("goal_reached", () => {
+    bot.on("goal_reached", async () => {
+      // activate redstone blocks in destination
+      await activateRedstoneBlocksNearby(bot);
       goal = nextGoal(goal.x, goal.z);
       bot.pathfinder.setGoal(goal);
     });

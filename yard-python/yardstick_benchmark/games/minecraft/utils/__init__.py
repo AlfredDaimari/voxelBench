@@ -10,7 +10,10 @@ class MinecraftWorldCoordinates:
     z: int
 
 
-def get_world_spawn(world: str) -> MinecraftWorldCoordinates:
+def get_world_spawn(world: str) -> MinecraftWorldCoordinates: 
+    if world == 'None':
+        return MinecraftWorldCoordinates(0, 0, 0)
+
     world_nbt_file_path = (
         Path(__file__).parent.parent.parent.parent.parent.parent
         / f"worlds/{world}/level.dat"

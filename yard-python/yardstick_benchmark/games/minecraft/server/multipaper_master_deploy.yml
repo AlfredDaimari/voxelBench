@@ -177,10 +177,12 @@
 
     # copy a minecraft world to the multipaper master velocity directory
     - name: Copy world files
+      when: world_name != 'None' 
       unarchive:
         src: "{{world_path}}"
         dest: ~/velocity 
 
     - name: Rename world directory
+      when: world_name != 'None'
       command: mv ~/velocity/{{world_name}} ~/velocity/world
 

@@ -1,7 +1,7 @@
 const { workerData, parentPort } = require("worker_threads");
 const utils = require("./utils");
 const mineflayerViewer = require("prismarine-viewer").headless;
-const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
+const { pathfinder } = require("mineflayer-pathfinder");
 const pvp = require("mineflayer-pvp").plugin;
 const armorManager = require("mineflayer-armor-manager");
 
@@ -61,15 +61,14 @@ async function pveModel(bot, _) {
   const beginPVE = () => {
     setInterval(() => {
       let entity = null;
-
       const filter = (e) => {
-        return (
-          (e.type === "hostile" ||
-            e.type === "mob" ||
-            e.kind === "Passive mobs") &&
-          e.position.distanceTo(bot.entity.position) < 36 &&
-          e.displayName !== "Armor Stand"
-        ); // Mojang classifies armor stands as mobs for some reason?
+        try {
+          // console.log(`{"text":"${username}"}` == e.metadata[2]);
+          // weird but only way to access the CustomName set for the bot
+          return e.metadata[2] == `{"text":"${username}"}`;
+        } catch {
+          return false;
+        }
       };
 
       entity = bot.nearestEntity(filter);
@@ -77,7 +76,9 @@ async function pveModel(bot, _) {
       if (entity != null) {
         bot.pvp.attack(entity);
       } else {
-        bot.chat(`/summon ${workerData.mob}`);
+        bot.chat(
+          `/summon ${workerData.mob} ~ ~ ~ {CustomName: '"${username}"', CustomVisible:1}`,
+        );
 
         setTimeout(() => {
           entity = bot.nearestEntity(filter);

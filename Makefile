@@ -31,7 +31,7 @@ test-walkload:
 	SPAWN_X=$$(echo "$$COORDS" | jq -r '.spawn_x'); \
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
-	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y , $$SPAWN_Z"; \
+	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
 	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=2 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local node master_bot.js; \
 	}
 
@@ -42,7 +42,7 @@ test-pvp:
 	SPAWN_X=$$(echo "$$COORDS" | jq -r '.spawn_x'); \
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
-	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y , $$SPAWN_Z"; \
+	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
 	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=2 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=pvp DURATION=120 DENSITY=2 node master_bot.js; \
 	}
 
@@ -54,9 +54,22 @@ test-pve:
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
 	PVE_MOB=$$(tomlq -r '.benchmark.pve_mob' vagrant/multipaper.toml); \
-	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y , $$SPAWN_Z"; \
+	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
 	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=2 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=pve DURATION=120 DENSITY=1 PVE_MOB=$$PVE_MOB node master_bot.js; \
 	}
+
+test-build:
+	@echo "Running one bot sparsely and locally against cluster"
+	@{ \
+	COORDS=$$(cd yard-python && poetry run mult-get-world_spawn $(world)); \
+	SPAWN_X=$$(echo "$$COORDS" | jq -r '.spawn_x'); \
+	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
+	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
+	PVE_MOB=$$(tomlq -r '.benchmark.pve_mob' vagrant/multipaper.toml); \
+	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=1 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=build DURATION=300 DENSITY=1 PVE_MOB=$$PVE_MOB node master_bot.js; \
+	}
+
 
 test-fetch:
 	@echo "Fetching data"

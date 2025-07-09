@@ -4,8 +4,11 @@ const mineflayerViewer = require("prismarine-viewer").headless;
 const { pathfinder } = require("mineflayer-pathfinder");
 const pvp = require("mineflayer-pvp").plugin;
 const armorManager = require("mineflayer-armor-manager");
+const { createWinstonLogger } = require("./logger");
+const timers = require("timers/promises");
 
 var worker_bot;
+const logger = createWinstonLogger(workerData.username);
 const plugins = {
   pveModel,
 };
@@ -91,11 +94,11 @@ async function pveModel(bot, _) {
   // log bot position every 2 seconds
   setInterval(() => {
     try {
-      parentPort.postMessage(
-        `${username}:${bot.entity.position.x}-${bot.entity.position.z}`,
+      logger.info(
+        `${username}, ${bot.entity.position.x}, ${bot.entity.position.z}`,
       );
     } catch {
-      console.log("Error: could not post bot.entity.position.x/z to master");
+      console.log("Error: could not post bot.entity.position.x/z");
     }
   }, 2000);
 
@@ -104,10 +107,11 @@ async function pveModel(bot, _) {
   bot.once("spawn", beginPVE);
 }
 
-function reconnect() {
+async function reconnect() {
   console.log(`bot disconnect: ${workerData.username} - connecting again`);
+  await timers.setTimeout(2000);
   worker_bot = utils.createBot(workerData.username, plugins);
-  worker_bot.on("playerLeft", reconnect);
+  worker_bot.on("end", reconnect);
 }
 
 function run() {
@@ -124,7 +128,7 @@ function run() {
     parentPort.postMessage(`${workerData.username}:error:${err}`),
   );
 
-  worker_bot.on("playerLeft", reconnect);
+  worker_bot.on("end", reconnect);
 }
 
 run();

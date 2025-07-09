@@ -11,50 +11,50 @@ const plugins = {
 };
 
 const REDSTONE_USABLE_BLOCKS = [
-  'lever',
-  'stone_button',
-  'oak_button',
-  'birch_button',
-  'spruce_button',
-  'acacia_button',
-  'dark_oak_button',
-  'jungle_button',
-  'crimson_button',
-  'warped_button',
-  'heavy_weighted_pressure_plate',
-  'light_weighted_pressure_plate',
-  'stone_pressure_plate',
-  'oak_pressure_plate',
-  'spruce_pressure_plate',
-  'birch_pressure_plate',
-  'acacia_pressure_plate',
-  'jungle_pressure_plate',
-  'dark_oak_pressure_plate',
-  'crimson_pressure_plate',
-  'warped_pressure_plate',
-  'tripwire_hook',
-  'note_block',
-  'bell'
-]
+  "lever",
+  "stone_button",
+  "oak_button",
+  "birch_button",
+  "spruce_button",
+  "acacia_button",
+  "dark_oak_button",
+  "jungle_button",
+  "crimson_button",
+  "warped_button",
+  "heavy_weighted_pressure_plate",
+  "light_weighted_pressure_plate",
+  "stone_pressure_plate",
+  "oak_pressure_plate",
+  "spruce_pressure_plate",
+  "birch_pressure_plate",
+  "acacia_pressure_plate",
+  "jungle_pressure_plate",
+  "dark_oak_pressure_plate",
+  "crimson_pressure_plate",
+  "warped_pressure_plate",
+  "tripwire_hook",
+  "note_block",
+  "bell",
+];
 
 /**
  * Find usable redstone blocks nearby
  * @param {bot} mineflayer-bot
  */
 async function activateRedstoneBlocksNearby(bot, radius = 20) {
-  const origin = bot.entity.position
+  const origin = bot.entity.position;
 
   for (let dx = -radius; dx <= radius; dx++) {
     for (let dy = -radius; dy <= radius; dy++) {
       for (let dz = -radius; dz <= radius; dz++) {
-        const pos = origin.offset(dx, dy, dz)
-        const block = bot.blockAt(pos)
+        const pos = origin.offset(dx, dy, dz);
+        const block = bot.blockAt(pos);
 
-        if (!block) continue
+        if (!block) continue;
 
         if (REDSTONE_USABLE_BLOCKS.includes(block.name)) {
           if (bot.canSeeBlock(block)) {
-            await bot.activateBlock(block)
+            await bot.activateBlock(block);
           }
         }
       }

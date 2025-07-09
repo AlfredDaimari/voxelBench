@@ -83,9 +83,9 @@ class Workload(RemoteApplication):
         """
         assert total <= len(nodes)
         for i in range(total):
-            self.inv["all"]["hosts"][nodes[i].name]["record"] = True
+            self.inv["all"]["hosts"][nodes[i].name]["record"] = 1
         for i in range(total, len(nodes)):
-            self.inv["all"]["hosts"][nodes[i].name]["record"] = False
+            self.inv["all"]["hosts"][nodes[i].name]["record"] = 0
 
     @property
     def bots_per_node(self) -> int:

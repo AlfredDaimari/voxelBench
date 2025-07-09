@@ -2,19 +2,21 @@
 
 const { createLogger, format, transports } = require("winston");
 
-const logger = createLogger({
-  format: format.combine(
-    format.timestamp({ format: () => Date.now() }), // unix epoch
-    format.printf(({ timestamp, level, message }) => {
-      return `${level}:${timestamp}:${message}`;
-    }),
-  ),
-  transports: [
-    new transports.File({ filename: "logs/bots.log" }),
-    new transports.Console(),
-  ],
-});
+function createWinstonLogger(bot_name) {
+  return createLogger({
+    format: format.combine(
+      format.timestamp({ format: () => Date.now() }), // unix epoch
+      format.printf(({ timestamp, level, message }) => {
+        return `${timestamp}, ${message}`;
+      }),
+    ),
+    transports: [
+      new transports.File({ filename: `logs/${bot_name}.log` }),
+      new transports.Console(),
+    ],
+  });
+}
 
 module.exports = {
-  logger,
+  createWinstonLogger,
 };

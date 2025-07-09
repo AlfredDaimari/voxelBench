@@ -3,8 +3,21 @@ const utils = require("./utils");
 const mineflayerViewer = require("prismarine-viewer").headless;
 const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
 const timers = require("timers/promises");
+const { createWinstonLogger } = require("./logger");
+const EventEmitter = require('events'); 
+
+/**
+ *
+ * Building emitter for build_done event
+ *
+ */
+class BuildingEmitter extends EventEmitter {
+}
+
+const buildEmitter = new BuildingEmitter();
 
 var worker_bot;
+const logger = createWinstonLogger(workerData.username);
 const plugins = {
   pBuildModel,
 };
@@ -34,8 +47,8 @@ function recordBotInFirstPerson(bot, _) {
  * @returns {GoalXZ} next walking position
  */
 function nextGoal(currentX, currentZ) {
-  let x = currentX + utils.getRandomIntInterval(25) - workerData.box_width / 2;
-  let z = currentZ + utils.getRandomIntInterval(25) - workerData.box_width / 2;
+  let x = currentX + utils.getRandomIntInterval(25);
+  let z = currentZ + utils.getRandomIntInterval(25);
   /*
   let ts = Date.now() / 1000;
   console.log(
@@ -154,33 +167,37 @@ async function pBuildModel(bot, _) {
       await botBuildFloor(bot, startPos);
       await botBuildWall(bot, startPos);
       await botBuildRoof(bot, startPos);
+      buildEmitter.emit("build_done");
+      console.log(`${username} building complete`)
     });
   };
 
   // log bot position every 2 seconds
   setInterval(() => {
     try {
-      parentPort.postMessage(
-        `${username}:${bot.entity.position.x}-${bot.entity.position.z}`,
+      logger.info(
+        `${username}, ${bot.entity.position.x}, ${bot.entity.position.z}`,
       );
     } catch {
-      console.log("Error: could not post bot.entity.position.x/z to master");
+      console.log("Error: could not log bot.entity.position.x/z");
     }
   }, 2000);
 
-  // start building a house every 240 seconds once spawned
+  // start building a house
   bot.once("spawn", async () => {
     botTeleport();
     await timers.setTimeout(1500);
     await beginPBuild();
-    setInterval(beginPBuild, 240 * 1000);
   });
+
+  buildEmitter.on("build_done", beginPBuild);
 }
 
-function reconnect() {
+async function reconnect() {
   console.log(`bot disconnect: ${workerData.username} - connecting again`);
+  await timers.setTimeout(2000);
   worker_bot = utils.createBot(workerData.username, plugins);
-  worker_bot.on("playerLeft", reconnect);
+  worker_bot.on("end", reconnect);
 }
 
 function run() {
@@ -197,7 +214,7 @@ function run() {
     parentPort.postMessage(`${workerData.username}:error:${err}`),
   );
 
-  worker_bot.on("playerLeft", reconnect);
+  worker_bot.on("end", reconnect);
 }
 
 run();

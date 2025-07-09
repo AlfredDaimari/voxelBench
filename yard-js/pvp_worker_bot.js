@@ -1,11 +1,14 @@
 const { workerData, parentPort } = require("worker_threads");
 const utils = require("./utils");
 const mineflayerViewer = require("prismarine-viewer").headless;
-const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
+const { pathfinder } = require("mineflayer-pathfinder");
 const pvp = require("mineflayer-pvp").plugin;
 const armorManager = require("mineflayer-armor-manager");
+const { createWinstonLogger } = require("./logger");
+const timers = require("timers/promises");
 
 var worker_bot;
+const logger = createWinstonLogger(workerData.username);
 const plugins = {
   pvpModel,
 };
@@ -17,8 +20,6 @@ const plugins = {
 const hostname = process.env.HOSTNAME;
 const workload = process.env.WORKLOAD || "walk";
 const username = workerData.username;
-
-/*
 function recordBotInFirstPerson(bot, _) {
   bot.once("spawn", () => {
     mineflayerViewer(bot, {
@@ -29,7 +30,6 @@ function recordBotInFirstPerson(bot, _) {
     });
   });
 }
-*/
 
 function pvpModel(bot, _) {
   bot.loadPlugin(pathfinder);
@@ -57,7 +57,7 @@ function pvpModel(bot, _) {
       bot.chat(`/give ${workerData.username} minecraft:diamond_sword 1`);
 
       // equipping armor
-      bot.armorManger.equipAll();
+      bot.armorManager.equipAll();
       // equipping sword
       const sword = bot.inventory
         .items()
@@ -97,8 +97,8 @@ function pvpModel(bot, _) {
   // log bot position every 2 seconds
   setInterval(() => {
     try {
-      parentPort.postMessage(
-        `${username}:${bot.entity.position.x}-${bot.entity.position.z}`,
+      logger.info(
+        `${username}, ${bot.entity.position.x}, ${bot.entity.position.z}`,
       );
     } catch {
       console.log("Error: could not post bot.entity.position.x/z to master");
@@ -110,19 +110,17 @@ function pvpModel(bot, _) {
   bot.on("respawn", equipArmorAndSword);
 }
 
-function reconnect() {
+async function reconnect() {
   console.log(`bot disconnect: ${workerData.username} - connecting again`);
+  await timers.setTimeout(2000);
   worker_bot = utils.createBot(workerData.username, plugins);
-  worker_bot.on("playerLeft", reconnect);
+  worker_bot.on("end", reconnect);
 }
 
 function run() {
-  /*
-   *
   if (workerData.record) {
     plugins.recordBotInFirstPerson = recordBotInFirstPerson;
   }
-  */
 
   worker_bot = utils.createBot(workerData.username, plugins);
 
@@ -134,7 +132,7 @@ function run() {
   );
 
   // reconnect on disconnect
-  worker_bot.on("playerLeft", reconnect);
+  worker_bot.on("end", reconnect);
 }
 
 run();

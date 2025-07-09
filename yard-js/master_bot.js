@@ -5,7 +5,7 @@ const utils = require("./utils");
 
 const timeout_s = parseInt(process.env.DURATION || 60);
 const num_bots = parseInt(process.env.BOTS_PER_NODE || 5);
-const box_width = parseInt(process.env.BOX_WIDTH || 32);
+const box_width = parseInt(process.env.BOX_WIDTH || 8);
 const bot_join_delay = parseInt(process.env.BOTS_JOIN_DELAY || 5);
 const bot_index = parseInt(process.env.BOT_INDEX || 1);
 const box_x = parseInt(process.env.BOX_X || -16);
@@ -18,7 +18,6 @@ const max_radius = parseInt(process.env.MAX_RADIUS || 200);
 const spawned_bot_locations = {};
 const workload = process.env.WORKLOAD || "walk";
 const record = parseInt(process.env.RECORD || 0);
-const { logger } = require("./logger");
 const mob =
   process.env.PVE_MOB == undefined ? "polar_bear" : process.env.PVE_MOB;
 
@@ -29,7 +28,8 @@ const teleportLocs = utils.getTeleportationLocations(
   density,
   max_radius,
 );
-var totRecBots = record === 0 ? 0 : 1;
+var totRecBots = record == 0 ? 0 : 1;
+console.log(`Total recording bots setup: ${totRecBots}`);
 
 // setup main start time across threads
 const start = Date.now();
@@ -84,8 +84,8 @@ function start_worker(username) {
 
   return new Promise((resolve, reject) => {
     const worker = new Worker(workloadFile, { workerData });
-    // log to winston position of worker bots
-    worker.on("message", (msg) => logger.info(msg));
+    // log to console, when mincraft bots receive error from client
+    worker.on("message", (msg) => console.log(msg));
 
     worker.on("error", reject);
     worker.on("exit", (code) => {

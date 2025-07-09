@@ -24,13 +24,13 @@ if __name__ == "__main__":
         config = toml.load(f)
 
     # get benchmark configs
-    world = config["benchmark"]["world"]
-    player_models = config["benchmark"]["playerModel"]
-    densities = config["benchmark"]["density"]
-    radiuss = config["benchmark"]["radius"]
-    player_counts = config["benchmark"]["players"]
+    world: str = config["benchmark"]["world"]
+    player_model = config["benchmark"]["playerModel"]
+    density = config["benchmark"]["density"]
+    radius = config["benchmark"]["radius"]
+    player_count = config["benchmark"]["players"]
     joinDelaySecs = config["benchmark"]["joinDelaySecs"]
-    mob = config["benchmark"]["mob"]
+    mob = config["benchmark"]["pve_mob"]
     world_path = Path(__file__).parent.parent / f"worlds/{world}.zip"
     fig_writer = Figlet(font="banner3")
 
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     multipaper_worker.start()
 
     # setup bot nodes and telegraph
-    wl = Workload(bot_nodes, master_node[0].ansible_host, mob=mob)
+    wl = Workload(bot_nodes, master_node[0].ansible_host, mob=mob, world=world)
     wl.deploy()
 
     telegraf = Telegraf(master_node + worker_nodes + bot_nodes)
@@ -63,68 +63,58 @@ if __name__ == "__main__":
     telegraf.deploy()
 
     # run different set of workloads, and different player counts, different densities (each for 10 minutes)
+    print(
+        f"Now running: players:{player_count} radius:{radius} density:{density} model:{player_model}"
+    )
+    # creating data directory
+    timestamp = (
+        datetime.now().isoformat(timespec="minutes").replace("-", "").replace(":", "")
+    )
+    dest = Path(
+        Path(__file__).parent.parent
+        / f"data/{timestamp}-{player_model}-{player_count}-{density}-{radius}"
+    )
+    dest.mkdir(exist_ok=True, parents=True)
+    # write config file
+    with open(dest / "config.toml", "w") as f:
+        toml.dump(
+            {
+                "model": player_model,
+                "player": player_count,
+                "density": density,
+                "radius": radius,
+                "mob": mob,
+            },
+            f,
+        )
 
-    for player in player_counts:
-        for radius in radiuss:
-            for density in densities:
-                for model in player_models:
-                    print(
-                        f"Now running: players:{player} radius:{radius} density:{density} model:{model}"
-                    )
-                    # creating data directory
-                    timestamp = (
-                        datetime.now()
-                        .isoformat(timespec="minutes")
-                        .replace("-", "")
-                        .replace(":", "")
-                    )
-                    dest = Path(
-                        Path(__file__).parent.parent
-                        / f"data/{timestamp}-{model}-{player}-{density}-{radius}"
-                    )
-                    dest.mkdir(exist_ok=True, parents=True)
-                    # write config file
-                    with open(dest / "config.toml", "w") as f:
-                        toml.dump(
-                            {
-                                "model": model,
-                                "player": player,
-                                "density": density,
-                                "radius": radius,
-                                "mob": mob,
-                            },
-                            f,
-                        )
+    # copy config file to destination location
+    shutil.copy(node_config, dest)
 
-                    # copy config file to destination location
-                    shutil.copy(node_config, dest)
-
-                    # setup experiment
-                    wl.bots_per_node = player
-                    wl.bots_join_delay = timedelta(seconds=joinDelaySecs)
-                    wl.setup_new_experiment(model, radius, density)
-                    # start running telegraph
-                    telegraf.start()
-                    # start pdist monitoring
-                    start_player_distribution_monitoring(worker_nodes)
-                    # run workload
-                    wl.setup_recording_nodes(bot_nodes, 0)
-                    wl.start()
-                    # sleep
-                    print(fig_writer.renderText(f"Sleeping =={wl.duration + 10}== seconds"))
-                    sleep(wl.duration + 10)
-                    # stop running telegrap
-                    telegraf.stop()
-                    # stop pdist monitoring
-                    stop_player_distribution_monitoring(worker_nodes)
-                    # copy data files
-                    yardstick_benchmark.fetch(
-                        dest, master_node + worker_nodes + bot_nodes
-                    )
-                    # remove data files
-                    yardstick_benchmark.clean(master_node + worker_nodes + bot_nodes)
-                    # stop restart worker nodes to reset logs
-                    multipaper_worker.restart()
+    # setup experiment
+    wl.bots_per_node = player_count
+    wl.bots_join_delay = timedelta(seconds=joinDelaySecs)
+    wl.setup_new_experiment(player_model, radius, density)
+    # start running telegraph
+    telegraf.start()
+    # start pdist monitoring
+    start_player_distribution_monitoring(worker_nodes)
+    # run workload
+    wl.setup_recording_nodes(bot_nodes, 0)
+    wl.start()
+    # sleep
+    print(fig_writer.renderText(f"Sleeping =={wl.duration + 10}== seconds"))
+    sleep(wl.duration + 10)
+    # stop running telegrap
+    telegraf.stop()
+    # stop pdist monitoring
+    stop_player_distribution_monitoring(worker_nodes)
+    # copy data files
+    yardstick_benchmark.fetch(dest, master_node + worker_nodes + bot_nodes)
+    # remove data files
+    yardstick_benchmark.clean(master_node + worker_nodes + bot_nodes)
+    # stop restart worker nodes to reset logs
+    multipaper_worker.restart()
 
     # removing node setup
     subprocess.run(["bash", "remove.sh"], cwd=subprocess_wd)

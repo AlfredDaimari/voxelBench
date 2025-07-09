@@ -124,7 +124,7 @@ class Workload(RemoteApplication):
     def setup_new_experiment(self, workload: Work, radius: int, density: int) -> None:
         assert workload in Work.__members__
         self.extravars["workload"] = workload
-        self.extravars["radius"] = radius
+        self.extravars["max_radius"] = radius
         self.extravars["density"] = density
 
         # also setting up world spawn

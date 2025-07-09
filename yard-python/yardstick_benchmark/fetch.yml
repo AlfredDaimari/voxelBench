@@ -47,14 +47,22 @@
   gather_facts: true
   hosts: all
   tasks:
-    - name: Get bot position log file
-      fetch:
-        src: "{{ wd }}/logs/bots.log"
-        dest: "{{ dest }}/{{ ansible_hostname }}-bots-pos.log"
-        flat: yes
+    - name: Find all log files per bot
+      find:
+        paths: "{{ wd }}/logs"
+        patterns: "*.log"
+      register: bot_log_files
       ignore_errors: true
 
-    - name: Get master bot log file
+    - name: Get per bot log files from bot nodes
+      fetch:
+        src: "{{ item.path }}"
+        dest: "{{ dest }}/{{ ansible_hostname }}-bot-pos-{{ item.path | basename }}"
+        flat: yes
+      loop: "{{ bot_log_files.files }}"
+      ignore_errors: true
+
+    - name: Get main log file from master bot
       fetch:
         src: "{{ wd }}/bot-{{ inventory_hostname }}.log"
         dest: "{{ dest }}/{{ ansible_hostname }}-master-bot.log"

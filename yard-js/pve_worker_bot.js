@@ -7,11 +7,16 @@ const armorManager = require("mineflayer-armor-manager");
 const { createWinstonLogger } = require("./logger");
 const timers = require("timers/promises");
 
-var worker_bot;
 const logger = createWinstonLogger(workerData.username);
 const plugins = {
   pveModel,
 };
+
+async function reconnect() {
+  console.log(`bot disconnect: ${workerData.username} - connecting again`);
+  await timers.setTimeout(2000);
+  worker_bot = utils.createBot(workerData.username, plugins);
+}
 /**
  * Video Recording function
  * video will be saved in the videos directory in project root
@@ -105,13 +110,15 @@ async function pveModel(bot, _) {
   bot.once("spawn", equipArmorAndSword);
   bot.on("respawn", equipArmorAndSword);
   bot.once("spawn", beginPVE);
-}
 
-async function reconnect() {
-  console.log(`bot disconnect: ${workerData.username} - connecting again`);
-  await timers.setTimeout(2000);
-  worker_bot = utils.createBot(workerData.username, plugins);
-  worker_bot.on("end", reconnect);
+  bot.on("kicked", () =>
+    parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
+  );
+  bot.on("error", () =>
+    parentPort.postMessage(`${workerData.username}:error:${err}`),
+  );
+
+  bot.on("end", reconnect);
 }
 
 function run() {
@@ -120,15 +127,6 @@ function run() {
   }
 
   worker_bot = utils.createBot(workerData.username, plugins);
-
-  worker_bot.on("kicked", () =>
-    parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
-  );
-  worker_bot.on("error", () =>
-    parentPort.postMessage(`${workerData.username}:error:${err}`),
-  );
-
-  worker_bot.on("end", reconnect);
 }
 
 run();

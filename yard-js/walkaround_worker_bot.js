@@ -7,7 +7,12 @@ const utils = require("./utils");
 const { createWinstonLogger } = require("./logger");
 const { setTimeout } = require("timers/promises");
 
-var worker_bot;
+async function reconnect() {
+  console.log(`bot disconnect: ${workerData.username} - connecting again`);
+  await setTimeout(2000);
+  worker_bot = utils.createBot(workerData.username, plugins);
+}
+
 const logger = createWinstonLogger(workerData.username);
 const plugins = {
   walk,
@@ -184,13 +189,16 @@ function walk(bot, _) {
   }, 2000);
 
   bot.once("spawn", beginWalking);
-}
 
-async function reconnect() {
-  console.log(`bot disconnect: ${workerData.username} - connecting again`);
-  await setTimeout(2000);
-  worker_bot = utils.createBot(workerData.username, plugins);
-  worker_bot.on("playerLeft", reconnect);
+  bot.on("kicked", () =>
+    parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
+  );
+  bot.on("error", () =>
+    parentPort.postMessage(`${workerData.username}:error:${err}`),
+  );
+
+  // reconnect on disconnect
+  bot.on("end", reconnect);
 }
 
 function run() {
@@ -199,16 +207,6 @@ function run() {
   }
 
   worker_bot = utils.createBot(workerData.username, plugins);
-
-  worker_bot.on("kicked", () =>
-    parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
-  );
-  worker_bot.on("error", () =>
-    parentPort.postMessage(`${workerData.username}:error:${err}`),
-  );
-
-  // reconnect on disconnect
-  worker_bot.on("end", reconnect);
 }
 
 run();

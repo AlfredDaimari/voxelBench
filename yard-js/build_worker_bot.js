@@ -4,15 +4,14 @@ const mineflayerViewer = require("prismarine-viewer").headless;
 const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
 const timers = require("timers/promises");
 const { createWinstonLogger } = require("./logger");
-const EventEmitter = require('events'); 
+const EventEmitter = require("events");
 
 /**
  *
  * Building emitter for build_done event
  *
  */
-class BuildingEmitter extends EventEmitter {
-}
+class BuildingEmitter extends EventEmitter {}
 
 const buildEmitter = new BuildingEmitter();
 
@@ -168,7 +167,7 @@ async function pBuildModel(bot, _) {
       await botBuildWall(bot, startPos);
       await botBuildRoof(bot, startPos);
       buildEmitter.emit("build_done");
-      console.log(`${username} building complete`)
+      console.log(`${username} building complete`);
     });
   };
 
@@ -190,6 +189,15 @@ async function pBuildModel(bot, _) {
     await beginPBuild();
   });
 
+  bot.on("kicked", () =>
+    parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
+  );
+  bot.on("error", () =>
+    parentPort.postMessage(`${workerData.username}:error:${err}`),
+  );
+
+  bot.on("end", reconnect);
+
   buildEmitter.on("build_done", beginPBuild);
 }
 
@@ -197,7 +205,6 @@ async function reconnect() {
   console.log(`bot disconnect: ${workerData.username} - connecting again`);
   await timers.setTimeout(2000);
   worker_bot = utils.createBot(workerData.username, plugins);
-  worker_bot.on("end", reconnect);
 }
 
 function run() {
@@ -206,15 +213,6 @@ function run() {
   }
 
   worker_bot = utils.createBot(workerData.username, plugins);
-
-  worker_bot.on("kicked", () =>
-    parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
-  );
-  worker_bot.on("error", () =>
-    parentPort.postMessage(`${workerData.username}:error:${err}`),
-  );
-
-  worker_bot.on("end", reconnect);
 }
 
 run();

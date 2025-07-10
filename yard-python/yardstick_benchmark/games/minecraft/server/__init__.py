@@ -39,7 +39,14 @@ class MultiPaper(RemoteApplication):
                 Path(__file__).parent / "multipaper_master_start.yml",
                 Path(__file__).parent / "multipaper_master_stop.yml",
                 Path(__file__).parent / "multipaper_cleanup.yml",
-                extravars={"servers": servers, "length": length},
+                extravars={
+                    "servers": servers,
+                    "length": length,
+                    "downloads": str(
+                        Path(__file__).parent.parent.parent.parent.parent.parent
+                        / "downloads"
+                    ),
+                },
             )
         else:
             super().__init__(
@@ -55,6 +62,10 @@ class MultiPaper(RemoteApplication):
                         Path(__file__).parent / "server.properties.j2"
                     ),
                     "plugins": str(Path(__file__).parent.parent / "plugins"),
+                    "downloads": str(
+                        Path(__file__).parent.parent.parent.parent.parent.parent
+                        / "downloads"
+                    ),
                 },
             )
 

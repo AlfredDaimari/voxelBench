@@ -154,6 +154,16 @@
       shell: |
         wget https://github.com/TomWright/dasel/releases/download/v2.8.1/dasel_linux_amd64 -t 2 -O dasel && chmod a+x dasel
         mv ./dasel /usr/local/bin/dasel
+      when: false
+
+    - name: Copy dasel cli
+      become: yes
+      become_user: root
+      become_method: sudo
+      copy:
+        src: "{{downloads}}/dasel"
+        dest: /usr/local/bin/dasel
+        mode: '0755'
 
     # generate velocity toml template
     - name: Run velocity for template

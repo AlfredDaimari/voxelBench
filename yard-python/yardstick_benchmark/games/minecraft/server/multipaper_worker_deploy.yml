@@ -37,7 +37,7 @@
         src: ./downloads/multipaper-1.20.1-57.jar
         dest: ~/worker/multipaper-1.20.1-57.jar
 
-    # download the dasel cli
+    # download the dasel cli (random network issues with ansible)
     - name: Download dasel cli
       become: yes
       become_user: root
@@ -45,6 +45,28 @@
       shell: |
         wget https://github.com/TomWright/dasel/releases/download/v2.8.1/dasel_linux_amd64 -t 2 -O dasel && chmod a+x dasel
         mv ./dasel /usr/local/bin/dasel
+      when: false
+
+    - name: Copy dasel cli
+      become: yes
+      become_user: root
+      become_method: sudo
+      copy:
+        src: "{{ downloads }}/dasel"
+        dest: /usr/local/bin/dasel
+        mode: '0755'
+
+    # create a cache to store mojang 1.20.1 (random network issues with ansible)
+    - name: Create cache directory
+      file:
+        path: ~/worker/cache
+        state: directory
+        mode: "0755"
+
+    - name: Copy mojang 1.20.1 to cache directory
+      copy:
+        src: "{{ downloads }}/mojang_1.20.1.jar"
+        dest: ~/worker/cache/mojang_1.20.1.jar
 
     - name: Template run multipaper worker
       shell: | 
@@ -71,7 +93,7 @@
     - name: Gracefully shutdown worker template run
       shell: |
         kill -SIGKILL $(cat template.pid)
-        rm template.log
+        #rm template.log
       args:
         chdir: ~/worker
         executable: /bin/bash

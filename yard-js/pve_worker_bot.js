@@ -111,14 +111,14 @@ async function pveModel(bot, _) {
   bot.on("respawn", equipArmorAndSword);
   bot.once("spawn", beginPVE);
 
-  bot.on("kicked", () =>
+  bot.on("kicked", (reason) =>
     parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
   );
   bot.on("error", () =>
     parentPort.postMessage(`${workerData.username}:error:${err}`),
   );
 
-  bot.on("end", reconnect);
+  // bot.on("end", reconnect);
 }
 
 function run() {

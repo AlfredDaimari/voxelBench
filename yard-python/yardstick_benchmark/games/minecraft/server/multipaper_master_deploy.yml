@@ -60,7 +60,7 @@
           motd = "<#09add3>A Velocity Server"
 
           # Player display settings
-          show-max-players = 11000
+          show-max-players = 500
 
           # Online authentication
           online-mode = false
@@ -83,11 +83,11 @@
           # Compression and timeouts
           compression-threshold = 256
           compression-level = -1
-          connection-timeout = 5000
+          connection-timeout = 30000
           read-timeout = 30000
 
           # Rate limits
-          login-ratelimit = 3000
+          login-ratelimit = 0
           command-rate-limit = 50
           forward-commands-if-rate-limited = true
           kick-after-rate-limited-commands = 0

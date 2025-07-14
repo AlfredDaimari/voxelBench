@@ -114,7 +114,7 @@ function pvpModel(bot, _) {
   bot.once("spawn", beginPVP);
   bot.on("respawn", equipArmorAndSword);
 
-  bot.on("kicked", () =>
+  bot.on("kicked", (reason) =>
     parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
   );
   bot.on("error", () =>
@@ -122,7 +122,7 @@ function pvpModel(bot, _) {
   );
 
   // reconnect on disconnect
-  bot.on("end", reconnect);
+  // bot.on("end", reconnect);
 }
 
 function run() {

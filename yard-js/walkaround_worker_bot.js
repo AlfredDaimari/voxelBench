@@ -190,7 +190,7 @@ function walk(bot, _) {
 
   bot.once("spawn", beginWalking);
 
-  bot.on("kicked", () =>
+  bot.on("kicked", (reason) =>
     parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
   );
   bot.on("error", () =>
@@ -198,7 +198,7 @@ function walk(bot, _) {
   );
 
   // reconnect on disconnect
-  bot.on("end", reconnect);
+  // bot.on("end", reconnect);
 }
 
 function run() {

@@ -189,14 +189,14 @@ async function pBuildModel(bot, _) {
     await beginPBuild();
   });
 
-  bot.on("kicked", () =>
+  bot.on("kicked", (reason) =>
     parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
   );
   bot.on("error", () =>
     parentPort.postMessage(`${workerData.username}:error:${err}`),
   );
 
-  bot.on("end", reconnect);
+  //bot.on("end", reconnect);
 
   buildEmitter.on("build_done", beginPBuild);
 }

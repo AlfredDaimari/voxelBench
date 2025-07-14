@@ -105,7 +105,6 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
 lib/
@@ -473,6 +472,7 @@ vagrant/inventory.ini
 vagrant/inventory
 vagrant/.vagrant
 vagrant/artifacts
+vagrant/downloads
 data/*
 data
 worlds

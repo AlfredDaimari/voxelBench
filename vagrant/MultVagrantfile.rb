@@ -37,7 +37,7 @@ Vagrant.configure("2") do |config|
       libvirt.cpus = MASTER_CPU
       libvirt.storage_pool_name = "adaim"
       libvirt.storage :file,
-                      path: "disks/disk_vm1.qcow2",
+                      path: "disk_vm1.qcow2",
                       size: "10G",
                       type: "qcow2",
                       allow_existing: true
@@ -61,7 +61,7 @@ Vagrant.configure("2") do |config|
         libvirt.cpus = WORKER_CPU
         libvirt.storage_pool_name = "adaim"
         libvirt.storage :file,
-                        path: "disks/disk_vm#{i}.qcow2",
+                        path: "disk_vm#{i}.qcow2",
                         size: "10G",
                         type: "qcow2",
                         allow_existing: true

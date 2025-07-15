@@ -11,7 +11,7 @@ BOT_MEMORY = ENV["BOT_MEMORY"]&.to_i || 2048
 MASTER_CPU = ENV["MASTER_CPU"]&.to_i || 1
 WORKER_CPU = ENV["WORKER_CPU"]&.to_i || 1
 BOT_CPU = ENV["BOT_CPU"]&.to_i || 1
-BOT_TOTAL = ENV["BOT_TOTAL"]&.to_i || 2
+BOT_TOTAL = ENV["BOT_TOTAL"]&.to_i || 1
 WORKER_TOTAL = ENV["WORKER_TOTAL"]&.to_i || 1
 WORKER_START = 2
 WORKER_END = WORKER_START + WORKER_TOTAL - 1
@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
         libvirt.cpus = BOT_CPU
         libvirt.storage_pool_name = "adaim"
         libvirt.storage :file,
-                        path: "disks/disk_vm#{i}.qcow2",
+                        path: "/mnt/external/adaim/storage/disk_vm#{i}.qcow2",
                         size: "10G",
                         type: "qcow2",
                         allow_existing: true

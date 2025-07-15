@@ -5,7 +5,7 @@
 
 # ssh into physical remote and get remote_inventory file 
 #ssh_com="ssh adaim@node6"
-vagrant_dir="/mnt/sdc/adaim/yardstick/vagrant/"
+vagrant_dir="/mnt/external/adaim/yardstick/vagrant/"
 
 # set config using python library yq
 function set_config() {

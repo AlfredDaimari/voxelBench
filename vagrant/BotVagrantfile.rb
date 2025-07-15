@@ -36,6 +36,7 @@ Vagrant.configure("2") do |config|
         libvirt.default_prefix = ""
         libvirt.memory = BOT_MEMORY
         libvirt.cpus = BOT_CPU
+        libvirt.storage_pool_name = "adaim"
         libvirt.storage :file,
                         path: "disks/disk_vm#{i}.qcow2",
                         size: "10G",

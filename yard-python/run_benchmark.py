@@ -18,6 +18,8 @@ import shutil
 if __name__ == "__main__":
     # node setup
     sh_file = Path(__file__).parent.parent / "vagrant/vanage.sh"
+    sh_remote_file = Path(__file__).parent.parent / "vagrant/remote_vanage.sh"
+    
     subprocess_wd = Path(__file__).parent.parent / "vagrant"
     node_config = Path(__file__).parent.parent / "vagrant/multipaper.toml"
     with open(str(node_config)) as f:
@@ -35,6 +37,8 @@ if __name__ == "__main__":
     fig_writer = Figlet(font="banner3")
 
     subprocess.run(["bash", "-c", str(sh_file)], cwd=subprocess_wd)
+    # uncomment this when setting up remote bots as well
+    subprocess.run(["bash", "-c", str(sh_remote_file)], cwd=subprocess_wd)
 
     # setup world setting
     vagrant = VagrantVMs()

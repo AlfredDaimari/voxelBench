@@ -100,8 +100,9 @@ function get_private_keys_remote(){
 
 # no need to edit the contents of the inventory since it is the same
 function append_remote_inv_to_inventory(){
-  (cat inventory; cat remote_inventory) > test_inventory
+  (cat inventory; cat remote_inventory) > inventory
 }
 
+copy_remote_inventory
 append_remote_inv_to_inventory
 

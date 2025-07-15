@@ -11,7 +11,7 @@ BOT_MEMORY = ENV["BOT_MEMORY"]&.to_i || 2048
 MASTER_CPU = ENV["MASTER_CPU"]&.to_i || 1
 WORKER_CPU = ENV["WORKER_CPU"]&.to_i || 1
 BOT_CPU = ENV["BOT_CPU"]&.to_i || 1
-BOT_TOTAL = ENV["BOT_TOTAL"]&.to_i || 1
+BOT_TOTAL = ENV["BOT_TOTAL"]&.to_i || 2
 WORKER_TOTAL = ENV["WORKER_TOTAL"]&.to_i || 1
 WORKER_START = 2
 WORKER_END = WORKER_START + WORKER_TOTAL - 1
@@ -25,6 +25,17 @@ Vagrant.configure("2") do |config|
   (BOT_START..BOT_END).each do |i|
     config.vm.define "vm#{i}" do |vm|
       vm.vm.hostname = "vm#{i}"
+
+      # this is for local testing
+      vm.vm.network "forwarded_port",
+        guest: 22,
+        host: (2220 + i)
+
+      # this is for @large cluster testing
+      # vm.vm.network :public_network,
+      #   bridge: "br0",
+      #   type: "bridge"
+
       vm.vm.provider :libvirt do |libvirt|
         libvirt.default_prefix = ""
         libvirt.memory = BOT_MEMORY

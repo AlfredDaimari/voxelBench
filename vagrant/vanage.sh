@@ -149,7 +149,7 @@ function create_vms() {
 	BLA::stop_loading_animation
 
 	BLA::start_loading_animation "vagrant is creating bot vms"
-	VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
+	#VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
 	BLA::stop_loading_animation
 
 	log_dt "... VMS Created: Now Creating Inventory TOML File ..."

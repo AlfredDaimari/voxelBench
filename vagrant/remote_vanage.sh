@@ -98,12 +98,18 @@ function get_private_keys_remote(){
 
 # no need to edit the contents of the inventory since it is the same
 function append_remote_inv_to_inventory(){
-  (cat inventory; cat remote_inventory) > inventory
+  cat inventory remote_inventory > temp && mv temp inventory
+}
+
+# function replace external with sdc ssd
+function external_to_sdc(){
+  sed -i 's/external/sdc/g' inventory
 }
 
 copy_remote_inventory
 get_private_keys_remote
 append_remote_inv_to_inventory
+external_to_sdc
 
 # this is for remote
 # setup_remote_nodes

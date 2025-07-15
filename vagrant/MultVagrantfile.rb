@@ -24,6 +24,12 @@ Vagrant.configure("2") do |config|
   # master vm
   config.vm.define "vm1" do |vm1|
     vm1.vm.hostname = "vm1"
+
+    # this is for @large cluster testing
+    vm1.vm.network :public_network,
+         dev: "br0",
+         type: "bridge"
+
     vm1.vm.provider :libvirt do |libvirt|
       libvirt.default_prefix = ""
       libvirt.memory = MASTER_MEMORY
@@ -40,6 +46,12 @@ Vagrant.configure("2") do |config|
   (WORKER_START..WORKER_END).each do |i|
     config.vm.define "vm#{i}" do |vm|
       vm.vm.hostname = "vm#{i}"
+
+      # this is for @large cluster testing
+      vm.vm.network :public_network,
+         dev: "br0",
+         type: "bridge"
+
       vm.vm.provider :libvirt do |libvirt|
         libvirt.default_prefix = ""
         libvirt.memory = WORKER_MEMORY

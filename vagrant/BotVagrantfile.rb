@@ -26,15 +26,10 @@ Vagrant.configure("2") do |config|
     config.vm.define "vm#{i}" do |vm|
       vm.vm.hostname = "vm#{i}"
 
-      # this is for local testing
-      vm.vm.network "forwarded_port",
-        guest: 22,
-        host: (2220 + i)
-
       # this is for @large cluster testing
-      # vm.vm.network :public_network,
-      #   bridge: "br0",
-      #   type: "bridge"
+      vm.vm.network :public_network,
+         dev: "br0",
+         type: "bridge"
 
       vm.vm.provider :libvirt do |libvirt|
         libvirt.default_prefix = ""

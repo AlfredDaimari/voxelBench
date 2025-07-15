@@ -44,13 +44,6 @@ function get_memory() {
 	fi
 }
 
-function create_remote_inventory_ssh(){
-  ssh -c adaim@node6
-  cd $vagrant_dir
-  source ./remote_vanage
-  create_remote_inventory_local
-}
-
 function create_remote_inventory_local(){
   OUTFILE="remote_inventory"
   >$OUTFILE
@@ -109,5 +102,10 @@ function append_remote_inv_to_inventory(){
 }
 
 copy_remote_inventory
+get_private_keys_remote
 append_remote_inv_to_inventory
+
+# this is for remote
+# setup_remote_nodes
+# create_remote_inventory_local
 

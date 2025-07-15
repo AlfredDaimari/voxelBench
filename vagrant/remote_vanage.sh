@@ -28,6 +28,11 @@ function set_config() {
 	BOT_TOTAL=$(cat multipaper.toml | tomlq .bot.total)
 }
 
+function setup_remote_nodes(){
+  set_config
+  VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
+}
+
 # get 80% memory for java program to run
 function get_memory() {
 	if [[ $1 == "master" ]]; then

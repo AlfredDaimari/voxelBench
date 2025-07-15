@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
         libvirt.cpus = BOT_CPU
         libvirt.storage_pool_name = "adaim"
         libvirt.storage :file,
-                        path: "/mnt/external/adaim/storage/disk_vm#{i}.qcow2",
+                        path: "disk_vm#{i}.qcow2",
                         size: "10G",
                         type: "qcow2",
                         allow_existing: true

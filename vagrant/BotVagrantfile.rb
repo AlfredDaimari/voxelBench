@@ -29,8 +29,9 @@ Vagrant.configure("2") do |config|
       # this is for @large cluster testing
       vm.vm.network :public_network,
          dev: "br0",
-         type: "bridge"
-
+         type: "bridge",
+         ip: "192.168.1.#{100 + i}"
+      
       vm.vm.provider :libvirt do |libvirt|
         libvirt.default_prefix = ""
         libvirt.memory = BOT_MEMORY

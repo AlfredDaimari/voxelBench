@@ -30,6 +30,9 @@ function set_config() {
 
 function setup_remote_nodes(){
   set_config
+  export MASTER_MEMORY MASTER_CPU
+  export WORKER_MEMORY WORKER_TOTAL WORKER_CPU
+  export BOT_MEMORY BOT_CPU BOT_TOTAL
   VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
 }
 

@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
       libvirt.memory = MASTER_MEMORY
       libvirt.cpus = MASTER_CPU
       libvirt.storage :file,
-                      path: "disk_vm1.qcow2",
+                      path: "disks/disk_vm1.qcow2",
                       size: "10G",
                       type: "qcow2",
                       allow_existing: true
@@ -59,7 +59,7 @@ Vagrant.configure("2") do |config|
         libvirt.memory = WORKER_MEMORY
         libvirt.cpus = WORKER_CPU
         libvirt.storage :file,
-                        path: "disk_vm#{i}.qcow2",
+                        path: "disks/disk_vm#{i}.qcow2",
                         size: "10G",
                         type: "qcow2",
                         allow_existing: true

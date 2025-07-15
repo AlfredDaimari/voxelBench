@@ -37,7 +37,7 @@ Vagrant.configure("2") do |config|
         libvirt.memory = BOT_MEMORY
         libvirt.cpus = BOT_CPU
         libvirt.storage :file,
-                        path: "disk_vm#{i}.qcow2",
+                        path: "disks/disk_vm#{i}.qcow2",
                         size: "10G",
                         type: "qcow2",
                         allow_existing: true

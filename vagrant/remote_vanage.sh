@@ -30,9 +30,6 @@ function set_config() {
 
 function setup_remote_nodes(){
   set_config
-  export MASTER_MEMORY MASTER_CPU
-  export WORKER_MEMORY WORKER_TOTAL WORKER_CPU
-  export BOT_MEMORY BOT_CPU BOT_TOTAL
   VAGRANT_VAGRANTFILE=BotVagrantfile.rb vagrant up >>vagrant.log
 }
 
@@ -94,8 +91,9 @@ function get_private_keys_remote(){
   for key_path in $PRIVATE_KEYS; do
     dest_path=$(echo "$key_path" | sed -E 's#^.*/(\.vagrant/.*)$#\1#')
     echo "Now copying ... $key_path to $dest_path"
-    mkdir -p $dest_path
+    mkdir -p $(dirname "$dest_path")
     scp "adaim@node6:$key_path" "./$dest_path"
+    chmod 600 "./${dest_path}"
   done
 }
 
@@ -106,13 +104,12 @@ function append_remote_inv_to_inventory(){
 
 # function replace external with sdc ssd
 function external_to_sdc(){
-  sed -i 's/external/sdc/g' inventory
+  sed -i 's/external/sdc/g'
 }
 
 copy_remote_inventory
 get_private_keys_remote
 append_remote_inv_to_inventory
-external_to_sdc
 
 # this is for remote
 # setup_remote_nodes

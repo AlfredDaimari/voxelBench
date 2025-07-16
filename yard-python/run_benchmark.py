@@ -37,6 +37,8 @@ if __name__ == "__main__":
     fig_writer = Figlet(font="banner3")
 
     subprocess.run(["bash", "-c", str(sh_file)], cwd=subprocess_wd)
+    # uncomment this when setting up remote bots as well
+    subprocess.run(["bash", "-c", str(sh_remote_file)], cwd=subprocess_wd)
 
     # setup world setting
     vagrant = VagrantVMs()
@@ -55,8 +57,6 @@ if __name__ == "__main__":
     multipaper_worker.start()
 
     # setup bot nodes and telegraph
-    # uncomment this when setting up remote bots as well
-    subprocess.run(["bash", "-c", str(sh_remote_file)], cwd=subprocess_wd)
     wl = Workload(bot_nodes, master_node[0].ansible_host, mob=mob, world=world)
     wl.deploy()
 

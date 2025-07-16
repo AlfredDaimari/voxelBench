@@ -87,6 +87,10 @@ class VagrantVMs:
                 1 for line in result.stdout.splitlines() if "running (libvirt)" in line
             )
 
+            """
+            Warning: vagrant status is problematic, removes all private files if it
+            can't find the necessary nodes
+
             env["VAGRANT_VAGRANTFILE"] = "BotVagrantfile.rb"
             result = subprocess.run(
                 "vagrant status", shell=True, capture_output=True, text=True, env=env
@@ -95,12 +99,14 @@ class VagrantVMs:
                 1 for line in result.stdout.splitlines() if "running (libvirt)" in line
             )
 
+            """
+
             total_inventory_file_nodes = 0
             for node_type in ["master", "worker", "bot"]:
                 if node_type in self._data:
                     total_inventory_file_nodes += len(self._data[node_type])
 
-            assert total_nodes_running == total_inventory_file_nodes
+            #assert total_nodes_running == total_inventory_file_nodes
 
     def _unpack(self, tag: str) -> list[VagrantNode]:
         nodes = []

@@ -97,8 +97,7 @@ function get_private_keys_remote(){
   done
 
   # also remove known host keys since ips may change
-  HOSTS=$(cat remote_inventory | grep ansible_host | sed -E "s/ansible_host='([
-^']+)'/\1/")
+  HOSTS=$(cat remote_inventory | grep ansible_host | sed -E "s/ansible_host='([^']+)'/\1/")
   for host in $HOSTS; do
     ssh-keygen -f "/home/adaim/.ssh/known_hosts" -R "$host"
   done

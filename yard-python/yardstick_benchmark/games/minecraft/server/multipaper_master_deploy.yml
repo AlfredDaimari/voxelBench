@@ -132,10 +132,15 @@
         state: directory
         mode: "0755"
 
-    - name: Download velocity load balancer
+    - name: Download velocity
       get_url:
         url: "https://api.papermc.io/v2/projects/velocity/versions/3.4.0-SNAPSHOT/builds/496/downloads/velocity-3.4.0-SNAPSHOT-496.jar"
         dest: "~/velocity/velocity-3.4.0-SNAPSHOT-496.jar"
+
+    - name: Download velocity load balancer by bhopak
+      get_url:
+        url: "https://github.com/bhopahk/VelocityLoadBalancer/releases/download/v1.1/velocityloadbalancer-1.1.jar"
+        dest: "~/velocity/plugins/VelocityLoadBalancer-1.1.jar"
 
     - name: Download multipaper master as a velocity plugin
       get_url:

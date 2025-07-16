@@ -21,22 +21,25 @@ BOT_END = BOT_START + BOT_TOTAL - 1
 Vagrant.configure("2") do |config|
   config.vm.box = "generic/ubuntu2204"
   config.timezone.value = :host
+  
   # bot vms
   (BOT_START..BOT_END).each do |i|
     config.vm.define "vm#{i}" do |vm|
       vm.vm.hostname = "vm#{i}"
 
       # this is for @large cluster testing
+      #vm.vm.network :private_network, type: "dhcp"
+=begin
       vm.vm.network :public_network,
          dev: "br0",
          type: "bridge",
          ip: "192.168.1.#{100 + i}"
-      
+=end
       vm.vm.provider :libvirt do |libvirt|
         libvirt.default_prefix = ""
         libvirt.memory = BOT_MEMORY
         libvirt.cpus = BOT_CPU
-        libvirt.storage_pool_name = "adaim"
+        #libvirt.storage_pool_name = "adaim"
         libvirt.storage :file,
                         path: "disk_vm#{i}.qcow2",
                         size: "10G",

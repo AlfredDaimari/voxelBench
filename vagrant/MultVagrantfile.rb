@@ -26,16 +26,18 @@ Vagrant.configure("2") do |config|
     vm1.vm.hostname = "vm1"
 
     # this is for @large cluster testing
+    #vm1.vm.network :private_network, type: "dhcp"
+=begin
     vm1.vm.network :public_network,
          dev: "br0",
          type: "bridge",
          ip: "192.168.1.101"
-
+=end
     vm1.vm.provider :libvirt do |libvirt|
       libvirt.default_prefix = ""
       libvirt.memory = MASTER_MEMORY
       libvirt.cpus = MASTER_CPU
-      libvirt.storage_pool_name = "adaim"
+      #libvirt.storage_pool_name = "adaim"
       libvirt.storage :file,
                       path: "disk_vm1.qcow2",
                       size: "10G",
@@ -50,16 +52,18 @@ Vagrant.configure("2") do |config|
       vm.vm.hostname = "vm#{i}"
 
       # this is for @large cluster testing
+      #vm.vm.network :private_network, type: "dhcp"
+=begin
       vm.vm.network :public_network,
          dev: "br0",
          type: "bridge",
          ip: "192.168.1.#{100 + i}"
-
+=end
       vm.vm.provider :libvirt do |libvirt|
         libvirt.default_prefix = ""
         libvirt.memory = WORKER_MEMORY
         libvirt.cpus = WORKER_CPU
-        libvirt.storage_pool_name = "adaim"
+        #libvirt.storage_pool_name = "adaim"
         libvirt.storage :file,
                         path: "disk_vm#{i}.qcow2",
                         size: "10G",

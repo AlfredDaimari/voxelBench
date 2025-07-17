@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     subprocess.run(["bash", "-c", str(sh_file)], cwd=subprocess_wd)
     # uncomment this when setting up remote bots as well
-    subprocess.run(["bash", "-c", str(sh_remote_file)], cwd=subprocess_wd)
+    # subprocess.run(["bash", "-c", str(sh_remote_file)], cwd=subprocess_wd)
 
     # setup world setting
     vagrant = VagrantVMs()
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     )
     dest = Path(
         Path(__file__).parent.parent
-        / f"data/{timestamp}-{player_model}-{player_count}-{density}-{radius}"
+        / f"data/{timestamp}-{player_model}-{player_count}-{world}-{density}-{radius}"
     )
     dest.mkdir(exist_ok=True, parents=True)
     # write config file

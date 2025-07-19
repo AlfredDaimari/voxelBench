@@ -193,7 +193,7 @@ function walk(bot, _) {
   bot.on("kicked", (reason) =>
     parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
   );
-  bot.on("error", () =>
+  bot.on("error", (err) =>
     parentPort.postMessage(`${workerData.username}:error:${err}`),
   );
 

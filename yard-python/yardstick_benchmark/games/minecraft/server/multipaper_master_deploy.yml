@@ -135,12 +135,12 @@
     - name: Download velocity
       get_url:
         url: "https://api.papermc.io/v2/projects/velocity/versions/3.4.0-SNAPSHOT/builds/496/downloads/velocity-3.4.0-SNAPSHOT-496.jar"
-        dest: "~/velocity/velocity-3.4.0-SNAPSHOT-496.jar"
+        dest: "~/velocity/velocity-3.4.0-SNAPSHOT-521.jar"
 
-    - name: Download velocity load balancer by bhopak
-      get_url:
-        url: "https://github.com/bhopahk/VelocityLoadBalancer/releases/download/v1.1/velocityloadbalancer-1.1.jar"
-        dest: "~/velocity/plugins/VelocityLoadBalancer-1.1.jar"
+    - name: Copy new velocity load balancer
+      copy:
+        src: "{{downloads}}/velocityloadbalancer-2.jar" 
+        dest: "~/velocity/plugins/velocityloadbalancer-2.jar"
 
     - name: Download multipaper master as a velocity plugin
       get_url:
@@ -173,7 +173,7 @@
     # generate velocity toml template
     - name: Run velocity for template
       when: false
-      command: java -jar velocity-3.4.0-SNAPSHOT-496.jar
+      command: java -jar velocity-3.4.0-SNAPSHOT-521.jar
       async: 40
       poll: 0
       args:
@@ -187,7 +187,7 @@
 
     - name: Gracefully shutdown velocity
       when: false
-      command: pkill -SIGTERM -f "java -jar velocity-3.4.0-SNAPSHOT-496.jar"
+      command: pkill -SIGTERM -f "java -jar velocity-3.4.0-SNAPSHOT-521.jar"
       ignore_errors: true
 
     # copy a minecraft world to the multipaper master velocity directory

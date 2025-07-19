@@ -37,6 +37,8 @@ function nextGoal(currentX, currentZ) {
     )}`,
   );
   */
+
+  /* get intermediate paths
   const intermediate_path = [];
   const dx = x - currentX;
   const dz = z - currentZ;
@@ -44,11 +46,13 @@ function nextGoal(currentX, currentZ) {
   const steps = distance / workerData.box_width;
   for (let i = 1; i <= steps; i++) {
     intermediate_path.push(
-      new GoalXZ(x + i * workerData.box_width, z + i * workerData.box_width, 4),
+      new GoalXZ(currentX + i * workerData.box_width, currentZ + i * workerData.box_width, 4),
     );
   }
 
   return intermediate_path;
+  */
+  return new GoalXZ(x, z);
 }
 
 /**
@@ -80,34 +84,9 @@ function forcedMoveComplete(bot) {
 }
 */
 
-function walk(bot, _) {
-  const beginWalking = async () => {
-    // first teleport to a location
-    bot.chat(
-      `/tp ${username} ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`,
-    );
-    // set spawn point to the given location
-    bot.chat(
-      `/minecraft:spawnpoint @s ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`,
-    );
-    // only load pathfinder plugin after tp has been done (causes issues)
-    // await forcedMoveComplete(bot);
-    bot.loadPlugin(pathfinder);
-
-    // wait for teleportion
-    let defaultMove = new Movements(bot);
-    defaultMove.allowSprinting = true;
-    defaultMove.canDig = true;
-    defaultMove.allowParkour = true;
-    defaultMove.allowFreeMotion = true;
-    bot.pathfinder.setMovements(defaultMove);
-
-    var path = nextGoal(workerData.spawn_x, workerData.spawn_z);
-    var goal = path.shift();
-    await setTimeout(2000);
-    bot.pathfinder.setGoal(goal);
-
-    /** alt way to get granular details (but consumes too much memory)
+/* fast walk
+function fast_walk(){
+// alt way to get granular details (but consumes too much memory)
     const walkTillGoal = new Promise((resolve, reject) => {
       bot.on("goal_reached", () => {
         if (path.length == 0){
@@ -131,18 +110,13 @@ function walk(bot, _) {
         bot.pathfinder.setGoal(goal)
       }
     }
-    */
 
-    bot.on("goal_reached", async () => {
-      if (path.length == 0) {
-        path = nextGoal(goal.x, goal.z);
-      }
-      goal = path.shift();
-      await setTimeout(1000);
-      bot.pathfinder.setGoal(goal);
-    });
+}
+*/
 
-    // check every 10.5 seconds if bot has moved, if not start moving again
+/* interval walk
+function interval_walk(){
+// check every 10.5 seconds if bot has moved, if not start moving again
     var prev = [0.0, 0.0];
     var count = 0;
     setInterval(async () => {
@@ -175,6 +149,59 @@ function walk(bot, _) {
         console.log(`${e}: could not compare bot.entity previous position`);
       }
     }, 10500);
+}
+*/
+
+function walk(bot, _) {
+  const beginWalking = async () => {
+    // first teleport to a location
+    bot.chat(
+      `/tp ${username} ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`,
+    );
+    // set spawn point to the given location
+    bot.chat(
+      `/minecraft:spawnpoint @s ${workerData.spawn_x} ${workerData.spawn_y} ${workerData.spawn_z}`,
+    );
+    // only load pathfinder plugin after tp has been done (causes issues)
+    // await forcedMoveComplete(bot);
+    bot.loadPlugin(pathfinder);
+
+    // wait for teleportion
+    let defaultMove = new Movements(bot);
+    defaultMove.allowSprinting = true;
+    defaultMove.canDig = false;
+    defaultMove.allowParkour = true;
+    defaultMove.allowFreeMotion = true;
+    bot.pathfinder.setMovements(defaultMove);
+
+    var goal = nextGoal(workerData.spawn_x, workerData.spawn_z);
+    /*
+    var goal = path.shift();
+    await setTimeout(2000);
+    bot.pathfinder.setGoal(goal);
+
+    bot.on("goal_reached", async () => {
+      if (path.length == 0) {
+        path = nextGoal(goal.x, goal.z);
+      }
+      goal = path.shift();
+      await setTimeout(1000);
+      bot.pathfinder.setGoal(goal);
+    });
+    */
+    while (true) {
+      try {
+        await bot.pathfinder.goto(goal);
+      } catch {
+        console.log(
+          `Error: ${username} could not walk to ${goal.x} ${goal.z} so teleporting`,
+        );
+        bot.chat(`/tp ${username} ${goal.x} ${workerData.spawn_y} ${goal.z}`);
+        await setTimeout(2000);
+      } finally {
+        goal = nextGoal(bot.entity.position.x, bot.entity.position.z);
+      }
+    }
   };
 
   // log bot position every 2 seconds
@@ -188,15 +215,26 @@ function walk(bot, _) {
     }
   }, 2000);
 
-  bot.once("spawn", beginWalking);
+  // setup look up every 5 second to keep connection stable
 
+  // setup bot listeners
   bot.on("kicked", (reason) =>
     parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
   );
   bot.on("error", (err) =>
     parentPort.postMessage(`${workerData.username}:error:${err}`),
   );
+  bot.once("spawn", beginWalking);
 
+  // look up instruction every 10 seconds to avoid 30 sec timeout
+  setInterval(() => {
+    // Get the bot's current yaw and pitch
+    const yaw = bot.entity.yaw;
+    const pitch = bot.entity.pitch;
+
+    // Call bot.look with current yaw and pitch (no-op but sends packet)
+    bot.look(yaw, pitch, true); // true = force send even if same
+  }, 10 * 1000); // every 10 seconds is safe for most servers
   // reconnect on disconnect
   // bot.on("end", reconnect);
 }

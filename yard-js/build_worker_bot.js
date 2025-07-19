@@ -135,7 +135,7 @@ async function pBuildModel(bot, _) {
 
   let defaultMove = new Movements(bot);
   defaultMove.allowSprinting = false;
-  defaultMove.canDig = true;
+  defaultMove.canDig = false;
   defaultMove.allowParkour = true;
   defaultMove.allowFreeMotion = true;
   bot.pathfinder.setMovements(defaultMove);
@@ -153,22 +153,26 @@ async function pBuildModel(bot, _) {
 
   const beginPBuild = async () => {
     // give bot building materials
-    bot.chat(`/give ${workerData.username} minecraft:oak_planks 400`);
+    bot.chat(`/give ${workerData.username} minecraft:oak_planks 900`);
 
     var goal = nextGoal(workerData.spawn_x, workerData.spawn_z);
-    bot.pathfinder.setGoal(goal);
-
-    bot.on("goal_reached", async () => {
-      const startPos = bot.entity.position.offset(0, 0, 0);
-      // fill with air and dirt
-      bot.chat("/fill ~-5 ~ ~-5 ~5 ~5 ~5 air");
-      bot.chat("/fill ~-5 ~-1 ~-5 ~5 ~-1 ~5 dirt");
-      await botBuildFloor(bot, startPos);
-      await botBuildWall(bot, startPos);
-      await botBuildRoof(bot, startPos);
-      buildEmitter.emit("build_done");
-      console.log(`${username} building complete`);
-    });
+    try {
+      await bot.pathfinder.goto(goal);
+    } catch {
+      console.log(
+        `Error: ${username} could not walk to ${goal.x} ${goal.z} so teleporting`,
+      );
+      bot.chat(`/tp ${username} ${goal.x} ${workerData.spawn_y} ${goal.z}`);
+    }
+    const startPos = bot.entity.position.offset(0, 0, 0);
+    // fill with air and dirt
+    bot.chat("/fill ~-5 ~ ~-5 ~5 ~5 ~5 air");
+    bot.chat("/fill ~-5 ~-1 ~-5 ~5 ~-1 ~5 dirt");
+    await botBuildFloor(bot, startPos);
+    await botBuildWall(bot, startPos);
+    await botBuildRoof(bot, startPos);
+    console.log(`${username} building complete`);
+    buildEmitter.emit("build_done");
   };
 
   // log bot position every 2 seconds

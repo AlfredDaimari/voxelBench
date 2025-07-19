@@ -83,12 +83,12 @@
           # Compression and timeouts
           compression-threshold = 256
           compression-level = -1
-          connection-timeout = 30000
-          read-timeout = 30000
+          connection-timeout = 60000
+          read-timeout = 60000
 
           # Rate limits
           login-ratelimit = 0
-          command-rate-limit = 50
+          command-rate-limit = 0
           forward-commands-if-rate-limited = true
           kick-after-rate-limited-commands = 0
           tab-complete-rate-limit = 10
@@ -98,11 +98,11 @@
           haproxy-protocol = false
           tcp-fast-open = false
           bungee-plugin-message-channel = true
-          failover-on-unexpected-server-disconnect = true
+          failover-on-unexpected-server-disconnect = false
           announce-proxy-commands = true
-          accepts-transfers = false
+          accepts-transfers = true
           enable-reuse-port = false
-          log-command-executions = true
+          log-command-executions = false
           log-player-connections = true
 
           # Query settings
@@ -110,7 +110,7 @@
           enabled = true
           port = 25565
           map = "{{world_name}}"
-          show-plugins = false
+          show-plugins = true
 
           # Server definitions
           [servers]
@@ -118,6 +118,7 @@
           # myserver = "127.0.0.1:25566"
           
           [forced-hosts]
+
  
     - name: Deploy forwarding.secret
       when: true
@@ -129,6 +130,12 @@
     - name: Create velocity plugins directory
       file:
         path: ~/velocity/plugins
+        state: directory
+        mode: "0755"
+
+    - name: Create velocity multipaper-velocity data dir
+      file:
+        path: ~/velocity/plugins/multipaper-velocity
         state: directory
         mode: "0755"
 
@@ -184,6 +191,14 @@
       when: false
       pause:
         seconds: 15
+
+    # copy config.toml file
+    - name: Copy config.toml to ~/velocity/plugins/multipaper-velocity
+      copy:
+        dest: ~/velocity/plugins/multipaper-velocity/config.toml
+        content: |
+          port = 35353
+          balance-nodes = false
 
     - name: Gracefully shutdown velocity
       when: false

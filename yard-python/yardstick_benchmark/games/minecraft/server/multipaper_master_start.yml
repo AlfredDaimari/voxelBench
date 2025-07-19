@@ -24,6 +24,7 @@
           dasel put -f velocity.toml -r toml -v "${ip}:25565" "servers.$vm"
           vms="\"${vm}\", ${vms}"
         done
+        # preventing try fallback logic
         vms=$(echo -e $vms | sed 's/ $//')
         vms=$(echo -e $vms | sed 's/,$//')
         echo -e $vms

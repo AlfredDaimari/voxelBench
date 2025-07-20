@@ -73,9 +73,10 @@
         cat config/paper-global.yml | dasel put -r yaml -t bool -o config/paper-global.yml -v false 'proxies.bungee-cord.online-mode'
         cat config/paper-global.yml | dasel put -r yaml -t bool -o config/paper-global.yml -v false 'proxies.velocity.enabled'
         cat config/paper-global.yml | dasel put -r yaml -t string -o config/paper-global.yml -v secret 'proxies.velocity.secret'
-        cat spitgot.yml | dasel put -r yaml -t bool -o spigot.yml -v true 'settings.bungeecord'
+        cat spigot.yml | dasel put -r yaml -t bool -o spigot.yml -v true 'settings.bungeecord'
         cat pufferfish.yml | dasel put -r yaml -t bool -o pufferfish.yml -v true 'misc.disable-out-of-order-chat'
         cat spigot.yml | dasel put -r yaml -t string -o spigot.yml -v ./restart.sh 'settings.restart-script'
+        cat spigot.yml | dasel put -r yaml -t int -o spigot.yml -v 360 'settings.timeout-time'
       args:
         chdir: ~/worker
         executable: /bin/bash

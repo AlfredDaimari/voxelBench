@@ -36,6 +36,8 @@ Vagrant.configure("2") do |config|
          ip: "192.168.1.#{100 + i}"
 =end
       vm.vm.provider :libvirt do |libvirt|
+        libvirt.driver = "kvm"
+        libvirt.cpu_mode = "host-passthrough"
         libvirt.default_prefix = ""
         libvirt.memory = BOT_MEMORY
         libvirt.cpus = BOT_CPU

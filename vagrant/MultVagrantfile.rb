@@ -34,15 +34,19 @@ Vagrant.configure("2") do |config|
          ip: "192.168.1.101"
 =end
     vm1.vm.provider :libvirt do |libvirt|
+      libvirt.driver = "kvm"
+      libvirt.cpu_mode = "host-passthrough"
       libvirt.default_prefix = ""
       libvirt.memory = MASTER_MEMORY
       libvirt.cpus = MASTER_CPU
       #libvirt.storage_pool_name = "adaim"
+=begin
       libvirt.storage :file,
                       path: "disk_vm1.qcow2",
                       size: "10G",
                       type: "qcow2",
                       allow_existing: true
+=end
     end
   end
 
@@ -61,14 +65,18 @@ Vagrant.configure("2") do |config|
 =end
       vm.vm.provider :libvirt do |libvirt|
         libvirt.default_prefix = ""
+        libvirt.driver = "kvm"
+        libvirt.cpu_mode = "host-passthrough"
         libvirt.memory = WORKER_MEMORY
         libvirt.cpus = WORKER_CPU
         #libvirt.storage_pool_name = "adaim"
+=begin
         libvirt.storage :file,
                         path: "disk_vm#{i}.qcow2",
                         size: "10G",
                         type: "qcow2",
                         allow_existing: true
+=end
       end
     end
   end

@@ -88,6 +88,7 @@ function createBot(username, plugins) {
     hideErrors: false,
     version: "1.20.1",
     plugins,
+    checkTimeoutInterval: 3*60*1000 
   });
 
   return bot;

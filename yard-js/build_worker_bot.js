@@ -168,10 +168,14 @@ async function pBuildModel(bot, _) {
     // fill with air and dirt
     bot.chat("/fill ~-5 ~ ~-5 ~5 ~5 ~5 air");
     bot.chat("/fill ~-5 ~-1 ~-5 ~5 ~-1 ~5 dirt");
+    try {
     await botBuildFloor(bot, startPos);
     await botBuildWall(bot, startPos);
     await botBuildRoof(bot, startPos);
     console.log(`${username} building complete`);
+    } catch (err) {
+      console.log(`${err} - ${username} could not successfully build home`)
+    }
     buildEmitter.emit("build_done");
   };
 

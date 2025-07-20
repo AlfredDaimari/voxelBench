@@ -222,7 +222,7 @@ function walk(bot, _) {
     parentPort.postMessage(`${workerData.username}:kicked:${reason}`),
   );
   bot.on("error", (err) =>
-    parentPort.postMessage(`${workerData.username}:error:${err}`),
+    parentPort.postMessage(`${workerData.username}:${err}`),
   );
   bot.once("spawn", beginWalking);
 
@@ -234,7 +234,7 @@ function walk(bot, _) {
 
     // Call bot.look with current yaw and pitch (no-op but sends packet)
     bot.look(yaw, pitch, true); // true = force send even if same
-  }, 10 * 1000); // every 10 seconds is safe for most servers
+  }, 5 * 1000); // every 5 seconds is safe for most servers
   // reconnect on disconnect
   // bot.on("end", reconnect);
 }

@@ -33,6 +33,9 @@ if __name__ == "__main__":
     player_count = config["benchmark"]["players"]
     joinDelaySecs = config["benchmark"]["joinDelaySecs"]
     mob = config["benchmark"]["pve_mob"]
+    cpu:int = config["worker"]["cpu"]
+    worker_total:int = config["worker"]["total"]
+
     world_path = Path(__file__).parent.parent / f"worlds/{world}.zip"
     fig_writer = Figlet(font="banner3")
 
@@ -76,7 +79,7 @@ if __name__ == "__main__":
     )
     dest = Path(
         Path(__file__).parent.parent
-        / f"data/{timestamp}-{player_model}-{player_count}-{world}-{density}-{radius}"
+        / f"data/{timestamp}-{player_model}-{player_count}-{world}-{density}-{radius}-{cpu}x{worker_total}"
     )
     dest.mkdir(exist_ok=True, parents=True)
     # write config file

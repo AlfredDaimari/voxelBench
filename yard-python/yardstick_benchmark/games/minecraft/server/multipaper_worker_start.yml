@@ -76,7 +76,7 @@
         cat spigot.yml | dasel put -r yaml -t bool -o spigot.yml -v true 'settings.bungeecord'
         cat pufferfish.yml | dasel put -r yaml -t bool -o pufferfish.yml -v true 'misc.disable-out-of-order-chat'
         cat spigot.yml | dasel put -r yaml -t string -o spigot.yml -v ./restart.sh 'settings.restart-script'
-        cat spigot.yml | dasel put -r yaml -t int -o spigot.yml -v 360 'settings.timeout-time'
+        cat spigot.yml | dasel put -r yaml -t int -o spigot.yml -v 120 'settings.timeout-time'
       args:
         chdir: ~/worker
         executable: /bin/bash
@@ -112,7 +112,7 @@
         mkfifo /tmp/worker_stdin
         nohup tail -f /dev/null > /tmp/worker_stdin &
         echo $! > tail_fifo.pid 
-        nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar multipaper-1.20.1-57.jar </tmp/worker_stdin > "worker-{{inventory_hostname}}.log" &
+        nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -Dpaper.playerconnection.keepalive=300 -jar multipaper-1.20.1-57.jar </tmp/worker_stdin > "worker-{{inventory_hostname}}.log" &
         echo $! > jolokia.pid
       args:
         chdir: ~/worker

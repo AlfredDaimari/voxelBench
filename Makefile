@@ -101,8 +101,8 @@ nodes-destroy:
 	@cd vagrant && bash remove.sh
 
 build-chunkLogger:
-	@cd java && mvn clean package
-	mv java/target/ChunkLogger-1.0.jar yard-python/yardstick_benchmark/games/minecraft/plugins/
+	@cd ChunkLogger && mvn clean package
+	mv ChunkLogger/target/ChunkLogger-1.0.jar yard-python/yardstick_benchmark/games/minecraft/plugins/
 
 build-velocityLoadBalancer:
 	@cd VelocityLoadBalancer && ./gradlew build

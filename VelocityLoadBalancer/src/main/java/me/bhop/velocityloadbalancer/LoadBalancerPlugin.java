@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class LoadBalancerPlugin {
     private final ProxyServer proxyServer;
     private final Logger logger;
+    private final List<RegisteredServer> lobbies = new ArrayList<>();
 
     @Inject
     public LoadBalancerPlugin(ProxyServer proxyServer, Logger logger) {

@@ -10,10 +10,10 @@ function getRandomInt(max) {
 
 /**
  * Get random int in an interval
- * max = 50, interval = -50:50
+ * max = 50, interval = -25:25
  */
 function getRandomIntInterval(max) {
-  return Math.floor(Math.random() * 2 * max) - max;
+  return Math.floor(Math.random() * max) - max / 2;
 }
 
 /**
@@ -22,6 +22,48 @@ function getRandomIntInterval(max) {
  */
 function get_time_left() {
   return timeout_s * 1000 - (Date.now() - process.env.start);
+}
+
+function getRandomCardinalDirectionStr() {
+  const CARDINAL_DIRECTIONS = ["north", "south", "east", "west"];
+  const rint = getRandomInt(4);
+  return CARDINAL_DIRECTIONS[rint];
+}
+
+/**
+ * Gets random XZ in a cardinal direction
+ * @param {int}  max - max directional offset possible
+ * @param {string} direction - cardinal direction (north | south | east | west)
+ */
+function getRandomXZinDirection(max, direction) {
+  const CARDINAL_DIRECTIONS = {
+    north: [0, 1],
+    south: [0, -1],
+    east: [1, 0],
+    west: [-1, 0],
+  };
+  const x = 0;
+  const z = 1;
+
+  // get x random offset
+  var x_offset = 0;
+  const x_direction_offset = CARDINAL_DIRECTIONS[direction][x];
+  if (x_direction_offset == 0) {
+    x_offset = getRandomIntInterval(max);
+  } else {
+    x_offset = x_direction_offset * getRandomInt(max);
+  }
+
+  // get z random offset
+  var z_offset = 0;
+  const z_direction_offset = CARDINAL_DIRECTIONS[direction][z];
+  if (z_direction_offset == 0) {
+    z_offset = getRandomIntInterval(max);
+  } else {
+    z_offset = z_direction_offset * getRandomInt(max);
+  }
+
+  return [x_offset, z_offset];
 }
 
 /**
@@ -88,7 +130,7 @@ function createBot(username, plugins) {
     hideErrors: false,
     version: "1.20.1",
     plugins,
-    checkTimeoutInterval: 3*60*1000 
+    checkTimeoutInterval: 3 * 60 * 1000,
   });
 
   return bot;
@@ -101,4 +143,6 @@ module.exports = {
   getRandomIntInterval,
   getTeleportationLocations,
   get_time_left,
+  getRandomXZinDirection,
+  getRandomCardinalDirectionStr,
 };

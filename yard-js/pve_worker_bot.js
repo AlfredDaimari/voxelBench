@@ -100,7 +100,9 @@ async function pveModel(bot, _) {
   setInterval(() => {
     try {
       logger.info(
-        `${username}, ${bot.entity.position.x}, ${bot.entity.position.z}`,
+        `${username}, ${bot.entity.position.x.toFixed(
+          2,
+        )}, ${bot.entity.position.z.toFixed(2)}`,
       );
     } catch {
       console.log("Error: could not post bot.entity.position.x/z");

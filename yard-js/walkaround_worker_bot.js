@@ -24,9 +24,8 @@ const plugins = {
  * @param {number} currentZ z-coordinate
  * @returns {GoalNearXZ} list intermediate walking positions
  */
-function nextGoal(currentX, currentZ) {
-  let x = currentX + utils.getRandomIntInterval(50);
-  let z = currentZ + utils.getRandomIntInterval(50);
+function nextGoal(currentX, currentZ, direction) {
+  const [x, z] = utils.getRandomXZinDirection(8, direction);
   /*
   let ts = Date.now() / 1000;
   console.log(
@@ -52,7 +51,7 @@ function nextGoal(currentX, currentZ) {
 
   return intermediate_path;
   */
-  return new GoalXZ(x, z);
+  return new GoalXZ(currentX + x, currentZ + z);
 }
 
 /**
@@ -174,7 +173,8 @@ function walk(bot, _) {
     defaultMove.allowFreeMotion = true;
     bot.pathfinder.setMovements(defaultMove);
 
-    var goal = nextGoal(workerData.spawn_x, workerData.spawn_z);
+    const direction = utils.getRandomCardinalDirectionStr();
+    var goal = nextGoal(workerData.spawn_x, workerData.spawn_z, direction);
     /*
     var goal = path.shift();
     await setTimeout(2000);
@@ -197,9 +197,13 @@ function walk(bot, _) {
           `Error: ${username} could not walk to ${goal.x} ${goal.z} so teleporting`,
         );
         bot.chat(`/tp ${username} ${goal.x} ${workerData.spawn_y} ${goal.z}`);
-        await setTimeout(2000);
       } finally {
-        goal = nextGoal(bot.entity.position.x, bot.entity.position.z);
+        goal = nextGoal(
+          bot.entity.position.x,
+          bot.entity.position.z,
+          direction,
+        );
+        await setTimeout(1000);
       }
     }
   };
@@ -208,7 +212,9 @@ function walk(bot, _) {
   setInterval(() => {
     try {
       logger.info(
-        `${username}, ${bot.entity.position.x}, ${bot.entity.position.z}`,
+        `${username}, ${bot.entity.position.x.toFixed(
+          2,
+        )}, ${bot.entity.position.z.toFixed(2)}`,
       );
     } catch {
       console.log("Error: could not post bot.entity.position.x/z");
@@ -229,12 +235,13 @@ function walk(bot, _) {
   // look up instruction every 10 seconds to avoid 30 sec timeout
   setInterval(() => {
     // Get the bot's current yaw and pitch
-    const yaw = bot.entity.yaw;
-    const pitch = bot.entity.pitch;
-
-    // Call bot.look with current yaw and pitch (no-op but sends packet)
-    bot.look(yaw, pitch, true); // true = force send even if same
-  }, 5 * 1000); // every 5 seconds is safe for most servers
+    bot._client.write("position", {
+      x: bot.entity.position.x,
+      y: bot.entity.position.y,
+      z: bot.entity.position.z,
+      onGround: true,
+    });
+  }, 20 * 1000); // every 30 seconds is safe for most servers
   // reconnect on disconnect
   // bot.on("end", reconnect);
 }

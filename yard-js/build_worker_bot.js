@@ -169,12 +169,12 @@ async function pBuildModel(bot, _) {
     bot.chat("/fill ~-5 ~ ~-5 ~5 ~5 ~5 air");
     bot.chat("/fill ~-5 ~-1 ~-5 ~5 ~-1 ~5 dirt");
     try {
-    await botBuildFloor(bot, startPos);
-    await botBuildWall(bot, startPos);
-    await botBuildRoof(bot, startPos);
-    console.log(`${username} building complete`);
+      await botBuildFloor(bot, startPos);
+      await botBuildWall(bot, startPos);
+      await botBuildRoof(bot, startPos);
+      console.log(`${username} building complete`);
     } catch (err) {
-      console.log(`${err} - ${username} could not successfully build home`)
+      console.log(`${err} - ${username} could not successfully build home`);
     }
     buildEmitter.emit("build_done");
   };
@@ -183,7 +183,9 @@ async function pBuildModel(bot, _) {
   setInterval(() => {
     try {
       logger.info(
-        `${username}, ${bot.entity.position.x}, ${bot.entity.position.z}`,
+        `${username}, ${bot.entity.position.x.toFixed(
+          2,
+        )}, ${bot.entity.position.z.toFixed(2)}`,
       );
     } catch {
       console.log("Error: could not log bot.entity.position.x/z");

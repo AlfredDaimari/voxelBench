@@ -50,7 +50,7 @@ test-walkload:
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
 	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
-	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=10 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local DENSITY=2 DURATION=180 node master_bot.js; \
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=10 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local DENSITY=2 DURATION=300 node master_bot.js; \
 	}
 
 test-pvp:

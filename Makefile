@@ -16,6 +16,20 @@ test-mult:
 		cd yard-python && poetry run dmult $(world); \
 		}
 
+test-paper:
+	@echo "Setting up paper on Vagrant node"
+	@{ \
+		export MASTER_MEMORY=$$(cat vagrant/multipaper.toml | tomlq .master.memory); \
+		export MASTER_CPU=$$(cat vagrant/multipaper.toml | tomlq .master.cpu); \
+		export WORKER_MEMORY=$$(cat vagrant/multipaper.toml | tomlq .worker.memory); \
+		export WORKER_TOTAL=$$(cat vagrant/multipaper.toml | tomlq .worker.total); \
+		export WORKER_CPU=$$(cat vagrant/multipaper.toml | tomlq .worker.cpu); \
+		export BOT_MEMORY=$$(cat vagrant/multipaper.toml | tomlq .bot.memory); \
+		export BOT_CPU=$$(cat vagrant/multipaper.toml | tomlq .bot.cpu); \
+		export BOT_TOTAL=$$(cat vagrant/multipaper.toml | tomlq .bot.total); \
+		cd yard-python && poetry run dpaper $(world); \
+		}
+
 test-mult-stop:
 	@echo "Stopping multipaper"
 	cd yard-python && poetry run smult 
@@ -50,7 +64,7 @@ test-walkload:
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
 	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
-	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=10 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local DENSITY=2 DURATION=300 node master_bot.js; \
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=10 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local DENSITY=2 DURATION=300 node master_bot.js; \
 	}
 
 test-pvp:
@@ -120,4 +134,18 @@ run-mult-bench:
 		export BOT_CPU=$$(cat vagrant/multipaper.toml | tomlq .bot.cpu); \
 		export BOT_TOTAL=$$(cat vagrant/multipaper.toml | tomlq .bot.total); \
 		cd yard-python && poetry run python3 run_benchmark.py; \
+		}
+
+run-paper-bench:
+	@echo "Running VoxelBench PaperMC"
+	@{ \
+		export MASTER_MEMORY=$$(cat vagrant/multipaper.toml | tomlq .master.memory); \
+		export MASTER_CPU=$$(cat vagrant/multipaper.toml | tomlq .master.cpu); \
+		export WORKER_MEMORY=$$(cat vagrant/multipaper.toml | tomlq .worker.memory); \
+		export WORKER_TOTAL=$$(cat vagrant/multipaper.toml | tomlq .worker.total); \
+		export WORKER_CPU=$$(cat vagrant/multipaper.toml | tomlq .worker.cpu); \
+		export BOT_MEMORY=$$(cat vagrant/multipaper.toml | tomlq .bot.memory); \
+		export BOT_CPU=$$(cat vagrant/multipaper.toml | tomlq .bot.cpu); \
+		export BOT_TOTAL=$$(cat vagrant/multipaper.toml | tomlq .bot.total); \
+		cd yard-python && poetry run python3 run_benchmark_paper.py; \
 		}

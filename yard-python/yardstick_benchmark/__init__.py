@@ -11,6 +11,14 @@ def fetch(dest: Path, nodes: list[Node] | list[VagrantNode]):
         extravars={"dest": str(dest)},
     ).run()
 
+def fetch_paper(dest: Path, nodes: list[Node] | list[VagrantNode]):
+    dest.mkdir(parents=True, exist_ok=True)
+    return RemoteAction(
+        "fetch_paper",
+        nodes,
+        Path(__file__).parent / "fetch_paper.yml",
+        extravars={"dest": str(dest)},
+    ).run()
 
 def clean(nodes: list[Node] | list[VagrantNode]):
     return RemoteAction(

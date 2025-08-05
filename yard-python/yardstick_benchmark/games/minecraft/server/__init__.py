@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 class PaperMC(RemoteApplication):
-    def __init__(self, nodes: list[Node]):
+    def __init__(self, nodes: list[Node] | list[VagrantNode]):
         super().__init__(
             "papermc",
             nodes,
@@ -13,10 +13,21 @@ class PaperMC(RemoteApplication):
             Path(__file__).parent / "papermc_stop.yml",
             Path(__file__).parent / "papermc_cleanup.yml",
             extravars={
-                "hostnames": [n.host for n in nodes],
-                "papermc_template": str(Path(__file__).parent / "server.properties.j2"),
+                "server_properties_template": str(
+                    Path(__file__).parent / "server.properties.j2"
+                ),
+                "plugins": str(Path(__file__).parent.parent / "plugins"),
+                "downloads": str(
+                    Path(__file__).parent.parent.parent.parent.parent.parent
+                    / "downloads"
+                ),
             },
         )
+
+    # remember to call this function before deploying
+    def set_world_as(self, path: Path):
+        self.extravars["world_path"] = str(path)
+        self.extravars["world_name"] = str(path).split("/")[-1].split(".")[0]
 
 
 class MultiPaper(RemoteApplication):

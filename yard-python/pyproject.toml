@@ -30,6 +30,9 @@ smult-pd = "scripts.multipaper:stop_pdist_monitoring"
 mult-fetch = "scripts.multipaper:fetch"
 mult-clean = "scripts.multipaper:clean"
 mult-get-world_spawn = "scripts.multipaper:get_world_spawn_json"
+dpaper = "scripts.papermc:deploy_paper"
+dpaper-t = "scripts.papermc:start_paper_telegraf"
+spaper-t = "scripts.papermc:stop_paper_telegraf"
 
 
 [build-system]

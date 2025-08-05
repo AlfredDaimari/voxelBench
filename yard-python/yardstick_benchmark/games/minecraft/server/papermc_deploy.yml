@@ -3,22 +3,94 @@
   gather_facts: true
   hosts: all
   tasks:
+    - name: Update packages
+      become: yes
+      become_user: root
+      become_method: sudo
+      apt:
+        update_cache: yes
+
+    - name: Setup java environment
+      become: yes
+      become_user: root
+      become_method: sudo
+      apt:
+        name: openjdk-17-jdk-headless
+
     - file:
         path: "{{ wd }}"
         state: directory
+
+    - name: Copy dasel cli
+      become: yes
+      become_user: root
+      become_method: sudo
+      copy:
+        src: "{{ downloads }}/dasel"
+        dest: /usr/local/bin/dasel
+        mode: '0755'
+ 
     - name: Download PaperMC
       get_url:
-        url: https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/58/downloads/paper-1.20.1-58.jar
+        url: "https://fill-data.papermc.io/v1/objects/234a9b32098100c6fc116664d64e36ccdb58b5b649af0f80bcccb08b0255eaea/paper-1.20.1-196.jar" 
         dest: "{{ wd }}/paper-1.20.1-58.jar"
+    
     - name: Copy config file
       template:
-        src: "{{papermc_template}}"
-        dest: "{{wd}}/server.properties" 
+        src: "{{server_properties_template}}"
+        dest: "{{ wd }}/server.properties" 
+    
     - name: Accept EULA
       copy:
         content: "eula=true"
         dest: "{{ wd }}/eula.txt"
+    
     - name: Download Jolokia JVM Agent
       get_url:
         url: https://search.maven.org/remotecontent?filepath=org/jolokia/jolokia-agent-jvm/2.0.3/jolokia-agent-jvm-2.0.3-javaagent.jar
-        dest: "{{wd}}/jolokia-agent-jvm-2.0.3-javaagent.jar"
+        dest: "{{ wd }}/jolokia-agent-jvm-2.0.3-javaagent.jar"
+
+    - name: Setup worker node working directory
+      file:
+        path: "{{ wd }}/plugins"
+        state: directory
+        mode: "0755"
+
+    - name: Download Skript Minecraft
+      get_url:
+        url: https://github.com/SkriptLang/Skript/releases/download/2.11.2/Skript-2.11.2.jar
+        dest: "{{ wd }}/plugins/Skript-2.11.2.jar"
+
+    - name: Copy Minecraft EssentialX plugin
+      copy:
+        src: "{{ item }}"
+        dest: "{{ wd }}/plugins/"
+        mode: '0644'
+      with_fileglob: "{{ plugins }}/EssentialsX*.jar"
+
+  # copy a minecraft world to the multipaper master velocity directory
+    - name: Copy world files
+      when: world_name != 'None' 
+      unarchive:
+        src: "{{ world_path }}"
+        dest: "{{ wd }}" 
+
+    - name: Rename world directory
+      when: world_name != 'None'
+      command: "mv {{ wd }}/{{ world_name }} ~/{{ wd }}/world"
+
+    - name: Ensure Skript script directory exists
+      file:
+        path: "~/{{ wd }}/plugins/Skript/scripts/"
+        state: directory
+
+    - name: Copy Skript auto-op script
+      copy:
+        dest: "~/{{ wd }}/plugins/Skript/scripts/autop.sk"
+        content: |
+          on join:
+            message "Yardstick 2.0 Minecraft Benchmark"
+            make console execute command "/op %player%"
+
+
+

@@ -2,15 +2,47 @@
 - name: Deploy PaperMC
   gather_facts: true
   hosts: all
-  tasks:
+  tasks: 
     - name: Run PaperMC
-      shell:
-        cmd: |
-          module load java/jdk-17 || true # just in case we are on DAS
+      shell: |
           nohup java -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar paper-1.20.1-58.jar &> /dev/null &
           echo $! > papermc.pid
+      args:
         chdir: "{{ wd }}"
+        executable: /bin/bash
+    
     - name: Waiting for server to become ready
       wait_for:
-        path: "{{wd}}/logs/latest.log"
+        path: "{{ wd }}/logs/latest.log"
         search_regex: 'For help, type "help"'
+
+    - name: Kill after generating templates
+      shell: |
+        kill -SIGKILL $(cat papermc.pid)
+      args:
+        chdir: "{{ wd }}"
+        executable: /bin/bash
+
+    - name: Configure paper server
+      shell: |
+        cat bukkit.yml | dasel put -r yaml -t int -o bukkit.yml -v -1 'settings.connection-throttle'
+        cat config/paper-global.yml | dasel put -r yaml -t bool -o config/paper-global.yml -v false 'proxies.bungee-cord.online-mode'
+        cat pufferfish.yml | dasel put -r yaml -t bool -o pufferfish.yml -v true 'misc.disable-out-of-order-chat'
+        cat spigot.yml | dasel put -r yaml -t int -o spigot.yml -v 120 'settings.timeout-time'
+      args:
+        chdir: "{{ wd }}"
+        executable: /bin/bash
+
+    - name: Run PaperMC Again
+      shell: |
+          nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -Dpaper.playerconnection.keepalive=300 -jar paper-1.20.1-58.jar &> /dev/null &
+          echo $! > papermc.pid
+      args:
+        chdir: "{{ wd }}"
+        executable: /bin/bash
+
+    - name: Waiting for server to become ready after template setup
+      wait_for:
+        path: "{{ wd }}/logs/latest.log"
+        search_regex: 'For help, type "help"'
+

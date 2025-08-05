@@ -1,0 +1,63 @@
+- name: Get data from nodes
+  gather_facts: true
+  hosts: all
+  tasks:
+    - name: Find all CSV files in wd
+      find:
+        paths: "{{ wd }}"
+        patterns: "metrics-*.csv"
+        recurse: true
+      register: csv_files
+
+    - name: Get csv files from all nodes
+      ansible.builtin.fetch:
+        src: "{{ item.path }}"
+        dest: "{{ dest }}/{{ item.path | basename }}"
+        flat: yes
+      loop: "{{ csv_files.files }}"
+
+- name: Get bot position from bot nodes
+  gather_facts: true
+  hosts: all
+  tasks:
+    - name: Find all log files per bot
+      find:
+        paths: "{{ wd }}/logs"
+        patterns: "*.log"
+      register: bot_log_files
+      ignore_errors: true
+
+    - name: Get per bot log files from bot nodes
+      fetch:
+        src: "{{ item.path }}"
+        dest: "{{ dest }}/{{ ansible_hostname }}-bot-pos-{{ item.path | basename }}"
+        flat: yes
+      loop: "{{ bot_log_files.files }}"
+      ignore_errors: true
+
+    - name: Get main log file from master bot
+      fetch:
+        src: "{{ wd }}/bot-{{ inventory_hostname }}.log"
+        dest: "{{ dest }}/{{ ansible_hostname }}-master-bot.log"
+        flat: yes
+      ignore_errors: true
+
+- name: Get logs from master node
+  gather_facts: true
+  hosts: all
+  tasks:
+    - name: Find all log files in worker directory
+      find:
+        paths: "~/{{ wd }}/logs"
+        patterns: "*.log"
+        recurse: true
+      register: master_log_files
+      ignore_errors: true 
+
+    - name: Get log files from master node
+      ansible.builtin.fetch:
+        src: "{{ item.path }}"
+        dest: "{{ dest }}/master-{{ item.path | basename }}"
+        flat: yes
+      loop: "{{ master_log_files.files }}"
+

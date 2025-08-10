@@ -17,6 +17,9 @@ mcrcon = "^0.7.0"
 nbt = "^1.5.1"
 mcipc = "^2.4.2"
 pyfiglet = "^1.0.3"
+anvil-parser = "^0.9.0"
+amulet-core = "^1.9.30"
+tqdm = "^4.67.1"
 
 [tool.poetry.scripts]
 dmult = "scripts.multipaper:deploy_mult"

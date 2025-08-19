@@ -36,6 +36,7 @@ mult-get-world_spawn = "scripts.multipaper:get_world_spawn_json"
 dpaper = "scripts.papermc:deploy_paper"
 dpaper-t = "scripts.papermc:start_paper_telegraf"
 spaper-t = "scripts.papermc:stop_paper_telegraf"
+jfr-summary = "scripts.jfr_summary:main"
 
 
 [build-system]

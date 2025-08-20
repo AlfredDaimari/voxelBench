@@ -16,6 +16,7 @@ class PaperMC(RemoteApplication):
                 "server_properties_template": str(
                     Path(__file__).parent / "server.properties.j2"
                 ),
+                "jfc_config": str(Path(__file__).parent / "multipaper-5ms.jfc"),
                 "plugins": str(Path(__file__).parent.parent / "plugins"),
                 "downloads": str(
                     Path(__file__).parent.parent.parent.parent.parent.parent
@@ -72,6 +73,7 @@ class MultiPaper(RemoteApplication):
                     "server_properties_template": str(
                         Path(__file__).parent / "server.properties.j2"
                     ),
+                    "jfc_config": str(Path(__file__).parent / "multipaper-5ms.jfc"),
                     "plugins": str(Path(__file__).parent.parent / "plugins"),
                     "downloads": str(
                         Path(__file__).parent.parent.parent.parent.parent.parent

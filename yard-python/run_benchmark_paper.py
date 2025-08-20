@@ -91,7 +91,6 @@ if __name__ == "__main__":
 
     # copy config file to destination location
     shutil.copy(node_config, dest)
-
     # setup experiment
     wl.bots_per_node = player_count
     wl.bots_join_delay = timedelta(seconds=joinDelaySecs)
@@ -106,6 +105,9 @@ if __name__ == "__main__":
     sleep(wl.duration + 10)
     # stop running telegrap
     telegraf.stop()
+    #shutdown to java process to flush jfr
+    paper.stop()
+
     # copy data files
     yardstick_benchmark.fetch_paper(dest, master_node + worker_nodes + bot_nodes)
     # remove data files

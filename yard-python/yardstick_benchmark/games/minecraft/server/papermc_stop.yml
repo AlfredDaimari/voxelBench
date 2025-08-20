@@ -7,12 +7,15 @@
       shell: |
         cat {{wd}}/papermc.pid
       register: shell_papermc_pid
+    
     - name: Obtain PaperMC pid
       set_fact:
         papermc_pid: "{{ shell_papermc_pid.stdout }}"
+    
     - name: Stop PaperMC
       shell: |
-        kill {{papermc_pid}}
+        kill -15 {{papermc_pid}}
+    
     - name: Wait for PaperMC to stop
       block:
         - wait_for:
@@ -24,4 +27,4 @@
       rescue:
         - name: Force kill stuck processes
           shell: |
-            kill -9 {{papermc_pid}}
+            kill -15 {{papermc_pid}}

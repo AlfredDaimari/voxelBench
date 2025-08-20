@@ -21,7 +21,7 @@ variable "region" {
 
 resource "google_compute_instance" "voxelBench" {
   name         = "bench-vm"
-  machine_type = "n2-standard-2"
+  machine_type = "n4-highmem-80"
   zone         = "${var.region}-c"
 
   advanced_machine_features {
@@ -31,6 +31,7 @@ resource "google_compute_instance" "voxelBench" {
   boot_disk {
     initialize_params {
       image = "voxelbench-debian-11-1754605286"
+      size = 350
     }
   }
 
@@ -45,14 +46,16 @@ resource "google_compute_instance" "voxelBench" {
 
   # Install htop, mount voxel disk
   sudo mkdir -p /mnt/voxel
-  sudo mount /dev/sdb /mnt/voxel
+  sudo mount /dev/disk/by-id/google-hyperdisk-voxel-bench /mnt/voxel
+  sudo chown alfred:alfred /mnt/voxel/yardstick
+  sudo chown alfred:alfred /mnt/voxel/yardstick/*
   
   EOT
 }
 
 resource "google_compute_attached_disk" "attach_voxel_disk" {
-  disk     = "voxel-bench"
+  disk     = "hyperdisk-voxel-bench"
   instance = google_compute_instance.voxelBench.name
   zone     = google_compute_instance.voxelBench.zone
-  device_name = "voxel-bench"
+  device_name = "hyperdisk-voxel-bench"
 }

@@ -1,11 +1,11 @@
 ---
-- name: Deploy PaperMC
+- name: Start PaperMC
   gather_facts: true
   hosts: all
   tasks: 
     - name: Run PaperMC
       shell: |
-          nohup java -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -jar paper-1.20.1-58.jar &> /dev/null &
+          nohup java -jar paper-1.20.1-58.jar &> /dev/null &
           echo $! > papermc.pid
       args:
         chdir: "{{ wd }}"
@@ -35,8 +35,8 @@
 
     - name: Run PaperMC Again
       shell: |
-          nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -Dpaper.playerconnection.keepalive=300 -jar paper-1.20.1-58.jar &> /dev/null &
-          echo $! > papermc.pid
+        nohup java -Xmx{{memory}}M -XX:StartFlightRecording=filename=mpbench.jfr,duration=7m,settings=multipaper-5ms.jfc,maxage=7m,disk=true -XX:FlightRecorderOptions=stackdepth=64,threadbuffersize=1m -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -Dpaper.playerconnection.keepalive=300 -jar paper-1.20.1-58.jar &> /dev/null &
+        echo $! > papermc.pid
       args:
         chdir: "{{ wd }}"
         executable: /bin/bash

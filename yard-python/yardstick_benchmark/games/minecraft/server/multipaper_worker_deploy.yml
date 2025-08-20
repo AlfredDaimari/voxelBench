@@ -108,6 +108,11 @@
         src: "{{server_properties_template}}"
         dest: "~/worker/server.properties"
 
+    - name: Copy jfc config file
+      copy:
+        src: "{{ jfc_config }}"
+        dest: "~/worker/multipaper-5ms.jfc"
+
     - name: Setup worker node working directory
       file:
         path: ~/worker/plugins

@@ -112,7 +112,7 @@
         mkfifo /tmp/worker_stdin
         nohup tail -f /dev/null > /tmp/worker_stdin &
         echo $! > tail_fifo.pid 
-        nohup java -Xmx{{memory}}M -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -Dpaper.playerconnection.keepalive=300 -jar multipaper-1.20.1-57.jar </tmp/worker_stdin > "worker-{{inventory_hostname}}.log" &
+        nohup java -Xmx{{memory}}M -XX:StartFlightRecording=filename=mpbench.jfr,duration=7m,settings=multipaper-5ms.jfc,maxage=7m,disk=true -XX:FlightRecorderOptions=stackdepth=64,threadbuffersize=1m -javaagent:jolokia-agent-jvm-2.0.3-javaagent.jar -Dpaper.playerconnection.keepalive=300 -jar multipaper-1.20.1-57.jar </tmp/worker_stdin > "worker-{{inventory_hostname}}.log" &
         echo $! > jolokia.pid
       args:
         chdir: ~/worker

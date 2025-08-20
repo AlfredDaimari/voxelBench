@@ -61,3 +61,11 @@
         flat: yes
       loop: "{{ master_log_files.files }}"
 
+    - name: Get mpbench.jfr files from worker nodes
+      fetch:
+        src: "~/{{ wd }}/mpbench.jfr"
+        dest: "{{ dest }}/{{ ansible_hostname }}-mpbench.jfr"
+        flat: yes
+      ignore_errors: true
+
+

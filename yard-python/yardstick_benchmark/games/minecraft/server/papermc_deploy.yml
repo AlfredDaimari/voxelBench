@@ -68,6 +68,11 @@
         mode: '0644'
       with_fileglob: "{{ plugins }}/EssentialsX*.jar"
 
+    - name: Copy jfc config file
+      copy:
+        src: "{{ jfc_config }}"
+        dest: "~/{{ wd }}/multipaper-5ms.jfc"
+
   # copy a minecraft world to the multipaper master velocity directory
     - name: Copy world files
       when: world_name != 'None' 
@@ -91,6 +96,5 @@
           on join:
             message "Yardstick 2.0 Minecraft Benchmark"
             make console execute command "/op %player%"
-
 
 

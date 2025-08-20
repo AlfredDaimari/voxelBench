@@ -20,23 +20,18 @@ from pathlib import Path
 from typing import Iterable, Tuple
 
 # Events representing sleeping and synchronization in JFR
-SLEEP_EVENTS = {"jdk.ThreadSleep"}
+SLEEP_EVENTS = {"jdk.ThreadPark"}
 SYNC_EVENTS = {"jdk.JavaMonitorWait", "jdk.JavaMonitorEnter"}
 
-_DURATION_RE = re.compile(r"([0-9]+\.?[0-9]*)\s*([a-z\u00b5]+)")
-_UNIT_TO_NS = {"ns": 1, "us": 1_000, "\u00b5s": 1_000, "ms": 1_000_000, "s": 1_000_000_000}
 
+def _parse_duration(value: str) -> float:
+    """Convert a JFR duration string to seconds."""
+    value = value.replace('PT','')
+    value = value.replace('S', '')
+    val = float(value)
+    return (val * 1000000000) 
 
-def _parse_duration(value: str) -> int:
-    """Convert a JFR duration string to nanoseconds."""
-    m = _DURATION_RE.match(value)
-    if not m:
-        return 0
-    number, unit = m.groups()
-    return int(float(number) * _UNIT_TO_NS.get(unit, 1))
-
-
-def _summarize_file(jfr_path: Path) -> Tuple[int, int]:
+def _summarize_file(jfr_path: Path) -> Tuple[float, float]:
     """Return sleeping and syncing time (in ns) for the Main Server thread."""
     cmd = [
         "jfr",
@@ -50,25 +45,25 @@ def _summarize_file(jfr_path: Path) -> Tuple[int, int]:
 
     sleep_ns = 0
     sync_ns = 0
-    for line in result.stdout.splitlines():
-        line = line.strip()
-        if not line:
+
+    res = json.loads(result.stdout)
+
+    for event in res['recording']['events']:
+        values = event['values']
+        thread = values['eventThread']['javaName']
+
+        if thread != "Server thread":
             continue
-        evt = json.loads(line)
-        values = evt.get("values", evt)
-        thread = values.get("eventThread", {}).get("name") or values.get("thread", {}).get("name")
-        if thread != "Main Server":
-            continue
+
         duration = values.get("duration")
-        if isinstance(duration, str):
-            duration_ns = _parse_duration(duration)
-        else:
-            duration_ns = int(duration or 0)
-        etype = evt.get("type", "")
+        duration_ns = _parse_duration(duration) 
+        etype = event.get("type", "")
+
         if etype in SLEEP_EVENTS:
             sleep_ns += duration_ns
         elif etype in SYNC_EVENTS:
             sync_ns += duration_ns
+    
     return sleep_ns, sync_ns
 
 

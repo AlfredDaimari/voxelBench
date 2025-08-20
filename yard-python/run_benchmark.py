@@ -116,6 +116,8 @@ if __name__ == "__main__":
     telegraf.stop()
     # stop pdist monitoring
     stop_player_distribution_monitoring(worker_nodes)
+    #shutdown to flush jfr data
+    multipaper_worker.stop()
     # copy data files
     yardstick_benchmark.fetch(dest, master_node + worker_nodes + bot_nodes)
     # remove data files

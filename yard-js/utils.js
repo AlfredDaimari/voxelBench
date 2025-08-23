@@ -1,19 +1,35 @@
 const mineflayer = require("mineflayer");
+const Rand = require("rand-seed");
+
 const host = process.env.MC_HOST;
 const hostname = process.env.HOSTNAME;
 const workload = process.env.WORKLOAD || "walk";
 const timeout_s = parseInt(process.env.DURATION || 60);
+const seed = process.env.SEED || "0";
+const rand = new Rand.default(seed);
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
+function getRandomInt(max, tRand) {
+  return Math.floor(tRand.next() * max);
 }
 
 /**
  * Get random int in an interval
  * max = 50, interval = -25:25
  */
-function getRandomIntInterval(max) {
-  return Math.floor(Math.random() * max) - max / 2;
+function getRandomIntInterval(max, tRand) {
+  return Math.floor(tRand.next() * max) - max / 2;
+}
+
+function getRandomIntSeeded(max) {
+  return Math.floor(rand.next() * max);
+}
+
+/**
+ * Get random int in an interval
+ * max = 50, interval = -25:25
+ */
+function getRandomIntIntervalSeeded(max) {
+  return Math.floor(rand.next() * max) - max / 2;
 }
 
 /**
@@ -26,7 +42,7 @@ function get_time_left() {
 
 function getRandomCardinalDirectionStr() {
   const CARDINAL_DIRECTIONS = ["north", "south", "east", "west"];
-  const rint = getRandomInt(4);
+  const rint = getRandomIntSeeded(4);
   return CARDINAL_DIRECTIONS[rint];
 }
 
@@ -34,8 +50,9 @@ function getRandomCardinalDirectionStr() {
  * Gets random XZ in a cardinal direction
  * @param {int}  max - max directional offset possible
  * @param {string} direction - cardinal direction (north | south | east | west)
+ * @param {Rand.default} seededRand - a seeded object of rand-seed
  */
-function getRandomXZinDirection(max, direction) {
+function getRandomXZinDirection(max, direction, seededRand) {
   const CARDINAL_DIRECTIONS = {
     north: [0, 1],
     south: [0, -1],
@@ -49,18 +66,18 @@ function getRandomXZinDirection(max, direction) {
   var x_offset = 0;
   const x_direction_offset = CARDINAL_DIRECTIONS[direction][x];
   if (x_direction_offset == 0) {
-    x_offset = getRandomIntInterval(max);
+    x_offset = getRandomIntInterval(max, seededRand);
   } else {
-    x_offset = x_direction_offset * getRandomInt(max);
+    x_offset = x_direction_offset * getRandomInt(max, seededRand);
   }
 
   // get z random offset
   var z_offset = 0;
   const z_direction_offset = CARDINAL_DIRECTIONS[direction][z];
   if (z_direction_offset == 0) {
-    z_offset = getRandomIntInterval(max);
+    z_offset = getRandomIntInterval(max, seededRand);
   } else {
-    z_offset = z_direction_offset * getRandomInt(max);
+    z_offset = z_direction_offset * getRandomInt(max, seededRand);
   }
 
   return [x_offset, z_offset];
@@ -81,8 +98,8 @@ function getTeleportationLocations(
 
   const totalTeleportLocs = Math.ceil(num_bots / density);
   for (i = 0; i < totalTeleportLocs; i++) {
-    const theta = Math.random() * 2 * Math.PI;
-    const r = Math.sqrt(Math.random()) * max_radius;
+    const theta = rand.next() * 2 * Math.PI;
+    const r = Math.sqrt(rand.next()) * max_radius;
     const x = Math.round(r * Math.cos(theta));
     const z = Math.round(r * Math.sin(theta));
     coords.push({ x: x + spawn_x, z: z + spawn_z });
@@ -145,4 +162,6 @@ module.exports = {
   get_time_left,
   getRandomXZinDirection,
   getRandomCardinalDirectionStr,
+  getRandomIntSeeded,
+  getRandomIntIntervalSeeded,
 };

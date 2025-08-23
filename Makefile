@@ -63,8 +63,9 @@ test-walkload:
 	SPAWN_X=$$(echo "$$COORDS" | jq -r '.spawn_x'); \
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
+	SEED=$$(cat vagrant/multipaper.toml | tomlq .benchmark.seed); \
 	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
-	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=10 RECORD=1 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local DENSITY=2 DURATION=300 node master_bot.js; \
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=10 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local DENSITY=2 DURATION=60 SEED=$$SEED node master_bot.js; \
 	}
 
 test-pvp:
@@ -74,8 +75,9 @@ test-pvp:
 	SPAWN_X=$$(echo "$$COORDS" | jq -r '.spawn_x'); \
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
+	SEED=$$(cat vagrant/multipaper.toml | tomlq .benchmark.seed); \
 	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
-	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=4 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=pvp DURATION=120 DENSITY=2 node master_bot.js; \
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=4 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=pvp DURATION=60 DENSITY=2 SEED=$$SEED node master_bot.js; \
 	}
 
 test-pve:
@@ -86,8 +88,9 @@ test-pve:
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
 	PVE_MOB=$$(tomlq -r '.benchmark.pve_mob' vagrant/multipaper.toml); \
+	SEED=$$(cat vagrant/multipaper.toml | tomlq .benchmark.seed); \
 	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
-	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=4 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=pve DURATION=120 DENSITY=1 PVE_MOB=$$PVE_MOB node master_bot.js; \
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=4 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=pve DURATION=60 DENSITY=1 PVE_MOB=$$PVE_MOB SEED=$$SEED node master_bot.js; \
 	}
 
 test-build:
@@ -98,8 +101,9 @@ test-build:
 	SPAWN_Z=$$(echo "$$COORDS" | jq -r '.spawn_z'); \
 	SPAWN_Y=$$(echo "$$COORDS" | jq -r '.spawn_y'); \
 	PVE_MOB=$$(tomlq -r '.benchmark.pve_mob' vagrant/multipaper.toml); \
+	SEED=$$(cat vagrant/multipaper.toml | tomlq .benchmark.seed); \
 	echo "Setting SPAWN as $$SPAWN_X, $$SPAWN_Y, $$SPAWN_Z"; \
-	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=4 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=build DURATION=300 DENSITY=1 PVE_MOB=$$PVE_MOB node master_bot.js; \
+	cd yard-js && MC_HOST=$$(tomlq -r '.master[0].ansible_host' ../vagrant/inventory) BOTS_PER_NODE=4 RECORD=0 SPAWN_X=$$SPAWN_X SPAWN_Z=$$SPAWN_Z SPAWN_Y=$$SPAWN_Y HOSTNAME=local WORKLOAD=build DURATION=60 DENSITY=1 PVE_MOB=$$PVE_MOB SEED=$$SEED node master_bot.js; \
 	}
 
 

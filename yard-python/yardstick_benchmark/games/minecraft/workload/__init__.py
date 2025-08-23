@@ -32,7 +32,8 @@ class Workload(RemoteApplication):
         max_radius: int = 10000,
         workload: str = "walk",
         world: str = "CastleLividus",
-        mob: str = "polar_bear"
+        mob: str = "polar_bear",
+        seed: str = "0"
     ):
         jsdir = Path(__file__).parent.parent.parent.parent.parent.parent / "yard-js"
         scripts = [
@@ -68,6 +69,7 @@ class Workload(RemoteApplication):
                 "workload": workload,
                 "world_name": world,
                 "mob": mob,
+                "seed": seed
             },
         )
 
@@ -86,6 +88,18 @@ class Workload(RemoteApplication):
             self.inv["all"]["hosts"][nodes[i].name]["record"] = 1
         for i in range(total, len(nodes)):
             self.inv["all"]["hosts"][nodes[i].name]["record"] = 0
+
+    def _setup_spawn_for_each_bot_node(self, spawn_locs:list[str]):
+        assert len(spawn_locs) == len(self.nodes)
+        
+        for i in range(len(self.nodes)):
+            spawn_loc = spawn_locs[i].split(":")
+            assert len(spawn_loc) == 2 # check for correctness 
+            
+            spawn_loc_x = int(spawn_loc[0])
+            spawn_loc_z = int(spawn_loc[1])
+            self.inv["all"]["hosts"][self.nodes[i].name]["spawn_x"] = spawn_loc_x
+            self.inv["all"]["hosts"][self.nodes[i].name]["spawn_z"] = spawn_loc_z
 
     @property
     def bots_per_node(self) -> int:
@@ -121,17 +135,25 @@ class Workload(RemoteApplication):
     def duration(self):
         return self.extravars["duration"]
 
-    def setup_new_experiment(self, workload: Work, radius: int, density: int) -> None:
+    def setup_new_experiment(self, workload: Work, radius: int, density: int, seed:str, spawn:list[str] = []) -> None:
         assert workload in Work.__members__
         self.extravars["workload"] = workload
         self.extravars["max_radius"] = radius
         self.extravars["density"] = density
+        self.extravars["seed"] = seed
 
-        # also setting up world spawn
+        # setting up world spawn
         world_spawn  = get_world_spawn(self.extravars["world_name"])
-        self.extravars["spawn_x"] = world_spawn.x
         self.extravars["spawn_y"] = world_spawn.y
-        self.extravars["spawn_z"] = world_spawn.z
+        # first check if spawn locations have been given
+
+        if len(spawn) == 0:
+            self.extravars["spawn_x"] = world_spawn.x
+            self.extravars["spawn_z"] = world_spawn.z
+        else:
+            self.extravars.pop("spawn_x", None)
+            self.extravars.pop("spawn_y", None)
+            self._setup_spawn_for_each_bot_node(spawn)
 
 
     

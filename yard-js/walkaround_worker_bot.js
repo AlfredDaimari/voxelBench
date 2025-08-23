@@ -6,6 +6,7 @@ const { workerData, parentPort } = require("worker_threads");
 const utils = require("./utils");
 const { createWinstonLogger } = require("./logger");
 const { setTimeout } = require("timers/promises");
+const Rand = require("rand-seed");
 
 async function reconnect() {
   console.log(`bot disconnect: ${workerData.username} - connecting again`);
@@ -17,6 +18,8 @@ const logger = createWinstonLogger(workerData.username);
 const plugins = {
   walk,
 };
+const seed = process.env.SEED || "0";
+const rand = new Rand.default(seed);
 
 /**
  * Get walking position with intermediate steps
@@ -25,7 +28,7 @@ const plugins = {
  * @returns {GoalNearXZ} list intermediate walking positions
  */
 function nextGoal(currentX, currentZ, direction) {
-  const [x, z] = utils.getRandomXZinDirection(8, direction);
+  const [x, z] = utils.getRandomXZinDirection(8, direction, rand);
   /*
   let ts = Date.now() / 1000;
   console.log(

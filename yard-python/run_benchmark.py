@@ -14,6 +14,7 @@ from pyfiglet import Figlet
 import subprocess
 import toml
 import shutil
+import random
 
 if __name__ == "__main__":
     # node setup
@@ -35,6 +36,19 @@ if __name__ == "__main__":
     mob = config["benchmark"]["pve_mob"]
     cpu:int = config["worker"]["cpu"]
     worker_total:int = config["worker"]["total"]
+    seed: str = config["benchmark"]["seed"]
+    spawn: list[str] = config["benchmark"]["spawn"]
+
+    # create new seed if seed is None
+    if seed == 'None':
+        print("VoxelBench: No seed found. Creating random seed.")
+        seed = str(random.randint(10**7,10**8-1))
+        print(f"VoxelBench: Setting seed as {seed}")
+
+    if len(spawn) == 0:
+        print("VoxelBench: No spawn locations found, running spawn from origin workload")
+    else:
+        print("VoxelBench: Spawn locations found, running clustered spawn workloads")
 
     world_path = Path(__file__).parent.parent / f"worlds/{world}.zip"
     fig_writer = Figlet(font="banner3")
@@ -91,6 +105,7 @@ if __name__ == "__main__":
                 "density": density,
                 "radius": radius,
                 "mob": mob,
+                "seed": seed
             },
             f,
         )
@@ -101,7 +116,7 @@ if __name__ == "__main__":
     # setup experiment
     wl.bots_per_node = player_count
     wl.bots_join_delay = timedelta(seconds=joinDelaySecs)
-    wl.setup_new_experiment(player_model, radius, density)
+    wl.setup_new_experiment(player_model, radius, density, seed)
     # start running telegraph
     telegraf.start()
     # start pdist monitoring

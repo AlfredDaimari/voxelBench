@@ -1,26 +1,28 @@
 # settings for vagrant setup
 [master]
-memory=2048
-cpu=1
+memory=1024
+cpu=2
 
 [worker]
 memory=4096
-cpu=2
+cpu=1
 total=1
 
 [bot]
-memory=4096
+memory=2048
 cpu=1
 total=1
 
 # settings for python benchmark
 [benchmark]
 world='CastleLividus'
-playerModel='build'
-density=1
-radius=500
+playerModel='walk'
+density=5
+radius=10
 # REDSTONE=['world 1', 'world 2']
-players=5 # this is per node
+players=10 # this is per node
 pve_mob='polar_bear' # will result into ['zombie', 'polar_bear']
 # total duration of benchmark = 30 secs + (joinDelaySecs * playerCount/bot_total) + 3 minute
 joinDelaySecs=5
+seed='None'
+spawn=["100:220"]

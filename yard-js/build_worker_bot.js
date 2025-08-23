@@ -20,6 +20,9 @@ const logger = createWinstonLogger(workerData.username);
 const plugins = {
   pBuildModel,
 };
+const seed = process.env.SEED || "0";
+const rand = new Rand.default(seed);
+
 /**
  * Video Recording function
  * video will be saved in the videos directory in project root
@@ -46,8 +49,8 @@ function recordBotInFirstPerson(bot, _) {
  * @returns {GoalXZ} next walking position
  */
 function nextGoal(currentX, currentZ) {
-  let x = currentX + utils.getRandomIntInterval(25);
-  let z = currentZ + utils.getRandomIntInterval(25);
+  let x = currentX + utils.getRandomIntInterval(25, rand);
+  let z = currentZ + utils.getRandomIntInterval(25, rand);
   /*
   let ts = Date.now() / 1000;
   console.log(

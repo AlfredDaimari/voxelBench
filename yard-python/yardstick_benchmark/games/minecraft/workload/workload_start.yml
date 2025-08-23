@@ -19,6 +19,7 @@
     WORKLOAD: "{{workload}}"
     WORLDNAME: "{{world_name}}"
     PVE_MOB: "{{mob}}"
+    SEED: "{{seed}}"
   tasks:
     - name: Set game spawn location
       shell: source ~/.nvm/nvm.sh && node set_spawn.js

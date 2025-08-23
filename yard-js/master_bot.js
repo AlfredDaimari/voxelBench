@@ -51,7 +51,7 @@ function start_worker(username) {
     mob,
   };
 
-  const spawnPointInd = utils.getRandomInt(teleportLocs.length);
+  const spawnPointInd = utils.getRandomIntSeeded(teleportLocs.length);
   const teleportLoc = teleportLocs[spawnPointInd];
   const teleportLocKey = JSON.stringify(teleportLoc);
 

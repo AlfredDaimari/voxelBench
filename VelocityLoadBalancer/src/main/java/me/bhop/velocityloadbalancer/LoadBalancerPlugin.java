@@ -44,7 +44,22 @@ public class LoadBalancerPlugin {
 
     @Subscribe(order = PostOrder.LAST)
     public void onPlayerChooseInitialServer(PlayerChooseInitialServerEvent event) {
-        // first print out the players each server has (to ensure it is working correctly)
+
+        Optional<RegisteredServer> target; 
+        String username = event.getPlayer().getUsername();
+        Integer nb = this.extractNumberBetweenNandB(username);
+
+        if (nb != null){
+          String targetName = "vm" + (nb + 2);
+          target = proxyServer.getAllServers().stream()
+            .filter(s -> s.getServerInfo().getName().equalsIgnoreCase(targetName))
+            .findFirst();
+        } else {
+          // now this is the fallback option
+          target = proxyServer.getAllServers().stream()
+            .min(Comparator.comparingInt(s -> s.getPlayersConnected().size()));
+        }
+
         proxyServer.getAllServers().forEach(server -> {
             String name = server.getServerInfo().getName();
             int count = server.getPlayersConnected().size();
@@ -57,9 +72,6 @@ public class LoadBalancerPlugin {
           logger.info("Velocity chosen server was {}", initialServer.getServerInfo().getName());
         }
 
-        Optional<RegisteredServer> target = proxyServer.getAllServers().stream()
-            .min(Comparator.comparingInt(s -> s.getPlayersConnected().size()));
-
         if (target.isEmpty()) {
             logger.warn("No valid lobby servers detected for player '{}'. Using default server.", event.getPlayer().getUsername());
             return;
@@ -69,5 +81,28 @@ public class LoadBalancerPlugin {
         event.setInitialServer(chosen);
         logger.info("Player '{}' assigned to server '{}'.", event.getPlayer().getUsername(), chosen.getServerInfo().getName()); 
       }
+
+    private Integer extractNumberBetweenNandB(String user){
+      int n = user.indexOf('N');
+      if (n < 0){
+        logger.warn("Something went wrong with the player's Username. No N loc found!");
+        return null;
+      }
+
+      int b = user.indexOf('B', n+1);
+      if (b < 0 || b == n + 1){
+        logger.warn("Something went wrong with the player's Username. No B loc found!");
+        return null;
+      }
+
+      String bot_num = user.substring(n+1, b);
+
+      try {
+        return Integer.parseInt(bot_num);
+      } catch (NumberFormatException e){
+        return null;
+      }
+
+    }
 }
 

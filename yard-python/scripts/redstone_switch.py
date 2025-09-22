@@ -10,29 +10,25 @@ WORLD_PATH = str(Path(__file__).parent.parent.parent / "worlds/RedstoneMountainV
 
 # Blocks and their powered blockstates to set
 POWERED_BLOCKS = {
-    'universal_minecraft:lever': {'powered': StringTag('true')},
-    'universal_minecraft:stone_button': {'powered': StringTag('true')},
-    'universal_minecraft:wooden_button': {'powered': StringTag('true')},
-    'universal_minecraft:tripwire_hook': {'powered': StringTag('true')},
-
-    'universal_minecraft:redstone_torch': {'lit': StringTag('true')},
-    'universal_minecraft:redstone_wall_torch': {'lit': StringTag('true')},
-    'universal_minecraft:redstone_block': {},  # always powered by default
-
-    'universal_minecraft:redstone_wire': {'power': StringTag('15')},
-
-    'universal_minecraft:repeater': {'powered': StringTag('true')},
-    'universal_minecraft:comparator': {'powered': StringTag('true')},
-
-    'universal_minecraft:daylight_detector': {'powered': StringTag('true')},
-    'universal_minecraft:daylight_detector_inverted': {'powered': StringTag('true')},
-
-    'universal_minecraft:powered_rail': {'powered': StringTag('true')},
-    'universal_minecraft:activator_rail': {'powered': StringTag('true')},
+    "universal_minecraft:lever": {"powered": StringTag("true")},
+    "universal_minecraft:stone_button": {"powered": StringTag("true")},
+    "universal_minecraft:wooden_button": {"powered": StringTag("true")},
+    "universal_minecraft:tripwire_hook": {"powered": StringTag("true")},
+    "universal_minecraft:redstone_torch": {"lit": StringTag("true")},
+    "universal_minecraft:redstone_wall_torch": {"lit": StringTag("true")},
+    "universal_minecraft:redstone_block": {},  # always powered by default
+    "universal_minecraft:redstone_wire": {"power": StringTag("15")},
+    "universal_minecraft:repeater": {"powered": StringTag("true")},
+    "universal_minecraft:comparator": {"powered": StringTag("true")},
+    "universal_minecraft:daylight_detector": {"powered": StringTag("true")},
+    "universal_minecraft:daylight_detector_inverted": {"powered": StringTag("true")},
+    "universal_minecraft:powered_rail": {"powered": StringTag("true")},
+    "universal_minecraft:activator_rail": {"powered": StringTag("true")},
 }
 
+
 def process_chunk(level, chunk_coords):
-    chunk = level.get_chunk(*chunk_coords, 'minecraft:overworld')
+    chunk = level.get_chunk(*chunk_coords, "minecraft:overworld")
     if not chunk:
         return
 
@@ -50,20 +46,21 @@ def process_chunk(level, chunk_coords):
                     new_blockstate.update(new_state)
 
                     # Set the block with updated powered states
-                    namespace = block_name.split(':')[0]
-                    base_name = block_name.split(':')[1]
+                    namespace = block_name.split(":")[0]
+                    base_name = block_name.split(":")[1]
                     new_block = Block(namespace, base_name, new_blockstate)
                     chunk.set_block(x, y, z, new_block)
 
     # Save changes to the chunk back into the level
-    level.put_chunk(chunk, 'minecraft:overworld')
+    level.put_chunk(chunk, "minecraft:overworld")
+
 
 def main():
     print(f"Loading world from {WORLD_PATH}...")
     level = load_level(WORLD_PATH)
     print("World loaded.")
 
-    chunk_coords_list = list(level.all_chunk_coords('minecraft:overworld'))
+    chunk_coords_list = list(level.all_chunk_coords("minecraft:overworld"))
 
     print(f"Processing {len(chunk_coords_list)} chunks...")
     for i in tqdm(range(len(chunk_coords_list))):
@@ -74,6 +71,6 @@ def main():
     level.save()
     print("Done!")
 
+
 if __name__ == "__main__":
     main()
-

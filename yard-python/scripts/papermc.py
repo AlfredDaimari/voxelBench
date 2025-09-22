@@ -26,14 +26,13 @@ def deploy_paper():
     paper.deploy()
     paper.start()
 
+
 def start_paper_telegraf():
     telegraf.add_input_jolokia_agent(master_node[0])
     telegraf.add_input_execd_minecraft_ticks(master_node[0])
     telegraf.deploy()
     telegraf.start()
 
+
 def stop_paper_telegraf():
     telegraf.stop()
-
-
-

@@ -1,5 +1,5 @@
 
-# Yardstick Gaming Benchmark
+# VoxelBench Gaming Benchmark
 
-Yardstick is a benchmark for Modifiable Virtual Environments (MVEs).
+VoxelBench is a benchmark for distributed Modifiable Virtual Environments (MVEs).
 Learn how to benchmark your MVE by reading the [tutorial](docs/tutorial.md).

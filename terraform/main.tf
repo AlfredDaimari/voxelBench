@@ -21,7 +21,7 @@ variable "region" {
 
 resource "google_compute_instance" "voxelBench" {
   name         = "bench-vm"
-  machine_type = "n4-highmem-80"
+  machine_type = "n4-standard-4"
   zone         = "${var.region}-c"
 
   advanced_machine_features {
